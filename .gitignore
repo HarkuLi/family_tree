@@ -1,0 +1,9 @@
+# node module
+node_modules/
+
+# reference packages
+reference/
+
+# hidden files
+.DS_Store
+

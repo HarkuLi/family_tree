@@ -1,0 +1,8 @@
+FROM node:6
+
+RUN npm i -g nodemon
+
+WORKDIR /opt/app
+EXPOSE 10010
+
+CMD ["nodemon", "/opt/app/app.js"]
