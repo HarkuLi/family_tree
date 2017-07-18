@@ -17,20 +17,21 @@
   "main": "app.js",
   "dependencies": {
     "express": "^4.15.3",
-    "swagger-express-mw": "^0.1.0"
+    "jquery": "^3.2.1",
+    "jsdom": "^11.1.0"
   },
   "devDependencies": {
     "ejs": "^2.5.6",
-    "treant-js": "^1.0.1",
+    "mocha": "^3.4.2",
+    "nodemon": "^1.11.0",
     "should": "^7.1.0",
-    "supertest": "^1.0.0",
-    "mocha": "^3.4.2"
+    "treant-js": "^1.0.1"
   },
   "scripts": {
-    "start": "swagger project start",
+    "start": "nodemon server.js",
     "start-dev-docker": "docker run -it --rm -v $(pwd):/opt/app -p 10010:10010 family-tree",
     "start-docker": "docker run -it --rm -p 10010:10010 family-tree",
-    "test": "swagger project test",
+    "test": "mocha family-tree",
     "build": "docker build -t family_tree .",
     "build-dev": "docker build -t family-tree-dev -f dockerfiles/dev .",
     "build-staging": "docker build -t family-tree-staging -f dockerfiles/staging ."

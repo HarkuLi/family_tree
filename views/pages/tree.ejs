@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- stylesheets -->
+        <link rel="stylesheet" href="css/Treant.css" type="text/css"/>
+    </head>
+    <body>
+    <p>Tree is here</p>
+    <div id="tree" style="width:335px; height: 160px"></div>
+
+    <!-- javascript -->
+    <script>
+        var data = <%- data %>;
+        console.log(data);
+    </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>    
+    <script src="js/vendor/raphael.js"></script>
+    <script src="js/Treant.js"></script>
+    <script src="js/tree.js"></script>
+    </body>
+</html>

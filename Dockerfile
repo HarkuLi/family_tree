@@ -10,4 +10,4 @@ RUN npm i --silent
 EXPOSE 10010
 USER app
 
-CMD ["node", "/opt/app/app.js"]
+CMD ["node", "/opt/app/server.js"]
