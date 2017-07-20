@@ -1,12 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title></title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="css/style.css" rel="stylesheet">
-    </head>
-    <body>
-    <p>Hello World!</p>
-    </body>
+  <head>
+    <%- include('../partials/head') %>
+    <title>Family Tree</title>
+  </head>
+
+  <body>
+    <!-- navigator -->
+    <%- include('../partials/navigator') %>
+    <!-- header -->
+    <%- include('../partials/header') %>
+
+    <!-- main content -->
+    <div class="container">
+      <!-- introduction column -->
+      <div class="row">
+        <div class="col-md-4">
+          <h2>Feature</h2>
+          <p>test</p>
+          <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+        </div>
+        <div class="col-md-4">
+          <h2>Feature</h2>
+          <p>test</p>
+          <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+       </div>
+        <div class="col-md-4">
+          <h2>Feature</h2>
+          <p>test</p>
+          <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+        </div>
+      </div>
+      <hr>
+      <!-- footer -->
+      <%- include('../partials/footer') %>
+    </div> <!-- /container -->
+    <%- include('../partials/mask/cover') %>
+    <!-- global scripts -->
+    <%- include('../partials/globalScripts') %>
+  </body>
 </html>
