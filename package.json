@@ -19,7 +19,8 @@
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
     "jquery": "^3.2.1",
-    "jsdom": "^11.1.0"
+    "jsdom": "^11.1.0",
+    "request": "^2.81.0"
   },
   "devDependencies": {
     "ejs": "^2.5.6",

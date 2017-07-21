@@ -1,10 +1,10 @@
 /* Loading EJS Template */
-function loadTemplate(route){
+function loadTemplate(route, data={}){
   return new Promise((resolve, reject) => {
     if(!route) reject(console.log("No Route Determinate."));
 
     // get template
-    $.get(window.location.origin+route, {}, (template, status) => {
+    $.get(window.location.origin+route, data, (template, status) => {
       if(status === "error"){
         console.log({data, status});
         reject(console.log("Failed to Load Content."));
@@ -17,72 +17,82 @@ function loadTemplate(route){
 }
 
 // switch to signin or signup
-function switchSignTo(e, type){
+function switchSignTo(e){
+  $("form").submit((sub) => sub.preventDefault());
   e.stopPropagation();
   e.preventDefault();
 
-  switch(type){
-    case "signin":  
-      let target = "signin";
-      let origin = "signup"; 
-      break;
-    case "signup":  
-      let target = "signup";
-      let origin = "signin"; 
-      break;
-    default:  
-      return console.log("unknow switch type.");
-  }
+  $("#async-load").removeClass("hidden");
+  $("#popup-content").html("");
 
-  loadTemplate("/mask/load")
-    .then((render) => $("#popup-content").html(render()))
-    .then(() => loadTemplate(`/mask/${target}`))
-    .then((render) => $("#popup-content").html(render()))
-    .then(() => {})
+  let typeSet = {signin: "signin", signup: "signup"};
+  if(!e.data.dest || !e.data.from) return console.log("switch input invalid.");
+  if( !(e.data.dest in typeSet) || !(e.data.from in typeSet) ) return console.log("unknow switch type.");
+  
+
+  loadTemplate(`/mask/${e.data.dest}`)
+    .then((render) => {
+      $("#async-load").addClass("hidden");
+      $("#popup-content").html(render());
+    })
+    .then(() => {
+      // bind event: click
+      $("#switch-"+e.data.from).on("click", { dest: e.data.from, from: e.data.dest }, switchSignTo);
+    })
     .catch((err) => console.log(err));
-
-    // bind event: click
-    $("#switch-"+origin).on("click", switchSignTo(e, origin));
 }
 
 // mask show, signin show
 $("#sign").click(() => {
+  $("#popup-content").html("");
+  $(".mask").removeClass('hidden');
+  $(".wrapper").removeClass('hidden');
+  $("#async-load").removeClass('hidden');
+
   loadTemplate("/mask/signin")
-    .then((render) => $("#popup-content").html(render()))
+    .then((render) => {
+      $("#async-load").addClass("hidden");
+      $("#popup-content").html(render());
+    })
     .then(() => {
       // bind event: switch to signup
-      $("#switch-signup").on("click", switchSignTo);
-    
-      $(".mask").removeClass('hidden');
-      $(".wrapper").removeClass('hidden');
+      $("#switch-signup").on("click", { dest: "signup", from: "signin" }, switchSignTo);
     }).catch((err) => console.log(err));
 });
 
-// mask hide
+// mask hide when click close
 $(".close").click(() => {
   $(".mask").addClass('hidden');
   $(".wrapper").addClass('hidden');
-  loadTemplate("/mask/load")
-    .then((render) => $("#popup-content").html(render()))
-    .catch((err) => console.log(err));
+  $("#async-load").addClass("hidden");
+  $("#popup-content").html("");
 });
 
 // get QR Code
 $("#get-qrcode").click((e) => {
+  let test_fgid = '6a736e667061693132396664';
+
   // cancel a event bubling
   e.stopPropagation();
   e.preventDefault();
 
-  loadTemplate("/mask/qrcode")
-    .then((render) => $("#popup-content").html(render()))
-    .then(() => {
+  $("#popup-content").html("");
+  $(".mask").removeClass('hidden');
+  $(".wrapper").removeClass('hidden');
+  $("#async-load").removeClass('hidden');
+
+  loadTemplate("/mask/qrcode", { fgid: test_fgid })
+    .then((render) => {
+      $("#async-load").addClass('hidden');
+      $("#popup-content").html(render());
+    })
+    .then(() => 
       // bind event: copy short url
       $("#copy-url").on("click", () => {
+        $("#short-url").select();
+        document.execCommand("copy");
         $("#copy-url button").html("Copied");
         $(".info-text").html("Copied to Clipboard!");
-      });
-      $(".mask").removeClass('hidden');
-      $(".wrapper").removeClass('hidden');
-    }).catch((err) => console.log(err));
+      })
+    ).catch((err) => console.log(err));
 });
-

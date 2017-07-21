@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../partials/head') %>
+    <title>Family Tree</title>
+  </head>
+
+  <body>
+    <!-- navigator -->
+    <%- include('../partials/navigator') %>
+
+    <!-- main content -->
+    <div class="container">
+      <div class="row text-center">
+        <h1>Error: <%= code %></h1>
+        <h4>
+          We are sorry for error happening.<br>
+          Please try it later or contact us.
+        </h4>
+        <p><a class="btn btn-primary" href="#" role="button">Go Previous</a></p>
+      </div>
+      <hr>
+      <!-- footer -->
+      <%- include('../partials/footer') %>
+    </div> <!-- /container -->
+    <%- include('../partials/mask/cover') %>
+    <!-- global scripts -->
+    <%- include('../partials/globalScripts') %>
+  </body>
+</html>
