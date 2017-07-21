@@ -44,7 +44,19 @@ app.get('/mask/:page', function (req, res) {
   res.render(path, { client: true });
 });
 
+// 404
+app.use(function(req,res){
+	res.status(404).render('partials/error404.ejs');
+});
+
+// 505
+app.use(function(err,req,res,next){
+	console.log(err.stack);
+	res.status(500).render('partials/error505.ejs');
+});
+
 app.listen(10010, function (err) {
   if(err) console.log(err);
   console.log('Server is listening on port 10010!');
 });
+

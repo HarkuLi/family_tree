@@ -25,12 +25,38 @@
     min-width: 300px;
     background-color: #232323;
     padding: 20px 25px 30px 25px;
+    border: 1px solid;
+    border-color: #080808;
+    border-radius: 12px;
 }
 .form-btn-row{
     margin-top: 10px;
 }
 .form-btn-row div{
     padding: 0;
+}
+
+/* set sign up min width */
+.form-signup{
+    min-width: 500px;
+}
+
+/* customize font */
+.text-lg{
+    font-size: 18px;
+}
+
+/* for info window */
+.info-icon{
+    max-width: 150px;
+    margin: 10px auto;
+}
+.info-content{
+    max-width: 400px;
+    white-space: normal;
+}
+.info-text{
+    margin: 10px 0;
 }
 
 /* customize close tag */
@@ -42,3 +68,4 @@
     color: #fff;
     opacity: 0.7;
 }
+
