@@ -6,7 +6,16 @@ const request = require('request');
 const MailGroupAPI = express.Router();
 
 // [v] 顯示一個mail group區塊 for 拉到底自動載入
-MailGroupAPI.get('/:mgid', (req, res) => {});
+MailGroupAPI.get('/:mgid', (req, res) => {
+  // check login status
+
+  // check privilege
+
+  // get data from db
+
+  // render
+  res.render('pages/fg.ejs', { page: "mailgroup" });
+});
 
 // [v][fn] 新增、修改mail group
 MailGroupAPI.route('/edit/:mgid')

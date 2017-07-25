@@ -1,0 +1,36 @@
+          <div class="page-header">
+            <h1 class="text-center">Mail Groups</h1>
+          </div>
+          <div class="btn-group pull-right" role="group" aria-label="write mail">
+            <button type="button" class="btn btn-primary">New Mail Group</button>
+          </div>
+          <!--  group 1 -->
+          <h3>Group 1
+            <a href="#" class="icon-tool-btn"><i class="fa fa-plus" title="Add Email Address to This Group"></i></a>
+            <a href="#" class="icon-tool-btn"><i class="fa fa-pencil" title="Modify Group Default Setting"></i></a>
+            <a href="#" class="icon-tool-btn"><i class="fa fa-trash" title="Delete This Group"></i></a>
+          </h3>
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email Address</th>
+                <th>Added Time</th>
+                <th>Added By</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% for(let i = 1; i <= 20; i++){ %>
+                <tr>
+                  <td><%= i %></td>
+                  <td>Arthor <%= i %></td>
+                  <td>test<%= i %>@mail.com</td>
+                  <td>2017-10-10 20:21:23</td>
+                  <td>Angus Chen</td>
+                  <td><a href="#" class="icon-tool-btn"><i class="fa fa-trash" title="Remove from This Group"></i></a></td>
+                </tr>  
+              <% } %>
+            </tbody>
+          </table><!-- / group 1 -->

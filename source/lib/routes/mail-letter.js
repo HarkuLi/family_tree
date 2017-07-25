@@ -2,10 +2,19 @@
 
 const express = require('express');
 const request = require('request');
-const MailLetterAPI = express.Router();
+const MailLetterAPI = express.Router();  //  /fg/:fgid/mail/ml  
 
 // [v] 顯示所有信件列表的頁面（信件、草稿）
-MailLetterAPI.get('/', (req, res) => {});
+MailLetterAPI.get('/', (req, res) => {
+  // check login status
+
+  // check privilege
+
+  // get data from db
+
+  // render
+  res.render('pages/fg.ejs', { page: "mailletter" });
+});
 
 // [fn] 查詢所有信件 (也許可以用filter篩選）
 MailLetterAPI.get('/sl', (req, res) => {  

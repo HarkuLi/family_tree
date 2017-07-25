@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../partials/head') %>
+    <title>Family Group</title>
+  </head>
+  <body>
+    <!-- navigator -->
+    <%- include('../partials/navigator') %>
+    
+    <!-- main content -->
+    <div class="container center-block">
+      
+      <div class="row">
+        <!-- icon sidebar -->
+        <div class="icon-bar-wrapper col-md-1">
+          <div class="icon-bar">
+            <a href="#"><i class="fa fa-paragraph"></i></a>
+            <a href="#"><i class="glyphicon glyphicon-picture"></i></a>
+            <a href="#"><i class="fa fa-envelope"></i></a>
+            <a href="#"><i class="glyphicon glyphicon-comment"></i></a>
+            <a href="#"><i class="fa fa-group"></i></a>
+            <a href="#"><i class="fa fa-file-archive-o"></i></a>
+          </div>
+        </div><!-- / icon sidebar -->
+        <div class="col-md-11 col-md-offset-1">
+          <!-- right column for main content -->
+          <% if(page){ %> 
+          <%=  '../partials/fg/'+page  %>
+          <%-   include('../partials/fg/'+page);  %>
+          <% }else{  %>
+          <%=  "Family Group Home"  %>
+          <% } %> 
+        </div>
+      </div>
+      <hr>
+      <!-- footer -->
+      <%- include('../partials/footer') %>
+    </div> <!-- /container -->
+    <%- include('../partials/mask/cover') %>
+    <!-- global scripts -->
+    <%- include('../partials/globalScripts') %>
+  </body>
+</html>

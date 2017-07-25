@@ -1,0 +1,57 @@
+          <div class="page-header">
+            <h1 class="text-center">Mail Letters</h1>
+          </div>
+          <!-- tool bar -->
+          <ul class="nav nav-pills pull-left" role="tablist">
+            <li role="presentation" class="active"><a href="#">All</a></li>
+            <li role="presentation"><a href="#">Draft</a></li>
+          </ul>
+          
+          <div class="btn-group pull-right" role="group" aria-label="write mail">
+            <button type="button" class="btn btn-default">New Mail</button>
+          </div>
+          <!--  Mail List -->
+          <table class="table table-hover table-bordered">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Time</th>
+                <th>Topic</th>
+                <th>Arthor</th>
+                <th>Status</th>
+                <th>Tags</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% for(let i = 20; i > 0; --i){ %>
+                <tr>
+                  <td><%= i %></td>
+                  <td>2017-07-23 10:10:10</td>
+                  <td>Test Topic <%= i %></td>
+                  <td>Arthor <%= i %></td>
+                  <td>success</td>
+                  <td></td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table><!-- / Mail List -->
+          <!-- pagination -->
+          <nav aria-label="Page navigation" class="text-center">
+            <ul class="pagination">
+              <li>
+                <a href="#" aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+              <li><a href="#">1</a></li>
+              <li><a href="#">2</a></li>
+              <li><a href="#">3</a></li>
+              <li><a href="#">4</a></li>
+              <li><a href="#">5</a></li>
+              <li>
+                <a href="#" aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+            </ul>
+          </nav><!-- / pagination -->

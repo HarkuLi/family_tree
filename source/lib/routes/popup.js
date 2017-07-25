@@ -7,7 +7,7 @@ const request = require('request');
 const PopupWindowAPI = express.Router();
 
 // QR Code
-PopupWindowAPI.get('/mask/qrcode', (req, res) => {
+PopupWindowAPI.get('/qrcode', (req, res) => {
   let fgid = req.query.fgid;
   let qrcodeUrl = config.qrcodeAPI + config.domain + "/fg" + fgid;
   let shortUrl = '';
@@ -42,7 +42,7 @@ PopupWindowAPI.get('/mask/qrcode', (req, res) => {
 });
 
 // popup window (signin, signup, detail)
-PopupWindowAPI.get('/mask/:page', (req, res) => {
+PopupWindowAPI.get('/:page', (req, res) => {
   let path = 'partials/mask/mask-error.ejs';
   console.log(req.params);
   switch(req.params.page){

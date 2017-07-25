@@ -69,3 +69,44 @@
     opacity: 0.7;
 }
 
+/* for icon bar */
+.icon-bar-wrapper{
+    position: fixed;
+    display: flex;
+    height: 100%;
+    align-items：center;
+    align-content: center;
+}
+.icon-bar{
+    width: 60px;
+    height: 372px;
+    margin: auto;
+    background: #333;
+    display: inline;
+}
+.icon-bar a{
+    display: block;
+    text-align: center;
+    font-size: 30px;
+    color: #fff;
+    padding: 10px;
+}
+.icon-bar a:hover{
+    background: #000;
+}
+.test-center{
+    height: 2000px;
+}
+
+
+/* for mail tool-bar */
+.icon-tool-btn{
+    font-size: 20px;
+    color: #000;
+    display: inline;
+}
+
+/* for table row a link */
+.row-link{
+    display: block;
+}

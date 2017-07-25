@@ -7,7 +7,7 @@ const FamilyGroupAPI = express.Router();
 // [v] family group index
 FamilyGroupAPI.get('/', (req, res) => {
   let fgUrl = req.url;
-  res.render('pages/fg-dashboard.ejs', { client: true, fgUrl: fgUrl });
+  res.render('pages/fg', { page: null });
 });
 
 // [fn] 查詢family group所有人的email清單
