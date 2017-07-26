@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const request = require('request');
 const path = require('path');
 const dbop_user = require("../lib/controllers/dbop_user");
+const dbop_tree = require("../lib/controllers/dbop_tree");
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.post("/signup_action", (req, res)=>{
   var name = req.body.name;
   var usr = req.body.usr;
   var pw = req.body.pw;
+  var rst;
 
   if(name && usr && pw){
     dbop_user.getUserByName(usr)
@@ -35,7 +37,12 @@ app.post("/signup_action", (req, res)=>{
           pw
         });
       })
-      .then((rst)=>{
+      .then((new_user_rst)=>{
+        rst = new_user_rst;
+        if(new_user_rst)  return dbop_tree.newFamily({name, usr});
+        return 0;
+      })
+      .then(()=>{
         res.json({rst});
       });
   }
