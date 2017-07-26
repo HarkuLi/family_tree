@@ -1,3 +1,9 @@
+$(document).ready(() => {
+  initSummerNote();
+  initDateTimePicker();
+});
+
+
 /* Loading EJS Template */
 function loadTemplate(route, data={}){
   return new Promise((resolve, reject) => {
@@ -15,6 +21,38 @@ function loadTemplate(route, data={}){
     }, "html");
   });
 }
+
+/* initialize summernote editor */
+function initSummerNote(){
+  $('#summernote').summernote({
+    minHeight: 270,             // set minimum height of editor
+    maxHeight: null,             // set maximum height of editor
+    focus: false,                  // set focus to editable area after initializing summernote
+    dialogsInBody: true
+  });
+}
+
+/* initialize datepicler */
+function initDateTimePicker(){
+  $('#datetimepicker').datetimepicker({
+    format: "yyyy-mm-dd hh:ii",
+      autoclose: true,
+      clearBtn: true,
+      minuteStep: 10
+  });
+
+}
+
+// switch to display auto send time field
+$('#myonoffswitch').change(function() {
+  if(this.checked){
+    $('#autoSendField').removeClass('hidden');
+  }else{
+    $('#autoSendField').addClass('hidden');
+    $('#datetimepicker').val('');
+  }
+});
+
 
 // switch to signin or signup
 function switchSignTo(e){
@@ -41,6 +79,8 @@ function switchSignTo(e){
     })
     .catch((err) => console.log(err));
 }
+
+/* EVENT BLOCKS */
 
 // mask show, signin show
 $("#sign").click(() => {
@@ -96,3 +136,50 @@ $("#get-qrcode").click((e) => {
       })
     ).catch((err) => console.log(err));
 });
+
+// for save and send mail
+$('#putMail').click((e) => {
+  
+
+  let getFormData = function(){
+    var Def = new $.Deferred();
+    $("form").submit((sub) => {
+      sub.preventDefault();
+      sub.stopPropagation();
+      let sendData = $("form").serializeArray();
+      console.log(sendData);
+      (sendData.length > 0) ? Def.resolve(sendData) : Def.reject(sendData);
+    });
+    return Def.promise();
+  };
+
+  console.log(getFormData);
+
+  getFormData
+    .then((sendData) => {
+      let fgUrl = $("[name='fgUrl']").val();
+      let mid = $("[name='mid").val() || null;
+      let sendUrl = window.location.origin + fgUrl + '/edit/';
+      (mid) ? sendUrl += mid : null;
+
+      if(!fgUrl) return Promise.reject("cannot find fgUrl");
+      return Promise.resolve({ sendData, sendUrl });
+    })
+    .then((obj) => {
+      $.ajax({
+        url: obj.sendUrl,
+        type: 'PUT',
+        data: JSON.stringify(obj.sendData),
+        dataType: 'json',
+        success: (status, response) => {
+          alert('Send mail success!');
+          console.log(response);
+        },
+        error: (xhr, status, error) => {
+          alert('send mail error!');
+          return Promise.reject(error);
+        }
+      });
+    })
+    .catch((err) => console.log(err));
+})

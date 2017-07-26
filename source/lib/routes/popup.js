@@ -3,6 +3,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const request = require('request');
+const validate = require('../controllers/validate')
+const config = require('../../config/default')
 
 const PopupWindowAPI = express.Router();
 
@@ -13,12 +15,8 @@ PopupWindowAPI.get('/qrcode', (req, res) => {
   let shortUrl = '';
 
   try{
-    // check fid format (12 bytes, hex, length = 12 x 2 = 24) 
-    const regHex = /[a-fA-F\d]+\b/g;
-    if(!fgid){ throw Error("Empty FamilyGroupID Input"); }
-    if(!regHex.test(fgid)){ throw Error("Invalid FamilyGroupID Format"); }
-    if((fgid.length % 2) !== 0){ throw Error("illegal hex string with odd length"); }
-    if(fgid.length !== 24){ throw Error("illegal hex string length, must be 12 bytes"); }
+    // check fgid format
+    if(!validate.checkIDFormat(fgid)) throw Error('FamilyGroup ID Validate Fail.');
 
     // shorten url
     request(config.googleShortenUrlAPI + config.googleAPIKey, {

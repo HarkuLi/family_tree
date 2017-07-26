@@ -3,18 +3,21 @@
           </div>
           <!-- tool bar -->
           <ul class="nav nav-pills pull-left" role="tablist">
-            <li role="presentation" class="active"><a href="#">All</a></li>
-            <li role="presentation"><a href="#">Draft</a></li>
+            <li role="presentation" class="active"><a href=<%= fgUrl+'/mail/ml/all' %>>All</a></li>
+            <li role="presentation"><a href=<%= fgUrl+'/mail/ml/draft' %>>Draft</a></li>
           </ul>
-          
+          <ul class="nav nav-pills pull-right" role="tablist">
+            <li role="presentation"><a href=<%= fgUrl+'/mail/ml/edit/' %>>New Mail</a></li>
+          </ul>
+          <!--
           <div class="btn-group pull-right" role="group" aria-label="write mail">
             <button type="button" class="btn btn-default">New Mail</button>
-          </div>
+          </div>-->
           <!--  Mail List -->
           <table class="table table-hover table-bordered">
             <thead>
               <tr>
-                <th>#</th>
+                <th class="text-center">#</th>
                 <th>Time</th>
                 <th>Topic</th>
                 <th>Arthor</th>
@@ -23,14 +26,20 @@
               </tr>
             </thead>
             <tbody>
-              <% for(let i = 20; i > 0; --i){ %>
+              <% for(let i = list.length-1; i >= 0; --i){ %>
                 <tr>
-                  <td><%= i %></td>
-                  <td>2017-07-23 10:10:10</td>
-                  <td>Test Topic <%= i %></td>
-                  <td>Arthor <%= i %></td>
-                  <td>success</td>
-                  <td></td>
+                  <td class="text-center"><%= i %></td>
+                  <td><%= list[i].createTime %></td>
+                  <td><%= list[i].subject %></td>
+                  <td><%= list[i].from %></td>
+                  <td><%= list[i].status %></td>
+                  <td>
+                    <% if(list[i].tags.length > 0){ %>
+                      <% list[i].tags.forEach((tag) => { %>
+                        <span class="label label-info"><%= tag %></span>
+                      <% }); %>
+                    <% } %>
+                  </td>
                 </tr>
               <% } %>
             </tbody>
@@ -46,8 +55,6 @@
               <li><a href="#">1</a></li>
               <li><a href="#">2</a></li>
               <li><a href="#">3</a></li>
-              <li><a href="#">4</a></li>
-              <li><a href="#">5</a></li>
               <li>
                 <a href="#" aria-label="Next">
                   <span aria-hidden="true">&raquo;</span>
