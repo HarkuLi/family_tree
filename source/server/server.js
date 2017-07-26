@@ -3,6 +3,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const request = require('request');
+const path = require('path');
 const app = express();
 
 /*  config  */
@@ -10,7 +11,7 @@ const config = require('../config/default');
 
 app.set('view engine', 'ejs');
 app.set('views', './views')        // set views folder
-app.use(express.static('public'))  // set static files folder
+app.use(express.static(path.resolve(__dirname, "../../public")))  // set static files folder
 app.use(bodyParser.json());        // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 

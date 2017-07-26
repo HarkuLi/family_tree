@@ -16,23 +16,26 @@
   "homepage": "https://github.com/HarkuLi/family_tree#readme",
   "main": "app.js",
   "dependencies": {
+    "bcrypt": "^1.0.2",
     "body-parser": "^1.17.2",
+    "cookie": "^0.3.1",
     "express": "^4.15.3",
-    "jquery": "^3.2.1",
+    "path": "^0.12.7",
+    "mongodb": "^2.2.30",
     "jsdom": "^11.1.0",
-    "request": "^2.81.0"
+    "request": "^2.81.0",
+    "ejs": "^2.5.6"
   },
   "devDependencies": {
-    "ejs": "^2.5.6",
     "mocha": "^3.4.2",
     "nodemon": "^1.11.0",
-    "should": "^7.1.0",
-    "treant-js": "^1.0.1"
+    "should": "^7.1.0"
   },
   "scripts": {
     "start": "nodemon source/server/server.js",
     "start-dev-docker": "docker run -it --rm -v $(pwd):/opt/app -p 10010:10010 family-tree",
     "start-docker": "docker run -it --rm -p 10010:10010 family-tree",
+    "docker-mongo": "docker run -it --rm --name ftDB -v ftDBvol:/data/db -p 27017:27017 mongo",
     "test": "mocha family-tree",
     "build": "docker build -t family_tree .",
     "build-dev": "docker build -t family-tree-dev -f dockerfiles/dev .",
