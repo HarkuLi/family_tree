@@ -2,7 +2,7 @@ const cookie = require("cookie");
 const dbop_user = require("./dbop_user");
 
 /** return usr if logged in or retrun false */
-var isLogin = (req)=>{
+var isSignin = (req)=>{
   // req.headers.cookie
   var cookies, token;
   if(req.headers.cookie){
@@ -12,4 +12,4 @@ var isLogin = (req)=>{
   return dbop_user.check_token(token);
 };
 
-module.exports = {isLogin};
+module.exports = {isSignin};

@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const request = require('request');
 const path = require('path');
 const cookie = require("cookie");
+const identity = require("../lib/controllers/identity")
 const dbop_user = require("../lib/controllers/dbop_user");
 const dbop_tree = require("../lib/controllers/dbop_tree");
 
@@ -19,8 +20,15 @@ app.use(express.static(path.resolve(__dirname, "../../public")))  // set static 
 app.use(bodyParser.json());        // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
-app.get('/', function (req, res) {
-  res.render('pages/index', { root: "/" });
+app.get('/', (req, res)=>{
+  identity.isSignin(req)
+    .then((usr)=>{
+      var DATA = {
+        usr,
+        root: "/"
+      };
+      res.render('pages/index', DATA);
+    });
 });
 
 app.post("/signup_action", (req, res)=>{
@@ -72,6 +80,14 @@ app.post("/check_signin", (req, res)=>{
       }));
       res.redirect("/");
     });
+});
+
+app.get("/sign_out", function(req, res){
+  res.setHeader("Set-Cookie", cookie.serialize("LOGIN_INFO", "", {
+    httpOnly: true,
+    maxAge: 0.1, // 0.1 second
+  }));
+  res.redirect("/");
 });
 
 // setting page

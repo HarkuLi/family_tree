@@ -100,6 +100,10 @@ $("#sign").click(() => {
     }).catch((err) => console.log(err));
 });
 
+$("#sign_out").click(()=>{
+  window.location = "/sign_out";
+});
+
 // mask hide when click close
 $(".close").click(() => {
   $(".mask").addClass('hidden');
