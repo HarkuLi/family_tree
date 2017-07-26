@@ -4,6 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const request = require('request');
 const path = require('path');
+const cookie = require("cookie");
 const dbop_user = require("../lib/controllers/dbop_user");
 const dbop_tree = require("../lib/controllers/dbop_tree");
 
@@ -47,6 +48,30 @@ app.post("/signup_action", (req, res)=>{
       });
   }
   else  res.json({rst: 0});
+});
+
+app.post("/signin_action", (req, res)=>{
+  var usr = req.body.usr;
+  var pw = req.body.pw;
+
+  dbop_user.signin(usr, pw)
+    .then((rst)=>{
+      res.json({rst});
+    });
+});
+
+app.post("/check_signin", (req, res)=>{
+  var token = req.body.token;
+
+  dbop_user.check_token(token)
+    .then((usr)=>{
+      if(!usr) return res.redirect("/");
+      res.setHeader("Set-Cookie", cookie.serialize("LOGIN_INFO", token, {
+        httpOnly: true,
+        maxAge: dbop_user.survive_time // 1 week
+      }));
+      res.redirect("/");
+    });
 });
 
 // setting page

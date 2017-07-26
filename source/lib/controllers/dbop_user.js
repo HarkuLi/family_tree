@@ -34,7 +34,7 @@ var getUserByName = (usr)=>{
     });
 };
 
-var login = (usr, pw)=>{
+var signin = (usr, pw)=>{
   var colle_usr;
   var token;
   var usr_found
@@ -54,11 +54,11 @@ var login = (usr, pw)=>{
     })
     .then((rst)=>{
       if(!rst || !pw.length) return false;
-      var loginTime = new Date().getTime();
+      var signinTime = new Date().getTime();
       token = genToken();
       return colle_usr.updateOne(
         {usr},
-        {$set: {token, loginTime}}
+        {$set: {token, signinTime}}
       );
     })
     .then((rst)=>{
@@ -76,9 +76,9 @@ var check_token = (token)=>{
     })
     .then((item)=>{
       if(!item) return false;
-      var loginTime = item.loginTime;
+      var signinTime = item.signinTime;
       var currentTime = new Date().getTime();
-      var tokenAge = (currentTime - loginTime) / 1000;
+      var tokenAge = (currentTime - signinTime) / 1000;
       if(tokenAge < survive_time) return item.usr;
       return false;
     });
@@ -97,4 +97,4 @@ var genToken = ()=>{
 };
 /** private function */
 
-module.exports = {survive_time, newUser, getUserByName, login, check_token};
+module.exports = {survive_time, newUser, getUserByName, signin, check_token};
