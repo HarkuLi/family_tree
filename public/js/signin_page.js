@@ -10,13 +10,14 @@ var passData = (obj)=>{
 var signin_action = ()=>{
   var input = document.getElementsByTagName("input");
   var req_obj = {};
-  document.getElementById("signin_msg").innerHTML = "";
+  var signin_msg = document.getElementById("signin_msg");
+  signin_msg.innerHTML = "";
 
   for(let ele of input){
     req_obj[ele.name] = ele.value;
     if(!ele.value.length){
       let msg = "You haven't filled all fields.";
-      document.getElementById("signin_msg").innerHTML = msg;
+      signin_msg.innerHTML = msg;
       return;
     }
   }
@@ -34,7 +35,7 @@ var signin_action = ()=>{
       }
       else{
         let msg = "Wrong user name or password.";
-        document.getElementById("signin_msg").innerHTML = msg;
+        signin_msg.innerHTML = msg;
         document.body.style.cursor = "";
       }
     });
