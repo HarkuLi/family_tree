@@ -10,14 +10,16 @@ var passData = (obj)=>{
 var signup_action = ()=>{
   var input = document.getElementById("signup_form").getElementsByTagName("input");
   var req_obj = {};
+  var signup_msg = document.getElementById("signup_msg");
+  signup_msg.innerHTML = "";
 
   for(let ele of input){
     req_obj[ele.name] = ele.value;
     if(!ele.value.length)
-      return alert("You haven't filled all fields.");
+      return signup_msg.innerHTML = "You haven't filled all fields.";
   }
   if(req_obj.re_pw !== req_obj.pw)
-    return alert("The retyped password doesn't match to the password.");
+    return signup_msg.innerHTML = "The retyped password doesn't match to the password.";
   delete req_obj.re_pw;
   document.body.style.cursor = "progress";
   passData(req_obj)
@@ -28,7 +30,7 @@ var signup_action = ()=>{
         $("#switch-signin").click();  //go to login page
       }
       else{
-        alert("Repeated user name.");
+        signup_msg.innerHTML = "Repeated user name.";
         document.body.style.cursor = "";
       }
     });
