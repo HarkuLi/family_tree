@@ -4,6 +4,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const request = require('request');
 const path = require('path');
+const dbop_user = require("../lib/controllers/dbop_user");
+
 const app = express();
 
 /*  config  */
@@ -19,15 +21,33 @@ app.get('/', function (req, res) {
   res.render('pages/index', { root: "/" });
 });
 
+app.post("/signup_action", (req, res)=>{
+  var name = req.body.name;
+  var usr = req.body.usr;
+  var pw = req.body.pw;
+
+  if(name && usr && pw){
+    dbop_user.getUserByName(usr)
+      .then((userData)=>{
+        if(userData) return 0;
+        return dbop_user.newUser({
+          usr,
+          pw
+        });
+      })
+      .then((rst)=>{
+        res.json({rst});
+      });
+  }
+  else  res.json({rst: 0});
+});
+
 // setting page
 app.get('/setting', (req, res) => {});
 
 // tree router
-const TreeAPI = require('../lib/routes/tree');
-app.use('/tree', (req, res, next) => {
-  req.pathParams = req.params; 
-  next();
-}, TreeAPI);
+const tree_route = require('../lib/routes/tree_route');
+app.use('/tree', tree_route);
 
  // popup window router
 const PopupWindowAPI = require('../lib/routes/popup');
