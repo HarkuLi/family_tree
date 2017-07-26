@@ -18,17 +18,14 @@
   "dependencies": {
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
-    "jquery": "^3.2.1",
-    "jsdom": "^11.1.0",
     "mongodb": "^2.2.30",
-    "request": "^2.81.0"
+    "request": "^2.81.0",
+    "ejs": "^2.5.6"
   },
   "devDependencies": {
-    "ejs": "^2.5.6",
     "mocha": "^3.4.2",
     "nodemon": "^1.11.0",
     "should": "^7.1.0",
-    "treant-js": "^1.0.1"
   },
   "scripts": {
     "start": "nodemon source/server/server.js",
