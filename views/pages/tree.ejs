@@ -1,24 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <title></title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <!-- stylesheets -->
-        <link rel="stylesheet" href="css/Treant.css" type="text/css"/>
-    </head>
-    <body>
-    <p>Tree is here</p>
-    <div id="tree" style="width:335px; height: 160px"></div>
+<html>
+<head>
+  <%- include('../partials/head') %>
+  <link rel="stylesheet" href="css/tree.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <title>tree</title>
+</head>
+<body>
+  <!-- navigator -->
+  <%- include('../partials/navigator') %>
 
-    <!-- javascript -->
-    <script>
-        var data = <%- data %>;
-        console.log(data);
-    </script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>    
-    <script src="js/vendor/raphael.js"></script>
-    <script src="js/Treant.js"></script>
-    <script src="js/tree.js"></script>
-    </body>
+  <!-- main content -->
+  <div class="node_container">
+    <svg class="path_container" xmlns="http://www.w3.org/2000/svg"></svg>
+    
+    <!-- render tree according to objList -->
+    <% if(!objList.length){ %>
+      <div class="tree_row">
+        <div class="tree_node">
+        <button class="dropbtn">empty</button>
+          <div class="dropdown_content">
+              <form action="/tree/add_person" method="post">
+                <input type="hidden" name="kind" value="root">
+                <button class="btn droplist_btn" type="submit">add person</button>
+              </form>
+          </div>
+        </div>
+      </div>
+    <% } %>
+    <% for(var i=0; i<objList.length; ++i){ %>
+      <% var genNum = objList[i] %>
+      <div class="tree_row">
+        <% for(var j=0; j<genNum; ++j){ %>
+          <% ++i; %>
+          <% if(!objList[i].parents && j){ %>  <!-- mate nodes -->
+            <% if(i>3 && j!==genNum-1 && objList[i-1].parents[0]!==objList[i+1].parents[0]){ %>   <!-- i>3: 2nd generation -->
+              <div class="tree_node boundary">
+                <% include ../partials/dropdown %>
+              </div>
+            <% }else{ %>
+              <div class="tree_node">
+                <% include ../partials/dropdown %>
+              </div>
+            <% } %>
+          <% }else if(j===genNum-1 || i===1 || objList[i].mate){ %>
+            <div class="tree_node">
+              <% include ../partials/dropdown %>
+            </div>
+          <% }else if(objList[i].parents[0]!==objList[i+1].parents[0]){ %>
+            <div class="tree_node boundary">
+              <% include ../partials/dropdown %>
+            </div>
+          <% }else{ %>
+            <div class="tree_node">
+              <% include ../partials/dropdown %>
+            </div>
+          <% } %>
+        <% } %>
+      </div>
+    <% } %>
+  </div>
+  <script src="js/path.js"></script>
+  
+  <!-- footer -->
+  <%- include('../partials/footer') %>
+  <!-- /container -->
+  <%- include('../partials/mask/cover') %>
+  <!-- global scripts -->
+  <%- include('../partials/globalScripts') %>
+</body>
 </html>

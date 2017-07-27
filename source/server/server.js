@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const request = require('request');
 const path = require('path');
 const cookie = require("cookie");
-const identity = require("../lib/controllers/identity")
+const identity = require("../lib/controllers/identity");
 const dbop_user = require("../lib/controllers/dbop_user");
 const dbop_tree = require("../lib/controllers/dbop_tree");
 

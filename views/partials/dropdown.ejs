@@ -1,0 +1,35 @@
+<button class="dropbtn"><%= objList[i].name %></button>
+<div class="dropdown_content">
+    <form action="" method="post">
+        <button class="btn droplist_btn">detail</button>
+    </form>
+    <form action="/tree/add_person" method="post">
+        <input type="hidden" name="id" value="<%= objList[i]._id %>">
+        <input type="hidden" name="kind" value="blood">
+        <button class="btn droplist_btn" type="submit">add child</button>
+    </form>
+    <% if(!objList[i].mate){ %>
+        <form action="/tree/add_person" method="post">
+            <input type="hidden" name="id" value="<%= objList[i]._id %>">
+            <input type="hidden" name="kind" value="mate">
+            <input type="hidden" name="children" value="<%= JSON.stringify(objList[i].children) %>">
+            <button class="btn droplist_btn" type="submit">add mate</button>
+        </form>
+    <% } %>
+    <!-- who can be deleted? -->
+    <!-- relation by marriage -->
+    <!-- relation by blood and no mate, children -->
+    <% if(i!==1&&!objList[i].parents){ %>
+        <form action="/tree/delete_node" method="post">
+            <input type="hidden" name="id" value="<%= objList[i]._id %>">
+            <input type="hidden" name="kind" value="mate">
+            <button class="btn droplist_btn" type="submit" onclick="return confirm('確定要刪除嗎？')">delete</button>
+        </form>
+    <% }else if(objList[i].parents && !objList[i].mate && !objList[i].children){ %>
+        <form action="/tree/delete_node" method="post">
+            <input type="hidden" name="id" value="<%= objList[i]._id %>">
+            <input type="hidden" name="kind" value="blood">
+            <button class="btn droplist_btn" type="submit" onclick="return confirm('確定要刪除嗎？')">delete</button>
+        </form>
+    <% } %>
+</div>
