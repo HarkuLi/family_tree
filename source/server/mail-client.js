@@ -1,26 +1,44 @@
-const SMTPConnection = require('nodemailer/lib/smtp-connection');
+'use strict';
+const nodemailer = require('nodemailer');
 
-const connection = new SMTPConnection({
-  port: 465,
-  host: 'localhost',
-  //secure: true,
-  //requireTLS: true,
-  name: "test-client",
-  //connectionTimeout: 30*1000,
-  //greetingTimeout: 60*1000,
-  //socketTimeout: 60*1000,
-  logger: true,
-  debug: true
+// mac app password
+const macPass = 'jirpoqjcxyoysfeq';
+
+// create reusable transporter object using the default SMTP transport
+let transporter = nodemailer.createTransport({
+    host: 'localhost',
+    port: 587,
+    secure: false, // secure:true for port 465, secure:false for port 587
+    auth: {
+        user: 'einfachstudio@gmail.com',
+        pass: macPass
+    },
+    debug: true,
+    disableFileAccess: true,
 });
 
-connection.connect(() => console.log("now connect to the smtp server"));
+// setup email data with unicode symbols
+ let mailOptions = {
+    from: '"Fred Foo 👻" <admin@localhost>', // sender address
+    to: 'test@localhost', // list of receivers
+    subject: 'Hello ✔', // Subject line
+    //text: 'Hello world ?', // plain text body
+    html: '<b>Hello world ?</b>' // html body
+};
 
-connection.login({
-  credentials:{
-    user: "familytreeadmin",
-    pass: "!Dsl#a02lsavbc/3l1da"
-  }
-}, (err) => {
-  if(err) return console.log(err);
-  console.log("complete authentication.");
-})
+// send mail with defined transport object
+transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+        return console.log(error);
+    }
+    console.log('Message %s sent: %s', info.messageId, info.response);
+});
+
+// verify connection configuration
+transporter.verify(function(error, success) {
+   if (error) {
+        console.log(error);
+   } else {
+        console.log('Server is ready to take our messages');
+   }
+});

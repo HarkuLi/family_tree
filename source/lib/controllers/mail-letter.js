@@ -3,6 +3,7 @@
 const MongoClient = require('mongodb').MongoClient;
 const ObjectID = require('mongodb').ObjectID;
 const Validate = require('../controllers/validate')
+const DBOP_Tree = require('../controllers/dbop_tree')
 const Nodemailer = require('nodemailer');
 
 const CollectionName = 'mailletter';
@@ -15,6 +16,7 @@ module.exports = {
   putMail,
   deleteMail,
 }
+
 // TAG:
 function getMailList(fgid, filter = {}){
   const listProjection = { createTime: 1, subject: 1, from: 1, status: 1, tags: 1, _id: 1 };
@@ -122,34 +124,56 @@ function deleteMail(lid){
     });
 }
 
-function sendMail(){
-  // mac app password
-  const macPass = 'jirpoqjcxyoysfeq';
-
-  // create reusable transporter object using the default SMTP transport
+function sendMail(usr, lid, sendOptions){
+  // INFO: Use GMAIL for Temporary Choice UNLESS Haraka SMTP Server established
+  const macPass = 'jirpoqjcxyoysfeq';  // mac app password
   let transporter = Nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 465,
-      secure: true, // secure:true for port 465, secure:false for port 587
-      auth: {
-          user: 'einfachstudio@gmail.com',
-          pass: macPass
-      }
+      secure: true, // secure:true for port 465
+      auth: { user: 'einfachstudio@gmail.com',pass: macPass }
   });
 
-  // setup email data with unicode symbols
-  let mailOptions = {
-      from: '"Einfach Studio" <test@tree.com>', // sender address
-      to: 'angus912584@gmail.com', // list of receivers
-      subject: 'Hello', // Subject line
-      text: 'Hello world', // plain text body
-      html: '<b>Hello world</b>' // html body
-  };
 
-  // send mail with defined transport object
-  transporter.sendMail(mailOptions, (error, info) => {
-      if (error) return console.log(error);
-      console.log('Message %s sent: %s', info.messageId, info.response);
-  });
+  // TODO: check autoSend is disable
 
+  return DBOP_Tree
+    // get family data from db (familyname)
+    .getFamilyByUsr(usr)
+    .then((family) => {
+      // set default and check mail options
+      sendOptions.familyname = family.name || 'unknown';
+      sendOptions.username = usr;
+      return Promise.resolve(checkMailOptions(sendOptions));
+    })
+    .then((mailOptions) => 
+      transporter.sendMail(mailOptions, (err, info) => {
+        if (err){
+          console.log(err);
+          return Promise.reject(err);
+        }
+        console.log('Mail %s sent: %s', info.messageId, info.response);
+        return Promise.resolve();
+      })
+    )
+    // update status and sendtime
+    .then(() => Collection.putMail(lid, { status: "success", sendTime: new Date().getTime() }))
+    .catch((err) => {
+      console.log(err);
+      return Promise.reject(err);
+    });
 }
+
+function checkMailOptions(sendOptions){
+  let mailOptions = {};
+  mailOptions.from = `"[Sender]${sendOptions.from}" <test@tree.com>`;
+  mailOptions.to = sendOptions.to.split(',').map((receiver) => receiver.trim()).join(',');
+  mailOptions.cc = (sendOptions.cc) ? sendOptions.cc.split(',').map((receiver) => receiver.trim()).join(',') : '';
+  mailOptions.bcc = (sendOptions.bcc) ? sendOptions.bcc.split(',').map((receiver) => receiver.trim()).join(',') : '';
+  mailOptions.subject = sendOptions.subject || `[FamilyGroup][${sendOptions.familyname}][${sendOptions.username}]`;
+  mailOptions.html = sendOptions.context || '';
+  return mailOptions;
+}
+
+// test
+sendMail('name0', )

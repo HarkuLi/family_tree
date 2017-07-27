@@ -5,7 +5,7 @@ const request = require('request');
 const MailLetterController = require('../controllers/mail-letter');
 const MailLetterAPI = express.Router();  //  /fg/:fgid/mail/ml  
 
-// [v] 顯示所有信件列表的頁面（信件、草稿）
+// TAG: [v] 顯示所有信件列表的頁面（信件、草稿）
 MailLetterAPI.get('/', (req, res) => {
   let fgid = req.pathParams.fgid;
   let fgUrl = req.pathParams.fgUrl;
@@ -24,7 +24,7 @@ MailLetterAPI.get('/', (req, res) => {
     });
 });
 
-// [fn] 查詢所有信件
+// TAG: [fn] 查詢所有信件
 MailLetterAPI.get('/fn/list', (req, res) => {  
   let fgid = req.pathParams.fgid;
   if(!fgid) return res.status(400).send({ status: false, message: "cannot find family group id" });
@@ -35,7 +35,7 @@ MailLetterAPI.get('/fn/list', (req, res) => {
     .catch((err) => res.status(400).send({ status: false, message: err }));
 });
 
-// [fn] 查詢單一信件內容
+// TAG: [fn] 查詢單一信件內容
 MailLetterAPI.get('/fn/:lid', (req, res) => {
   let lid = req.params.lid || null;  
   if(!lid) return res.status(400).send({ status: false, message: "letter id is invalid" });
@@ -46,7 +46,7 @@ MailLetterAPI.get('/fn/:lid', (req, res) => {
     .catch((err) => res.status(400).send({ status: false, message: err }));
 });
 
-// [v] 查詢單一信件內容
+// TAG: [v] 查詢單一信件內容
 MailLetterAPI.get('/show/:lid', (req, res) => {
   let fgid = req.pathParams.fgid;
   let fgUrl = req.pathParams.fgUrl;
@@ -60,7 +60,7 @@ MailLetterAPI.get('/show/:lid', (req, res) => {
 });
 
 MailLetterAPI.route('/edit/:lid?')
-  // [v] 顯示、新增信件編輯頁面
+  // TAG: [v] 顯示、新增信件編輯頁面
   .get((req, res) => {
     let fgid = req.pathParams.fgid;
     let fgUrl = req.pathParams.fgUrl;
@@ -80,7 +80,7 @@ MailLetterAPI.route('/edit/:lid?')
       res.render('pages/fg.ejs', { page: "maileditor", fgUrl, lid, mailContent: {} });
     }
   })
-  // [fn] 顯示、新增信件編輯頁面
+  // TAG: [fn] 顯示、新增信件編輯頁面
   .put((req, res) => {
     let lid = req.params.lid || null;
     let mailContent = req.body;
@@ -89,11 +89,12 @@ MailLetterAPI.route('/edit/:lid?')
     //  有lid：更新一封信件（必須status為draft才允許更新）
     MailLetterController
       .putMail(lid, req.body)
+      //.then((mailContent) => MailLetterController.sendMail(lid, mailContent))
       .then(() => res.send({ status: true }))
       .catch((err) => res.status(400).send({ status: false, message: err}));
   });
 
-// [fn] 刪除一封信件（只允許status為draft、cancel）
+// TAG: [fn] 刪除一封信件（只允許status為draft、cancel）
 MailLetterAPI.delete('/del/:lid', (req, res) => {
   let lid = req.params.lid || null;
   
