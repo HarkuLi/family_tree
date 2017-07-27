@@ -3,14 +3,12 @@
 }
 
 .node_container{
-  height: 1000px;
-  width: 1000px;
   margin: 50px auto;
   position: relative;
 }
 
 .tree_row{
-  margin-bottom: 100px;
+  margin-bottom: 80px;
   text-align: center;
   line-height: 0px;
   font-size: 0;
@@ -48,6 +46,7 @@
   height: 100%;
   padding: 0px;
   font-size: 16px;
+  white-space: nowrap;
 }
 
 .dropdown_content {
@@ -73,7 +72,7 @@
 
 .tree_node:hover .dropdown_content {
   display: block;
-}
+} 
 
 .tree_node:hover .dropbtn {
   background-color: #8fd9f0;

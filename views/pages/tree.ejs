@@ -15,7 +15,8 @@
     <svg class="path_container" xmlns="http://www.w3.org/2000/svg"></svg>
     
     <!-- render tree according to objList -->
-    <% if(!objList.length){ %>
+    
+    <% if(usr && !objList.length){ %>
       <div class="tree_row">
         <div class="tree_node">
         <button class="dropbtn">empty</button>
@@ -61,7 +62,7 @@
     <% } %>
   </div>
   <script src="js/path.js"></script>
-  
+
   <!-- footer -->
   <%- include('../partials/footer') %>
   <!-- /container -->
