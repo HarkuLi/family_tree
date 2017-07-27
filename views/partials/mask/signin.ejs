@@ -1,15 +1,17 @@
-<form class="form-horizontal">
-    <h3>Please Sign In</h3>
-    <label for="email" class="sr-only">Username</label>
-    <input class="form-control" type="text" name="username" placeholder="Email" maxlength="50" />
+<form id="signin_form" class="form-horizontal" action="check_signin" method="post">
+    <h3>Sign In</h3>
+    <label for="user name" class="sr-only">Username</label>
+    <input class="form-control" type="text" name="usr" placeholder="User name" maxlength="20" />
     <label for="password" class="sr-only">Password</label>
-    <input class="form-control" type="password" name="password" placeholder="Password" maxlength="50" />
+    <input class="form-control" type="password" name="pw" placeholder="Password" maxlength="20" />
+    <div id="signin_msg" style="color: #ff6666; margin-top: 10px;"></div>
     <div class="center-block form-btn-row">
         <div class="col-md-6">
-            <button class="btn btn-primary btn-block" type="submit">Sign In</button>
+            <button class="btn btn-primary btn-block" type="button" onclick="signin_action()">Sign In</button>
         </div>
         <div class="col-md-6">
             <button id="switch-signup" type="button" class="btn btn-info btn-block">Sign Up</button>
         </div>
     </div>
 </form>
+<script src="js/signin_page.js"></script>

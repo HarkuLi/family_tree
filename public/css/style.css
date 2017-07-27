@@ -74,7 +74,7 @@
     position: fixed;
     display: flex;
     height: 100%;
-    align-items: center;
+    align-items:center;
     align-content: center;
 }
 .icon-bar{

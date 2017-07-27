@@ -17,7 +17,14 @@
         <li><a href="">Group Dashboard</a></li>
         <li><a id="get-qrcode" href="#">Get QR Code</a></li>
       </ul>
-      <button id="sign" type="botton" class="btn btn-primary navbar-btn navbar-right">Sign In / Sign Up</button>
+      <% if(usr){ %>
+        <ul class="nav navbar-nav navbar-right">
+          <li><span class="navbar-text">Hello, <%= usr %></span></li>
+          <li><button id="sign_out" type="button" class="btn btn-primary navbar-btn">Sign Out</button></li>
+        </ul>
+      <% }else{ %>
+        <button id="sign" type="button" class="btn btn-primary navbar-btn navbar-right">Sign In / Sign Up</button>
+      <% } %>
     </div><!--/.navbar-collapse -->
   </div>
 </nav>
