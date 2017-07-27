@@ -75,7 +75,6 @@ app.post("/add_person", (req, res)=>{
 });
 
 app.post("/add_root", (req, res)=>{
-  var familyId;
   var detail = req.body;
   var usr;
 
@@ -96,9 +95,7 @@ app.post("/add_root", (req, res)=>{
 });
 
 app.post("/add_mate", (req, res)=>{
-  var familyId;
   var detail = req.body;
-  var usr;
 
   if(detail.children.length)
     detail.children = JSON.parse(detail.children);
@@ -106,15 +103,9 @@ app.post("/add_mate", (req, res)=>{
     delete detail.children;
 
   identity.isSignin(req)
-    .then((usr_name)=>{
-      if(!usr_name) return;
-      usr = usr_name;
-      return dbop_tree.getFamilyByUsr(usr);
-    })
-    .then((item)=>{
-      if(!item) return;
-      familyId = item._id.toString();
-      return dbop_tree.addMate(familyId, detail);
+    .then((usr)=>{
+      if(!usr) return;
+      return dbop_tree.addMate(usr, detail);
     })
     .then(()=>{
       res.redirect("/tree");
@@ -122,20 +113,13 @@ app.post("/add_mate", (req, res)=>{
 });
 
 app.post("/add_child", (req, res)=>{
-  var familyId;
   var detail = req.body;
   detail.parents = [detail.parents];
 
   identity.isSignin(req)
-    .then((usr_name)=>{
-      if(!usr_name) return;
-      usr = usr_name;
-      return dbop_tree.getFamilyByUsr(usr);
-    })
-    .then((item)=>{
-      if(!item) return;
-      familyId = item._id.toString();
-      return dbop_tree.addChild(familyId, detail);
+    .then((usr)=>{
+      if(!usr) return;
+      return dbop_tree.addChild(usr, detail);
     })
     .then(()=>{
       res.redirect("/tree");
@@ -143,21 +127,13 @@ app.post("/add_child", (req, res)=>{
 });
 
 app.post("/delete_node", (req, res)=>{
-  var familyId;
-
   identity.isSignin(req)
-    .then((usr_name)=>{
-      if(!usr_name) return;
-      usr = usr_name;
-      return dbop_tree.getFamilyByUsr(usr);
-    })
-    .then((item)=>{
-      if(!item) return;
-      familyId = item._id.toString();
+    .then((usr)=>{
+      if(!usr) return;
       if(req.body.kind === "mate")
-        return dbop_tree.removeMate(familyId, req.body.id);
-      else
-        return dbop_tree.remove(familyId, req.body.id);
+        return dbop_tree.removeMate(usr, req.body.id);
+
+      return dbop_tree.remove(usr, req.body.id);
     })
     .then(()=>{
       res.redirect("/tree");
