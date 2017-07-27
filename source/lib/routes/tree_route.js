@@ -16,10 +16,10 @@ app.use((req, res, next)=>{
 app.get("/", (req, res)=>{
   var usr = false;
   identity.isSignin(req)
-    .then((user)=>{
-      if(!user)  return {orderArray: []};
-      usr = user;
-      return dbop_tree.getFamilyByUsr(user);
+    .then((usr_name)=>{
+      if(!usr_name)  return {orderArray: []};
+      usr = usr_name;
+      return dbop_tree.getFamilyByUsr(usr_name);
     })
     .then((item)=>{
       return tree.orderArrayHandle(item.orderArray);
@@ -30,6 +30,27 @@ app.get("/", (req, res)=>{
         usr
       };
       res.render("pages/tree", DATA);
+    });
+});
+
+app.post("/detail", (req, res)=>{
+  var usr;
+  var id = req.body.id;
+  var detail_list = ["_id", "name", "birth", "email"];
+
+  identity.isSignin(req)
+    .then((usr_name)=>{
+      usr = usr_name;
+      return dbop_tree.getPersonByID(id);
+    })
+    .then((item)=>{
+      for(let prop in item){
+        if(detail_list.indexOf(prop) < 0){
+          delete item[prop];
+        }
+      }
+      item._id = id;
+      res.render("pages/person_detail", {item, usr});
     });
 });
 
@@ -123,6 +144,22 @@ app.post("/add_child", (req, res)=>{
     })
     .then(()=>{
       res.redirect("/tree");
+    });
+});
+
+app.post("/update_person", (req, res)=>{
+  var detail = req.body;
+  var detail_list = ["name", "birth", "email"];
+  var id = req.body._id;
+  //check data
+  for(let prop in detail){
+    if(detail_list.indexOf(prop) < 0){
+      delete detail[prop];
+    }
+  }
+  dbop_tree.updatePerson(id, detail)
+    .then((r)=>{
+      res.json({update_count: r.upsertedCount});
     });
 });
 

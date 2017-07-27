@@ -1,6 +1,7 @@
 <button class="dropbtn"><%= objList[i].name %></button>
 <div class="dropdown_content">
-    <form action="" method="post">
+    <form action="/tree/detail" method="post">
+        <input type="hidden" name="id" value="<%= objList[i]._id %>">
         <button class="btn droplist_btn">detail</button>
     </form>
     <form action="/tree/add_person" method="post">

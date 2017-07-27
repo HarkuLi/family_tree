@@ -224,6 +224,17 @@ var removeMate = (usr, person_id)=>{
         });
     });
 };
+
+var updatePerson = (id, data)=>{
+  return getDB
+    .then((db)=>{
+      var colle = db.collection(colle_person);
+      return colle.updateOne(
+        {_id: Mongo.ObjectId(id)},
+        {$set: data}
+      );
+    });
+};
 /** public function */
 
 /** private function */
@@ -363,4 +374,4 @@ var ComputeChildIdx = (usr, parent_id)=>{
 /** private function */
 
 module.exports = {getFamilyByID, getFamilyByUsr, getPersonByID, newFamily,
-                  newRoot, addChild, remove, addMate, removeMate, getDB};
+                  newRoot, addChild, remove, addMate, removeMate, updatePerson, getDB};

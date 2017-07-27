@@ -77,3 +77,8 @@
 .tree_node:hover .dropbtn {
   background-color: #8fd9f0;
 }
+
+
+.edit_btn{
+  margin: 10px 0px;
+}
