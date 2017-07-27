@@ -14,6 +14,13 @@ app.use((req, res, next)=>{
 });
 
 app.get("/", (req, res)=>{
+  identity.isSignin(req)
+    .then((usr)=>{
+      res.redirect("/tree/"+usr);
+    });
+});
+
+app.get("/:usr", (req, res)=>{
   var usr = false;
   identity.isSignin(req)
     .then((usr_name)=>{
