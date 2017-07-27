@@ -19,11 +19,13 @@
     "bcrypt": "^1.0.2",
     "body-parser": "^1.17.2",
     "cookie": "^0.3.1",
+    "ejs": "^2.5.6",
     "express": "^4.15.3",
-    "path": "^0.12.7",
     "mongodb": "^2.2.30",
+    "nodemailer": "^4.0.1",
+    "path": "^0.12.7",
     "request": "^2.81.0",
-    "ejs": "^2.5.6"
+    "smtp-server": "^3.0.1"
   },
   "devDependencies": {
     "mocha": "^3.4.2",
@@ -31,6 +33,7 @@
     "should": "^7.1.0"
   },
   "scripts": {
+    "start-mailserver": "sudo nodemon source/server/mail-server.js",
     "start": "nodemon source/server/server.js",
     "start-dev-docker": "docker run -it --rm -v $(pwd):/opt/app -p 10010:10010 family-tree",
     "start-docker": "docker run -it --rm -p 10010:10010 family-tree",

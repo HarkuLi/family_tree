@@ -3,6 +3,7 @@
 const MongoClient = require('mongodb').MongoClient;
 const ObjectID = require('mongodb').ObjectID;
 const Validate = require('../controllers/validate')
+const Nodemailer = require('nodemailer');
 
 const CollectionName = 'mailletter';
 const Connection = MongoClient.connect('mongodb://localhost:3000/familytree');
@@ -121,10 +122,34 @@ function deleteMail(lid){
     });
 }
 
-// test
-//console.log(getMailList("6a736e667061693132396664"));
+function sendMail(){
+  // mac app password
+  const macPass = 'jirpoqjcxyoysfeq';
 
-/* getMail('5977183f8f5521d3d1b69622')
-  .then(() => deleteMail('5977183f8f5521d3d1b69622', {from: "ggggg@domail.com"}))
-  .then(() => getMail('5977183f8f5521d3d1b69622'))
-  .catch((err) => console.log(err)); */
+  // create reusable transporter object using the default SMTP transport
+  let transporter = Nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true, // secure:true for port 465, secure:false for port 587
+      auth: {
+          user: 'einfachstudio@gmail.com',
+          pass: macPass
+      }
+  });
+
+  // setup email data with unicode symbols
+  let mailOptions = {
+      from: '"Einfach Studio" <test@tree.com>', // sender address
+      to: 'angus912584@gmail.com', // list of receivers
+      subject: 'Hello', // Subject line
+      text: 'Hello world', // plain text body
+      html: '<b>Hello world</b>' // html body
+  };
+
+  // send mail with defined transport object
+  transporter.sendMail(mailOptions, (error, info) => {
+      if (error) return console.log(error);
+      console.log('Message %s sent: %s', info.messageId, info.response);
+  });
+
+}
