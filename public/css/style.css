@@ -74,12 +74,12 @@
     position: fixed;
     display: flex;
     height: 100%;
-    align-items：center;
+    align-items: center;
     align-content: center;
 }
 .icon-bar{
     width: 60px;
-    height: 372px;
+    height: 248px;
     margin: auto;
     background: #333;
     display: inline;
@@ -184,4 +184,9 @@
 }
 .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
     right: 0px; 
+}
+
+/* for table tr to link row */
+.row-a-link{
+    cursor: pointer;
 }

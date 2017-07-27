@@ -2,10 +2,10 @@
             <h1 class="text-center">Mail Letters</h1>
           </div>
           <!-- tool bar -->
-          <ul class="nav nav-pills pull-left" role="tablist">
+          <!--<ul class="nav nav-pills pull-left" role="tablist">
             <li role="presentation" class="active"><a href=<%= fgUrl+'/mail/ml/all' %>>All</a></li>
             <li role="presentation"><a href=<%= fgUrl+'/mail/ml/draft' %>>Draft</a></li>
-          </ul>
+          </ul>-->
           <ul class="nav nav-pills pull-right" role="tablist">
             <li role="presentation"><a href=<%= fgUrl+'/mail/ml/edit/' %>>New Mail</a></li>
           </ul>
@@ -27,9 +27,10 @@
             </thead>
             <tbody>
               <% for(let i = list.length-1; i >= 0; --i){ %>
-                <tr>
-                  <td class="text-center"><%= i %></td>
-                  <td><%= list[i].createTime %></td>
+                <tr id='<%= list[i]._id %>' class="row-a-link mail-letter-list">
+                  <td clas ="text-center"><%= i+1 %></td>
+                  <% let ctime = new Date(list[i].createTime); %>
+                  <td><%= ctime %></td>
                   <td><%= list[i].subject %></td>
                   <td><%= list[i].from %></td>
                   <td><%= list[i].status %></td>
@@ -41,10 +42,12 @@
                     <% } %>
                   </td>
                 </tr>
+                
               <% } %>
             </tbody>
           </table><!-- / Mail List -->
           <!-- pagination -->
+          <!--
           <nav aria-label="Page navigation" class="text-center">
             <ul class="pagination">
               <li>
@@ -61,4 +64,4 @@
                 </a>
               </li>
             </ul>
-          </nav><!-- / pagination -->
+          </nav>--><!-- / pagination -->

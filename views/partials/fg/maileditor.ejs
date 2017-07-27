@@ -3,13 +3,13 @@
           </div>
           
           <!--  Mail Editor -->
-          <form class="form-horizontal clearfix col-sm-10 col-sm-offset-1">
+          <form id="putMail" class="form-horizontal clearfix col-sm-10 col-sm-offset-1">
             <!-- tool bar -->
             <div class="form-group">
               <!-- toggle switch -->
               <div class="btn-group" role="group" aria-label="...">
                 <div class="onoffswitch">
-                  <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch">
+                  <input type="checkbox" name="autoSend" class="onoffswitch-checkbox" id="myonoffswitch">
                   <label class="onoffswitch-label" for="myonoffswitch">
                     <!-- text are in css content -->
                     <span class="onoffswitch-inner"></span>
@@ -19,44 +19,48 @@
                 
               </div>
               <div class="btn-group pull-right" role="group" aria-label="...">
+                <button type="button" class="btn btn-default" onclick="window.history.back();">Back to List</button>
                 <button id="putMail" type="submit" class="btn btn-primary">Send / Save</button>
               </div>
             </div>
             <div id="autoSendField" class="form-group hidden">
               <label for="datetimepicker" class="col-sm-1 control-label">Appoint<br>Time</label>
               <div class="col-sm-11">
-                <input id="datetimepicker" class="form-control" type="text" placeholder="yyyy-mm-dd hh:mm" data-date-format="yyyy-mm-dd hh:ii">
+                <input id="datetimepicker" name="reserveTime" class="form-control" type="text" placeholder="yyyy-mm-dd hh:mm" data-date-format="yyyy-mm-dd hh:ii">
               </div>
             </div>
             <div class="form-group">
               <label for="to" class="col-sm-1 control-label">To</label>
               <div class="col-sm-11">
-                <input type="email" class="form-control" id="to" placeholder="Email / Mail Group">
+                <input type="email" class="form-control" id="to" name="to" placeholder="Email / Mail Group" value=<%= mailContent.to || '' %>>
               </div>
             </div>
             <div class="form-group">
               <label for="cc" class="col-sm-1 control-label">CC</label>
               <div class="col-sm-11">
-                <input type="email" class="form-control" id="cc" placeholder="Email / Mail Group">
+                <input type="email" class="form-control" id="cc" name="cc" placeholder="Email / Mail Group" value=<%= mailContent.cc || '' %>>
               </div>
             </div>
             <div class="form-group">
               <label for="bcc" class="col-sm-1 control-label">BCC</label>
               <div class="col-sm-11">
-                <input type="email" class="form-control" id="bcc" placeholder="Email / Mail Group">
+                <input type="email" class="form-control" id="bcc" name="bcc" placeholder="Email / Mail Group" value=<%= mailContent.bcc || '' %>>
               </div>
             </div>
             <div class="form-group">
               <label for="subject" class="control-label col-sm-1">Subject</label>
               <div class="col-sm-11">
-                <input class="form-control" type="text" name="subject" placeholder="Subject" maxlength="200" />
+                <input class="form-control" type="text" name="subject" placeholder="Subject" maxlength="200" value=<%= mailContent.subject || '' %>>
               </div>
             </div>
             <div id="summernote" class="col-sm-10 col-sm-offset-2"></div>
-            <input type="hudden" name="fgUrl" value=<%= fgUrl %>>
-            <% if(mid){ %>
-              <input type="hudden" name="mid" value=<%= mid %>>
+            <input type="hidden" name="fgUrl" value=<%= fgUrl %>>
+            <% if(lid){ %>
+              <input type="hidden" name="lid" value=<%= lid %>>
             <% } %>
+            <div class="form-group text-center">
+              <button id="deleteMail" type="button" class="btn btn-danger">Delete Mail</button>
+            </div>
           </form>
           <!-- / Mail Editor -->
 

@@ -61,7 +61,10 @@ app.use('/fg/:fgid', (req, res, next) => {
 }, FamilyGroupAPI);
 
 // 404
-app.use((req,res) => res.status(404).render('pages/error.ejs', { code: 404 }));
+app.use((req,res) => {
+  console.log(req.url);
+  res.status(404).render('pages/error.ejs', { code: 404 })
+});
 
 app.listen(10010, function (err) {
   if(err) console.log(err);

@@ -4,7 +4,7 @@ $(document).ready(() => {
 });
 
 
-/* Loading EJS Template */
+/* TAG: Loading EJS Template */
 function loadTemplate(route, data={}){
   return new Promise((resolve, reject) => {
     if(!route) reject(console.log("No Route Determinate."));
@@ -22,7 +22,7 @@ function loadTemplate(route, data={}){
   });
 }
 
-/* initialize summernote editor */
+/* TAG: initialize summernote editor */
 function initSummerNote(){
   $('#summernote').summernote({
     minHeight: 270,             // set minimum height of editor
@@ -30,9 +30,22 @@ function initSummerNote(){
     focus: false,                  // set focus to editable area after initializing summernote
     dialogsInBody: true
   });
+
+  // if lid exist, get the content
+  let fgUrl = $("[name='fgUrl']").val() || null;
+  let lid = $("[name='lid']").val() || null;
+  if(lid && fgUrl){
+    $.get(`${fgUrl}/mail/ml/fn/${lid}`, {}, (mailContent, status) => {
+      console.log(mailContent);
+      if(mailContent.status){  
+        return $('#summernote').summernote('code', mailContent.context);  
+      }
+      console.log(`get mail content with lid = ${lid} got error.`);
+    });
+  }
 }
 
-/* initialize datepicler */
+/* TAG: initialize datepicler */
 function initDateTimePicker(){
   $('#datetimepicker').datetimepicker({
     format: "yyyy-mm-dd hh:ii",
@@ -43,7 +56,7 @@ function initDateTimePicker(){
 
 }
 
-// switch to display auto send time field
+// TAG: switch to display auto send time field
 $('#myonoffswitch').change(function() {
   if(this.checked){
     $('#autoSendField').removeClass('hidden');
@@ -54,7 +67,7 @@ $('#myonoffswitch').change(function() {
 });
 
 
-// switch to signin or signup
+// TAG: switch to signin or signup
 function switchSignTo(e){
   $("form").submit((sub) => sub.preventDefault());
   e.stopPropagation();
@@ -82,7 +95,7 @@ function switchSignTo(e){
 
 /* EVENT BLOCKS */
 
-// mask show, signin show
+// TAG: mask show, signin show
 $("#sign").click(() => {
   $("#popup-content").html("");
   $(".mask").removeClass('hidden');
@@ -100,7 +113,7 @@ $("#sign").click(() => {
     }).catch((err) => console.log(err));
 });
 
-// mask hide when click close
+// TAG: mask hide when click close
 $(".close").click(() => {
   $(".mask").addClass('hidden');
   $(".wrapper").addClass('hidden');
@@ -108,7 +121,7 @@ $(".close").click(() => {
   $("#popup-content").html("");
 });
 
-// get QR Code
+// TAG: get QR Code
 $("#get-qrcode").click((e) => {
   let test_fgid = '6a736e667061693132396664';
 
@@ -137,43 +150,53 @@ $("#get-qrcode").click((e) => {
     ).catch((err) => console.log(err));
 });
 
-// for save and send mail
-$('#putMail').click((e) => {
+// TAG: for save and send mail
+$("#putMail").submit((e) => {    
+  e.preventDefault();
+  e.stopPropagation();
+
+  // get data from form
+  let sendData = $("#putMail").serializeArray();
+  sendData.push({
+    name: 'context',
+    value: $('#summernote').summernote('code')
+  });
   
+  // process Array [{name: xxx, value: xxx}] to json
+  let tmp = {};
+  sendData.forEach((nv) => tmp[nv.name] = nv.value);
+  sendData = JSON.stringify(tmp);
 
-  let getFormData = function(){
-    var Def = new $.Deferred();
-    $("form").submit((sub) => {
-      sub.preventDefault();
-      sub.stopPropagation();
-      let sendData = $("form").serializeArray();
-      console.log(sendData);
-      (sendData.length > 0) ? Def.resolve(sendData) : Def.reject(sendData);
-    });
-    return Def.promise();
-  };
+  // check autosend field
+  sendData.autoSend = (sendData.autoSend === 'on') ? true : false;
+  console.log(sendData);
 
-  console.log(getFormData);
+  let fgUrl = $("[name='fgUrl']").val();
+  let lid = $("[name='lid").val() || null;
 
-  getFormData
+  // send to server
+  Promise.resolve(sendData)
     .then((sendData) => {
-      let fgUrl = $("[name='fgUrl']").val();
-      let mid = $("[name='mid").val() || null;
-      let sendUrl = window.location.origin + fgUrl + '/edit/';
-      (mid) ? sendUrl += mid : null;
+      let sendUrl = window.location.origin + fgUrl + '/mail/ml/edit/';
+      (lid) ? sendUrl += lid : null;
 
       if(!fgUrl) return Promise.reject("cannot find fgUrl");
       return Promise.resolve({ sendData, sendUrl });
     })
     .then((obj) => {
+      console.log(obj);
       $.ajax({
         url: obj.sendUrl,
         type: 'PUT',
-        data: JSON.stringify(obj.sendData),
-        dataType: 'json',
-        success: (status, response) => {
+        contentType: 'application/json',
+        data: obj.sendData,
+        async: true,
+        //dataType: 'json',
+        success: (response, status, xhr) => {
           alert('Send mail success!');
           console.log(response);
+          console.log()
+          window.location.assign(`${window.location.origin}${fgUrl}/mail/ml/`);
         },
         error: (xhr, status, error) => {
           alert('send mail error!');
@@ -183,3 +206,36 @@ $('#putMail').click((e) => {
     })
     .catch((err) => console.log(err));
 })
+// TAG: for delete mail
+$('#deleteMail').click((e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  let fgUrl = $("[name='fgUrl']").val();
+  let lid = $("[name='lid").val() || null;
+  if(!lid){
+    alert("delete mail failed");
+    return console.log("[event] empty lid");
+  }
+  
+  $.ajax({
+    url: `${window.location.origin}${fgUrl}/mail/ml/del/${lid}`,
+    type: 'DELETE',
+    contentType: 'application/json',
+    success: (response, status, xhr) => {
+      alert('delete mail success!');
+      console.log(response);
+      window.location.assign(`${window.location.origin}${fgUrl}/mail/ml/`);
+    },
+    error: (xhr, status, error) => {
+      alert('delete mail error!');
+      console.log(error);
+    }
+  });
+})
+
+// TAG: mail letter list row link
+$(".mail-letter-list").click(function() {
+  let lid = $(this).attr('id') || null;
+  window.location.assign(`${window.location.origin}${window.location.pathname}edit/${lid}`);
+});

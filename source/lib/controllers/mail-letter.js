@@ -14,10 +14,10 @@ module.exports = {
   putMail,
   deleteMail,
 }
-
+// TAG:
 function getMailList(fgid, filter = {}){
-  const listProjection = { createTime: 1, subject: 1, from: 1, status: 1, tags: 1 };
-  // process filter
+  const listProjection = { createTime: 1, subject: 1, from: 1, status: 1, tags: 1, _id: 1 };
+  // TODO:process filter
 
   // check fgid format
   if(!Validate.checkIDFormat(fgid)) return Promise.reject("[mail-letter] family group id format is invalid.");
@@ -33,80 +33,86 @@ function getMailList(fgid, filter = {}){
         });
       });
     })
-    .then((list) => {
-      //console.log(list);
-      //Connection.then((DB) => DB.close());
-      return Promise.resolve(list) || Promise.resolve(null);
-    })
+    .then((list) => Promise.resolve(list) || Promise.resolve(null))
     .catch((err) => {
       console.log(err);
       return Promise.reject(err);
-      //Connection.then((DB) => DB.close());
     });
 }
-
-function getMail(mid){
+// TAG:
+function getMail(lid){
   const Projection = { fgid: 0 };
-
   // check mid format
-  if(!Validate.checkIDFormat(mid)) return Promise.reject("[mail-letter] family group id format is invalid.");
+  if(!Validate.checkIDFormat(lid)) return Promise.reject("[mail-letter] letter id format is invalid.");
 
   // find mail with mid
   return Collection
-    .then((col) => col.findOne({_id: new ObjectID(mid)}, Projection))
+    .then((col) => col.findOne({
+        _id: { $eq: new ObjectID(lid) }, 
+        status: { $ne: 'deleted' }
+      }, Projection))
     .then((mail) => {
-      console.log(mail);
-      console.log(`[mail-letter] getMail with mid = ${mid} success.`);
-      //Connection.then((DB) => DB.close());
+      console.log(`[mail-letter] getMail with mid = ${lid} success.`);
       return Promise.resolve(mail);
     })
     .catch((err) => {
       console.log(err);
-      //Connection.then((DB) => DB.close());
       return Promise.reject(err);
     });
 }
-
-function putMail(mid = null, modifiedData, upsert = true){
+// TAG:
+function putMail(lid = null, modifiedData, upsert = true){
   const option = {
     upsert: upsert,
     returnOriginal: false,
     projection: { fgid: 0 }
   };
-
-  // check mid format if mid exist
-  if(mid){
-    if(!Validate.checkIDFormat(mid)) return Promise.reject("[mail-letter] mail id format error");
+  console.log(lid);
+  // check lid format if lid exist
+  if(lid){
+    if(!Validate.checkIDFormat(lid)) return Promise.reject("[mail-letter] mail id format error");
   }
 
-  // find mail with mid
-  return Collection
-    .then((col) => col.findOneAndUpdate({_id: new ObjectID(mid)}, { $set: modifiedData }, option))
+  // TODO:check modifiedData format
+  
+  return Promise.resolve(lid)
+    // if no lid, jump to upsert part
+    .then((lid) => (lid) ? getMail(lid) : Promise.reject())
+    // update data if status is draft or pending
+    .then((mail) => {
+      if(mail && (mail.status === 'draft' || mail.status === 'pending')){
+        return Promise.resolve(Collection);
+      }else{
+        return Promise.reject("update a mail only if status is draft or pending");
+      }
+    })
+    .catch(() => Promise.resolve(Collection))
+    // update or insert data (upsert)
+    .then((col) => col.findOneAndUpdate({_id: new ObjectID(lid)}, { $set: modifiedData }, option))
     .then((result) => {
       if(result.ok !== 1) return Promise.reject(result);
-      console.log(result);
-      (mid) ? console.log(`[mail-letter] putMail with mid = ${mid} success.`) : console.log(`[mail-letter] putMail new success.`);
-      //Connection.then((DB) => DB.close());
+      //console.log(result);
+      (lid) ? console.log(`[mail-letter] putMail with mid = ${lid} success.`) : console.log(`[mail-letter] putMail new success.`);
       return Promise.resolve(result.value);
     })
     .catch((err) => {
       console.log(err);
-      //Connection.then((DB) => DB.close());
       return Promise.reject(err);
     });
 }
-
-function deleteMail(mid){
+// TAG:
+function deleteMail(lid){
   let modifiedData = {
     status: "deleted",
+    autoSend: false,
+    reserveTime: '',
     deprecateTime: new Date().getTime()
   };
 
   // change status not real delete
-  putMail(mid, modifiedData, false)
+  return putMail(lid, modifiedData, false)
     .then((res) => {
-      console.log(res);
-      console.log(`[mail-letter] deleteMail with mid = ${mid} success.`);
+      console.log(`[mail-letter] deleteMail with mid = ${lid} success.`);
       return Promise.resolve(res);
     })
     .catch((err) => {

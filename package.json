@@ -25,7 +25,7 @@
   "devDependencies": {
     "mocha": "^3.4.2",
     "nodemon": "^1.11.0",
-    "should": "^7.1.0",
+    "should": "^7.1.0"
   },
   "scripts": {
     "start": "nodemon source/server/server.js",
