@@ -11,7 +11,7 @@ const PopupWindowAPI = express.Router();
 // QR Code
 PopupWindowAPI.get('/qrcode', (req, res) => {
   let fgid = req.query.fgid;
-  let qrcodeUrl = config.qrcodeAPI + config.domain + "/fg" + fgid;
+  let qrcodeUrl = config.qrcodeAPI + config.domain + "fg/" + fgid;
   let shortUrl = '';
 
   try{

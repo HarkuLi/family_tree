@@ -27,7 +27,7 @@
             </thead>
             <tbody>
               <% for(let i = list.length-1; i >= 0; --i){ %>
-                <tr id='<%= list[i]._id %>' class="row-a-link mail-letter-list">
+                <tr class="row-a-link mail-letter-list">
                   <td clas ="text-center"><%= i+1 %></td>
                   <% let ctime = new Date(list[i].createTime); %>
                   <td><%= ctime %></td>
@@ -41,6 +41,8 @@
                       <% }); %>
                     <% } %>
                   </td>
+                  <input type="hidden" name="lid" value="<%= list[i]._id %>">
+                  <input type="hidden" name="status" value="<%= list[i].status %>">
                 </tr>
                 
               <% } %>

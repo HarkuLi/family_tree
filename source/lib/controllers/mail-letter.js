@@ -15,6 +15,7 @@ module.exports = {
   getMail,
   putMail,
   deleteMail,
+  sendMail,
 }
 
 // TAG:
@@ -29,7 +30,10 @@ function getMailList(fgid, filter = {}){
   return Collection
     .then((Col) => {
       return new Promise((resolve, reject) => {
-        Col.find({fgid: fgid}, listProjection).sort({createTime: -1}).limit(20).toArray((err, list) => {
+        Col.find({
+          fgid: { $eq: fgid }, 
+          status: { $ne: 'deleted' }
+        }, listProjection).sort({createTime: -1}).limit(20).toArray((err, list) => {
           if(err) reject(err);
           console.log('[mail-letter] getMailList success.');
           resolve(list);
@@ -134,9 +138,7 @@ function sendMail(usr, lid, sendOptions){
       auth: { user: 'einfachstudio@gmail.com',pass: macPass }
   });
 
-
   // TODO: check autoSend is disable
-
   return DBOP_Tree
     // get family data from db (familyname)
     .getFamilyByUsr(usr)
@@ -146,8 +148,9 @@ function sendMail(usr, lid, sendOptions){
       sendOptions.username = usr;
       return Promise.resolve(checkMailOptions(sendOptions));
     })
-    .then((mailOptions) => 
-      transporter.sendMail(mailOptions, (err, info) => {
+    .then((mailOptions) =>{
+     
+      return transporter.sendMail(mailOptions, (err, info) => {
         if (err){
           console.log(err);
           return Promise.reject(err);
@@ -155,9 +158,9 @@ function sendMail(usr, lid, sendOptions){
         console.log('Mail %s sent: %s', info.messageId, info.response);
         return Promise.resolve();
       })
-    )
+    })
     // update status and sendtime
-    .then(() => Collection.putMail(lid, { status: "success", sendTime: new Date().getTime() }))
+    .then(() => putMail(lid, { status: "success", sendTime: new Date().getTime() }))
     .catch((err) => {
       console.log(err);
       return Promise.reject(err);
@@ -165,6 +168,7 @@ function sendMail(usr, lid, sendOptions){
 }
 
 function checkMailOptions(sendOptions){
+  
   let mailOptions = {};
   mailOptions.from = `"[Sender]${sendOptions.from}" <test@tree.com>`;
   mailOptions.to = sendOptions.to.split(',').map((receiver) => receiver.trim()).join(',');
@@ -174,6 +178,3 @@ function checkMailOptions(sendOptions){
   mailOptions.html = sendOptions.context || '';
   return mailOptions;
 }
-
-// test
-sendMail('name0', )

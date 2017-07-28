@@ -12,6 +12,14 @@ var getFamilyByID = (id)=>{
   return getByIDColle(id, colle_family);
 };
 
+var getFamilyIDByUsr = (usr)=>{
+  return getDB
+    .then((db)=>{
+      var colle = db.collection(colle_family);
+      return colle.findOne({usr}, {_id: 1});
+    })
+};
+
 var getFamilyByUsr = (usr)=>{
   return getDB
     .then((db)=>{

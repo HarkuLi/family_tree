@@ -38,7 +38,13 @@ function initSummerNote(){
     $.get(`${fgUrl}/mail/ml/fn/${lid}`, {}, (mailContent, status) => {
       console.log(mailContent);
       if(mailContent.status){  
-        return $('#summernote').summernote('code', mailContent.context);  
+        $('#summernote').summernote('code', mailContent.data.context);  
+        let editable = $("[name='editable']").val() || false;
+        if(!editable || editable ==='false'){
+          console.log("disable editor");
+          $('#summernote').summernote('disable');
+        }
+        return;
       }
       console.log(`get mail content with lid = ${lid} got error.`);
     });
@@ -139,7 +145,7 @@ $("#get-qrcode").click((e) => {
   $(".wrapper").removeClass('hidden');
   $("#async-load").removeClass('hidden');
 
-  loadTemplate("/mask/qrcode", { fgid: test_fgid })
+  loadTemplate("/mask/qrcode", { fgid: test_fgid }) //TODO: change to formal fgid
     .then((render) => {
       $("#async-load").addClass('hidden');
       $("#popup-content").html(render());
@@ -199,12 +205,13 @@ $("#putMail").submit((e) => {
         //dataType: 'json',
         success: (response, status, xhr) => {
           alert('Send mail success!');
-          console.log(response);
+          //console.log(response);
           console.log()
           window.location.assign(`${window.location.origin}${fgUrl}/mail/ml/`);
         },
         error: (xhr, status, error) => {
           alert('send mail error!');
+          console.log(error);
           return Promise.reject(error);
         }
       });
@@ -241,6 +248,21 @@ $('#deleteMail').click((e) => {
 
 // TAG: mail letter list row link
 $(".mail-letter-list").click(function() {
-  let lid = $(this).attr('id') || null;
-  window.location.assign(`${window.location.origin}${window.location.pathname}edit/${lid}`);
+  let lid = $(this).children("[name='lid']").val() || null;
+  let status = $(this).children("[name='status']").val() || null;
+  console.log({lid, status});
+  if(!lid || !status) return console.log("[event] lid or status invalid");
+  switch(status){
+    case 'draft':
+    case 'pending':
+      window.location.assign(`${window.location.origin}${window.location.pathname}edit/${lid}`);
+      break;
+    case 'success':
+    case 'fail':
+      window.location.assign(`${window.location.origin}${window.location.pathname}show/${lid}`);
+      break;
+    default: 
+      console.log("[event] unknown status");
+      return;
+  }
 });

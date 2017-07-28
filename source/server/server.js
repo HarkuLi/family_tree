@@ -29,6 +29,23 @@ app.get('/', (req, res)=>{
       };
       res.render('pages/index', DATA);
     });
+
+  /* var DATA = { root: "/" };
+  identity.isSignin(req)
+    .then((usr)=>{
+      DATA.usr = usr;
+      return dbop_tree.getFamilyIDByUsr(usr);
+    })
+    .then((fgid) => {  
+       let fgUrl = config.fgUrlRoot+fgid;
+      DATA.fgUrl = fgUrl; 
+      return res.render('pages/index', DATA);
+      // FIXME: unhandle error
+     })
+    .catch((err) => {
+      console.log(err);
+      next();
+    }) */
 });
 
 app.post("/signup_action", (req, res)=>{

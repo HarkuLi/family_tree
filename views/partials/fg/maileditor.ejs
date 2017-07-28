@@ -8,49 +8,52 @@
             <div class="form-group">
               <!-- toggle switch -->
               <div class="btn-group" role="group" aria-label="...">
-                <div class="onoffswitch">
-                  <input type="checkbox" name="autoSend" class="onoffswitch-checkbox" id="myonoffswitch">
-                  <label class="onoffswitch-label" for="myonoffswitch">
-                    <!-- text are in css content -->
-                    <span class="onoffswitch-inner"></span>
-                    <span class="onoffswitch-switch"></span>
-                  </label>
-                </div><!-- / toggle switch -->
-                
+                <% if(editable) { %>
+                  <div class="onoffswitch">
+                    <input type="checkbox" name="autoSend" class="onoffswitch-checkbox" id="myonoffswitch">
+                    <label class="onoffswitch-label" for="myonoffswitch">
+                      <!-- text are in css content -->
+                      <span class="onoffswitch-inner"></span>
+                      <span class="onoffswitch-switch"></span>
+                    </label>
+                  </div><!-- / toggle switch -->
+                <% } %>
               </div>
               <div class="btn-group pull-right" role="group" aria-label="...">
                 <button type="button" class="btn btn-default" onclick="window.history.back();">Back to List</button>
-                <button id="putMail" type="submit" class="btn btn-primary">Send / Save</button>
+                <% if(editable) { %>
+                  <button id="putMail" type="submit" class="btn btn-primary">Send / Save</button>
+                <% } %>
               </div>
             </div>
             <div id="autoSendField" class="form-group hidden">
               <label for="datetimepicker" class="col-sm-1 control-label">Appoint<br>Time</label>
               <div class="col-sm-11">
-                <input id="datetimepicker" name="reserveTime" class="form-control" type="text" placeholder="yyyy-mm-dd hh:mm" data-date-format="yyyy-mm-dd hh:ii">
+                <input id="datetimepicker" name="reserveTime" class="form-control" type="text" placeholder="yyyy-mm-dd hh:mm" data-date-format="yyyy-mm-dd hh:ii" <%= (editable) ? '' : 'disabled'; %>>
               </div>
             </div>
             <div class="form-group">
               <label for="to" class="col-sm-1 control-label">To</label>
               <div class="col-sm-11">
-                <input type="email" class="form-control" id="to" name="to" placeholder="Email / Mail Group" value=<%= mailContent.to || '' %>>
+                <input type="email" class="form-control" id="to" name="to" placeholder="Email / Mail Group" value="<%= mailContent.to || '' %>" <%= (editable) ? '' : 'disabled'; %>>
               </div>
             </div>
             <div class="form-group">
               <label for="cc" class="col-sm-1 control-label">CC</label>
               <div class="col-sm-11">
-                <input type="email" class="form-control" id="cc" name="cc" placeholder="Email / Mail Group" value=<%= mailContent.cc || '' %>>
+                <input type="email" class="form-control" id="cc" name="cc" placeholder="Email / Mail Group" value="<%= mailContent.cc || '' %>" <%= (editable) ? '' : 'disabled'; %>>
               </div>
             </div>
             <div class="form-group">
               <label for="bcc" class="col-sm-1 control-label">BCC</label>
               <div class="col-sm-11">
-                <input type="email" class="form-control" id="bcc" name="bcc" placeholder="Email / Mail Group" value=<%= mailContent.bcc || '' %>>
+                <input type="email" class="form-control" id="bcc" name="bcc" placeholder="Email / Mail Group" value="<%= mailContent.bcc || '' %>" <%= (editable) ? '' : 'disabled'; %>>
               </div>
             </div>
             <div class="form-group">
               <label for="subject" class="control-label col-sm-1">Subject</label>
               <div class="col-sm-11">
-                <input class="form-control" type="text" name="subject" placeholder="Subject" maxlength="200" value=<%= mailContent.subject || '' %>>
+                <input class="form-control" type="text" name="subject" placeholder="Subject" maxlength="200" value="<%= mailContent.subject || '' %>" <%= (editable) ? '' : 'disabled'; %>>
               </div>
             </div>
             <div id="summernote" class="col-sm-10 col-sm-offset-2"></div>
@@ -58,34 +61,11 @@
             <% if(lid){ %>
               <input type="hidden" name="lid" value=<%= lid %>>
             <% } %>
+            <% if(editable) { %>
             <div class="form-group text-center">
               <button id="deleteMail" type="button" class="btn btn-danger">Delete Mail</button>
             </div>
+            <% } %>
+            <input type="hidden" name="editable" value=<%= editable %>>
           </form>
           <!-- / Mail Editor -->
-
-          <!-- modal dialog with reserved sending mail -->
-          <!--<div class="modal in" aria-hidden="false" tabindex="-1" style="display: none;">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">×</span></button>
-                  <h4 class="modal-title">預約寄信設定</h4>    
-                </div>
-                <div class="modal-body">
-                  <div class="form-group">
-                    <label>預訂寄送時間 Reserved Sending Time</label>
-                    <input class="note-link-text form-control" type="text">
-                  </div>
-                  <div class="form-group">
-                    <label>啟用功能 Function Switch</label>
-                    <input class="note-link-url form-control" type="text" value="http://">
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button href="#" class="btn btn-primary note-link-btn disabled" disabled="disabled">儲存</button>
-                </div>
-              </div>
-            </div>
-          </div>--><!-- / modal dialog with reserved sending mail -->
