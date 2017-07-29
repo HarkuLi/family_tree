@@ -381,5 +381,5 @@ var ComputeChildIdx = (usr, parent_id)=>{
 };
 /** private function */
 
-module.exports = {getFamilyByID, getFamilyByUsr, getPersonByID, newFamily,
+module.exports = {getFamilyByID, getFamilyByUsr, getPersonByID, getFamilyIDByUsr, newFamily, 
                   newRoot, addChild, remove, addMate, removeMate, updatePerson, getDB};

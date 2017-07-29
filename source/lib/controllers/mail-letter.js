@@ -81,6 +81,7 @@ function putMail(lid = null, modifiedData, upsert = true){
   }
 
   // TODO:check modifiedData format
+  modifiedData.modifiedTime = new Date().getTime();
   
   return Promise.resolve(lid)
     // if no lid, jump to upsert part
@@ -113,6 +114,7 @@ function deleteMail(lid){
     status: "deleted",
     autoSend: false,
     reserveTime: '',
+    modifyTime: new Date().getTime(),
     deprecateTime: new Date().getTime()
   };
 
@@ -130,12 +132,11 @@ function deleteMail(lid){
 
 function sendMail(usr, lid, sendOptions){
   // INFO: Use GMAIL for Temporary Choice UNLESS Haraka SMTP Server established
-  const macPass = 'jirpoqjcxyoysfeq';  // mac app password
   let transporter = Nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 465,
       secure: true, // secure:true for port 465
-      auth: { user: 'einfachstudio@gmail.com',pass: macPass }
+      auth: { user: 'einfachstudio@gmail.com',pass: process.env.GMAIL_KEY }
   });
 
   // TODO: check autoSend is disable

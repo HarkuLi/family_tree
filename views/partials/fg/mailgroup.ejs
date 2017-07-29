@@ -4,8 +4,15 @@
           <div class="btn-group pull-right" role="group" aria-label="write mail">
             <button type="button" class="btn btn-primary">New Mail Group</button>
           </div>
-          <!--  group 1 -->
-          <h3>Group 1
+
+        <% if(list.length === 0) { %>
+          <div class="center-block">
+            <h3>There is no group now.</h3>
+          </div>
+        <% }else{ %>
+        <%   list.forEach((group) => { %>
+        
+          <h3><%= group.name %>
             <a href="#" class="icon-tool-btn"><i class="fa fa-plus" title="Add Email Address to This Group"></i></a>
             <a href="#" class="icon-tool-btn"><i class="fa fa-pencil" title="Modify Group Default Setting"></i></a>
             <a href="#" class="icon-tool-btn"><i class="fa fa-trash" title="Delete This Group"></i></a>
@@ -16,21 +23,26 @@
                 <th>#</th>
                 <th>Name</th>
                 <th>Email Address</th>
-                <th>Added Time</th>
-                <th>Added By</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
-              <% for(let i = 1; i <= 20; i++){ %>
+            <% if(group.memberlist.length === 0) { %>
+              <tr>
+                <td col="4">No member in this group now.</td>
+              </tr>  
+            <% }else{ %>
+              <% group.memberlist.forEach((member, idx) => {
                 <tr>
-                  <td><%= i %></td>
-                  <td>Arthor <%= i %></td>
-                  <td>test<%= i %>@mail.com</td>
-                  <td>2017-10-10 20:21:23</td>
-                  <td>Angus Chen</td>
+                  <td><%= idx + 1 %></td>
+                  <td><%= member.name %></td>
+                  <td><%= member.email %></td>
                   <td><a href="#" class="icon-tool-btn"><i class="fa fa-trash" title="Remove from This Group"></i></a></td>
                 </tr>  
-              <% } %>
+              <% }); %>
+            <% } %>
             </tbody>
-          </table><!-- / group 1 -->
+          </table>
+        <%   }); %>
+        <% } %>
+          

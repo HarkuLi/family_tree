@@ -1,21 +1,11 @@
 'use strict';
 
 const express = require('express');
-const request = require('request');
 const MailLetterController = require('../controllers/mail-letter');
 const identity = require("../controllers/identity");
 const dbop_tree = require("../controllers/dbop_tree");
 const config = require('../../config/default');
 const MailLetterAPI = express.Router();  //  /fg/:fgid/mail/ml  
-
-// TAG: check login
-MailLetterAPI.use((req, res, next)=>{
-  identity.isSignin(req)
-    .then((usr)=>{
-      if(usr) return next();
-      res.redirect("/");  //please signin
-    });
-});
 
 // TAG: [v] 顯示所有信件列表的頁面（信件、草稿）
 MailLetterAPI.get('/', (req, res) => {
@@ -29,17 +19,17 @@ MailLetterAPI.get('/', (req, res) => {
       usr = result;
       return dbop_tree.getFamilyIDByUsr(usr);
     })
-    .then((fgid) => {
-      if(!fgid)  return Promise.reject("[mail-letter] cannot find fgid by usr");
+    .then((result) => {
+      if(!result._id)  return Promise.reject("[mail-letter] cannot find fgid by usr");
+      let fgid = result._id.toHexString();
       fgUrl += fgid;
-
       // TODO: check privilege
       return MailLetterController.getMailList(fgid);
     })
-    .then((list) => res.render('pages/fg.ejs', { page: "mailletter", list, fgUrl }))
+    .then((list) => res.render('pages/fg.ejs', { page: "mailletter", list, fgUrl, usr }))
     .catch((err) => {
       console.log(err);
-      res.status(404).render('pages/error.ejs', { code: 404 });
+      res.status(404).render('pages/error.ejs', { code: 404, usr });
     });
 });
 
@@ -50,8 +40,9 @@ MailLetterAPI.get('/fn/list', (req, res) => {
       if(!usr)  return Promise.reject("[mail-letter] no login");
       return dbop_tree.getFamilyIDByUsr(usr);
     })
-    .then((fgid) => {
-      if(!fgid) return Promise.reject("[mail-letter] cannot find family group id");
+    .then((result) => {
+      if(!result._id) return Promise.reject("[mail-letter] cannot find family group id");
+      let fgid = result._id.toHexString();
       return MailLetterController.getMailList(fgid);
     })
     .then((mailList) => res.send({ status: true, data: mailList }))
@@ -68,8 +59,8 @@ MailLetterAPI.get('/fn/:lid', (req, res) => {
       if(!usr)  return Promise.reject("[mail-letter] no login");
       return dbop_tree.getFamilyIDByUsr(usr);
     })
-    .then((fgid) => {
-      if(!fgid) return Promise.reject("[mail-letter] cannot find family group id");
+    .then((result) => {
+      if(!result._id) return Promise.reject("[mail-letter] cannot find family group id");
       return MailLetterController.getMail(lid);
     })
     .then((mailContent) => res.send({ status: true, data: mailContent }))
@@ -80,6 +71,7 @@ MailLetterAPI.get('/fn/:lid', (req, res) => {
 MailLetterAPI.get('/show/:lid', (req, res) => {
   let fgUrl = config.fgUrlRoot;
   let lid = req.params.lid || null;
+  let usr = false;
   if(!lid) return res.status(400).send({ status: false, message: "letter id is invalid" });
   
   identity.isSignin(req)
@@ -87,12 +79,13 @@ MailLetterAPI.get('/show/:lid', (req, res) => {
       if(!usr)  return Promise.reject("[mail-letter] no login");
       return dbop_tree.getFamilyIDByUsr(usr);
     })
-    .then((fgid) => {
-      if(!fgid) return Promise.reject("[mail-letter] cannot find family group id");
-      fgUrl += fgid;
+    .then((result) => {
+      if(!result._id) return Promise.reject("[mail-letter] cannot find family group id");
+      let fgid = result._id.toHexString();
+      fgUrl += fgid
       return MailLetterController.getMail(lid);
     })
-    .then((mailContent) => res.render('pages/fg.ejs', { page: "maileditor", fgUrl, lid, mailContent, editable: false }))
+    .then((mailContent) => res.render('pages/fg.ejs', { page: "maileditor", usr, fgUrl, lid, mailContent, editable: false }))
     .catch((err) => res.status(404).render('pages/error.ejs', { code: 404 }));
 });
 
@@ -100,20 +93,23 @@ MailLetterAPI.route('/edit/:lid?')
   // TAG: [v] 顯示、新增信件編輯頁面
   .get((req, res) => {
     let fgUrl = config.fgUrlRoot;
+    let usr = false;
     let lid = req.params.lid || null;
     
     identity.isSignin(req)
-      .then((usr) => {
-        if(!usr)  return Promise.reject("[mail-letter] no login");
-        return dbop_tree.getFamilyIDByUsr(usr);
+      .then((res) => {
+        if(!res)  return Promise.reject("[mail-letter] no login");
+        usr = res;
+        return dbop_tree.getFamilyIDByUsr(res);
       })
-      .then((fgid) => {
-        if(!fgid) return Promise.reject("[mail-letter] cannot find family group id");
+      .then((result) => {
+        if(!result) return Promise.reject("[mail-letter] cannot find family group id");
+        let fgid = result._id.toHexString();
         fgUrl += fgid;
 
         // 無lid -> 顯示空白的信件新增頁面（必須status為draft才允許編輯
         if(!lid){
-          res.render('pages/fg.ejs', { page: "maileditor", fgUrl, lid, mailContent: {}, editable: true });
+          res.render('pages/fg.ejs', { page: "maileditor", usr, fgUrl, lid, mailContent: {}, editable: true });
           return Promise.resolve('bypass');
         }
         return MailLetterController.getMail(lid);
@@ -125,7 +121,7 @@ MailLetterAPI.route('/edit/:lid?')
         // for mail not found
         if(!mailContent) mailContent = {};  
         //  有lid -> 顯示信件編輯頁面
-        res.render('pages/fg.ejs', { page: "maileditor", fgUrl, lid, mailContent, editable: true });
+        res.render('pages/fg.ejs', { page: "maileditor", usr, fgUrl, lid, mailContent, editable: true });
       })
       .catch((err) => res.status(400).send({ status: false, message: err }));
   })

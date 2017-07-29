@@ -1,6 +1,6 @@
 $(document).ready(() => {
-  initSummerNote();
-  initDateTimePicker();
+  //initSummerNote();
+  //initDateTimePicker();
 });
 
 

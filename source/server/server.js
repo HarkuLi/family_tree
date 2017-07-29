@@ -21,31 +21,20 @@ app.use(bodyParser.json());        // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 app.get('/', (req, res)=>{
-  identity.isSignin(req)
-    .then((usr)=>{
-      var DATA = {
-        usr,
-        root: "/"
-      };
-      res.render('pages/index', DATA);
-    });
-
-  /* var DATA = { root: "/" };
+  var DATA = { root: "/" };
   identity.isSignin(req)
     .then((usr)=>{
       DATA.usr = usr;
-      return dbop_tree.getFamilyIDByUsr(usr);
+      return (usr) ? dbop_tree.getFamilyIDByUsr(usr) : Promise.resolve(false);
     })
-    .then((fgid) => {  
-       let fgUrl = config.fgUrlRoot+fgid;
-      DATA.fgUrl = fgUrl; 
+    .then((result) => {  
+      if(result)  DATA.fgUrl = config.fgUrlRoot+result._id;
       return res.render('pages/index', DATA);
-      // FIXME: unhandle error
      })
     .catch((err) => {
       console.log(err);
       next();
-    }) */
+    })
 });
 
 app.post("/signup_action", (req, res)=>{
@@ -117,39 +106,57 @@ app.use('/tree', tree_route);
  // popup window router
 const PopupWindowAPI = require('../lib/routes/popup');
 app.use('/mask', (req, res, next) => {
-  req.pathParams = req.params; 
+  identity.isSignin(req)
+    .then((usr)=>{
+      if(usr) return next();
+      res.redirect("/");  //please signin
+    });
+  /* req.pathParams = req.params; 
   req.pathParams.fgUrl = req.originalUrl.split('/').splice(0,3).join('/');
-  next();
+  next(); */
 }, PopupWindowAPI);
 
 // mail group router
 const MailGroupAPI = require('../lib/routes/mail-group');
 app.use('/fg/:fgid/mail/mg', (req, res, next) => {
-  req.pathParams = req.params; 
+  identity.isSignin(req)
+    .then((usr)=>{
+      if(usr) return next();
+      res.redirect("/");  //please signin
+    });
+  /* req.pathParams = req.params; 
   req.pathParams.fgUrl = req.originalUrl.split('/').splice(0,3).join('/');
-  next();
+  next(); */
 }, MailGroupAPI);
 
 // mail letter router
 const MailLetterAPI = require('../lib/routes/mail-letter');
-app.use('/fg/:fgid/mail/ml', (req, res, next) => {
-  req.pathParams = req.params;
-  req.pathParams.fgUrl = req.originalUrl.split('/').splice(0,3).join('/');
-  next();
+app.use('/fg/:fgid/mail/ml', (req, res, next)=>{
+  identity.isSignin(req)
+    .then((usr)=>{
+      if(usr) return next();
+      res.redirect("/");  //please signin
+    });
 }, MailLetterAPI);
 
 // family group router
 const FamilyGroupAPI = require('../lib/routes/family-group');
 app.use('/fg/:fgid', (req, res, next) => {
-  req.pathParams = req.params; 
+  identity.isSignin(req)
+    .then((usr)=>{
+      if(usr) return next();
+      res.redirect("/");  //please signin
+    });
+  /* req.pathParams = req.params; 
   req.pathParams.fgUrl = req.originalUrl.split('/').splice(0,3).join('/');
-  next();
+  next(); */
 }, FamilyGroupAPI);
 
 // 404
 app.use((req,res) => {
-  console.log(req.url);
-  res.status(404).render('pages/error.ejs', { code: 404 })
+  console.log(`[server] cannot find url = ${req.url}`);
+  identity.isSignin(req)
+    .then((usr)=>res.status(404).render('pages/error.ejs', { code: 404, usr }))
 });
 
 app.listen(10010, function (err) {
