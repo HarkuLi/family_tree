@@ -1,6 +1,7 @@
 const express = require('express');
 const tree = require("../controllers/tree");
 const identity = require("../controllers/identity");
+const config = require('../../config/default');
 const dbop_tree = require("../controllers/dbop_tree");
 
 const app = express();
@@ -22,19 +23,26 @@ app.get("/", (req, res)=>{
 
 app.get("/:usr", (req, res)=>{
   var usr = false;
+  var fgUrl = config.fgUrlRoot;
   identity.isSignin(req)
     .then((usr_name)=>{
       if(!usr_name)  return {orderArray: []};
       usr = usr_name;
-      return dbop_tree.getFamilyByUsr(usr_name);
+
+      let process = [dbop_tree.getFamilyByUsr(usr_name), dbop_tree.getFamilyIDByUsr(usr)]
+      return Promise.all(process);
     })
-    .then((item)=>{
+    .then((result) => {
+      let item = result[0];
+      let fgid = result[1]._id.toHexString();
+      fgUrl += fgid;
       return tree.orderArrayHandle(item.orderArray);
     })
     .then((objList)=>{
       var DATA = {
         objList,
-        usr
+        usr,
+        fgUrl
       };
       res.render("pages/tree", DATA);
     });

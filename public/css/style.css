@@ -190,3 +190,11 @@
 .row-a-link{
     cursor: pointer;
 }
+
+/* for header image */
+.jumbotron {
+    background: url(https://static.pexels.com/photos/56875/tree-dawn-nature-bucovina-56875.jpeg);
+}
+body{
+    background-color: #F4EAE0;
+}

@@ -143,7 +143,6 @@ MailGroupAPI.route('/:mgid/adl/add')
         return FamilyGroupController.getAllMemberEmails(fgid);
       })
       .then((emaillist) => {
-        //FIXME:
         res.render('partials/mask/mg-editor', { page: "putGroupMember", mgid: null, emaillist, client: true });
       })
       .catch((err) => res.status(400).render('partials/mask/mask-error.ejs', { client: true }))
