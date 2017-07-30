@@ -13,7 +13,7 @@ const PopupWindowAPI = express.Router();
 // QR Code
 PopupWindowAPI.get('/qrcode', (req, res) => {
   let usr = false;
-  let shortUrl = '';
+  let shortUrl = config.domain + "fg/";
   let qrcodeUrl = config.qrcodeAPI + config.domain + "fg/";
   
   identity.isSignin(req)
@@ -31,10 +31,11 @@ PopupWindowAPI.get('/qrcode', (req, res) => {
       if(!validate.checkIDFormat(fgid)) return Promise.reject('FamilyGroup ID Validate Fail.');
       qrcodeUrl += fgid;
       // shorten url
+      shortUrl += fgid;
       request(config.googleShortenUrlAPI + config.googleAPIKey, {
         method: "POST",
         json: true,
-        body: { longUrl: qrcodeUrl }
+        body: { longUrl: shortUrl }
       }, (err, response, body) => {
         if(err) return Promise.reject(err);
         if(!body) return Promise.reject("Receive empty response when shorten url");

@@ -1,7 +1,7 @@
 const MailGroup = require('../source/lib/controllers/mail-group');
 const ObjectID = require('mongodb').ObjectID;
 
-/* MailGroup.getGroupList('596da10db6caf43f6d67d56c')
+MailGroup.getGroupList('597c823745869057253c7880')
   .then((v) => {
     console.log(v);
     console.log('test success');
@@ -9,7 +9,7 @@ const ObjectID = require('mongodb').ObjectID;
   .catch((e) => {
     console.log(e);
     console.log('test failed');
-  }); */
+  }); 
 
 /* MailGroup.getGroup('597afeddacd3e260b5235ed3')
   .then((v) => {

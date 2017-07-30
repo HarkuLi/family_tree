@@ -23,10 +23,16 @@ function getAllMemberEmails(fgid){
       return Promise.all(getPeople);
     })
     .then((people) => {
-      let emails = people.map((person) => person.email || null).filter((email) => email);
+      let emaillist = people.map((person) => {
+        let member = {};
+        member.name = person.name || 'unknown';
+        member.pid = person._id || null;
+        member.email = person.email || null;
+        return member;
+      }).filter((member) => member.email && member.pid);
       console.log("[family-group] getAllMemberEmails success!");
-      console.log(emails);
-      return Promise.resolve(emails);
+      console.log(emaillist);
+      return Promise.resolve(emaillist);
     })
     .catch((err) => {
       console.log(err);

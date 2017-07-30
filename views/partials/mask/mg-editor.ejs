@@ -1,0 +1,49 @@
+<form id="mg-editor-form" class="form-horizontal">
+  <% console.log(page) %>
+  <% switch(page){
+    case "putGroup": %>
+      <h3><%= (mgid) ? 'Edit Mail Group' : 'New Mail Group' %></h3>
+      <label for="name" class="">Group Name</label>
+      <input class="form-control" type="text" name="name" placeholder="Group Name" maxlength="50" value="<%= (groupContent) ? groupContent.name : '' %>" />
+      <div id="addmg-msg" style="color: #ff6666; margin-top: 10px;"></div>
+      <div class="center-block form-btn-row">
+        <button class="btn btn-primary btn-block" type="submit"><%= (mgid) ? 'Save' : 'Create' %></button>
+      </div>  
+      <% break;
+    case "putGroupMember": %>
+      <h3>Add Group Member</h3>
+      <hr>
+      
+      <h4>Method 1 : Choose from Family Group</h3>
+      <div id="fgEmailMenu" class="dropdown">
+        <button class="btn btn-block btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+          <span id="menu-select">Choose an existed family group member...</span>
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="fgEmailMenu">
+          <% if(emaillist.length === 0){ %>
+            <li class="text-center"><p style="color: #000; ">No emails found.</p></li>  
+          <% }else{ %>
+            <li><a href="#" class="reset-menu">No selected.</a></li>
+            <% for(let i = 0; i < emaillist.length; i++){ %>
+              <li id="<%= emaillist[i].pid %>"><a href="#" class="emaillist"><%= emaillist[i].name+' <'+emaillist[i].email+'>' %></a></li>
+            <% } %>
+          <% } %>
+        </ul>
+        <input type="hidden" name="addPid" value="" />
+      </div>
+      <hr>
+      <h4>Method 2 : Add by Hand</h3>
+      <label for="addName" class="">Name</label>
+      <input class="form-control" type="text" name="addName" placeholder="New Member's Name" maxlength="50" />
+      <label for="addEmail" class="">Email</label>
+      <input class="form-control" type="text" name="addEmail" placeholder="New Member's Email" maxlength="50" />
+      <hr>
+      <div class="center-block form-btn-row">
+        <button class="btn btn-primary btn-block" type="submit">Add</button>
+      </div>  
+      <% break;
+    defult: %>
+      <%- include('./mask-error.ejs') %>
+  <% } %>
+</form>

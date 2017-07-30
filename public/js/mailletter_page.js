@@ -1,27 +1,3 @@
-$(document).ready(() => {
-  //initSummerNote();
-  //initDateTimePicker();
-});
-
-
-/* TAG: Loading EJS Template */
-function loadTemplate(route, data={}){
-  return new Promise((resolve, reject) => {
-    if(!route) reject(console.log("No Route Determinate."));
-
-    // get template
-    $.get(window.location.origin+route, data, (template, status) => {
-      if(status === "error"){
-        console.log({data, status});
-        reject(console.log("Failed to Load Content."));
-      }
-      // rendering function with ejs template
-      let render = ejs.compile(template, {client: true});
-      resolve(render);
-    }, "html");
-  });
-}
-
 /* TAG: initialize summernote editor */
 function initSummerNote(){
   $('#summernote').summernote({
@@ -59,8 +35,15 @@ function initDateTimePicker(){
       clearBtn: true,
       minuteStep: 10
   });
-
 }
+
+//-------------------------------------------------------
+
+// initialize
+$(document).ready(() => {
+  initSummerNote();
+  initDateTimePicker();
+});
 
 // TAG: switch to display auto send time field
 $('#myonoffswitch').change(function() {
@@ -72,115 +55,16 @@ $('#myonoffswitch').change(function() {
   }
 });
 
-
-// TAG: switch to signin or signup
-function switchSignTo(e){
-  $("form").submit((sub) => sub.preventDefault());
-  e.stopPropagation();
-  e.preventDefault();
-
-  $("#async-load").removeClass("hidden");
-  $("#popup-content").html("");
-
-  let typeSet = {signin: "signin", signup: "signup"};
-  if(!e.data.dest || !e.data.from) return console.log("switch input invalid.");
-  if( !(e.data.dest in typeSet) || !(e.data.from in typeSet) ) return console.log("unknow switch type.");
-  
-
-  loadTemplate(`/mask/${e.data.dest}`)
-    .then((render) => {
-      $("#async-load").addClass("hidden");
-      $("#popup-content").html(render());
-    })
-    .then(() => {
-      // bind event: click
-      $("#switch-"+e.data.from).on("click", { dest: e.data.from, from: e.data.dest }, switchSignTo);
-    })
-    .catch((err) => console.log(err));
-}
-
-/* EVENT BLOCKS */
-
-// TAG: mask show, signin show
-$("#sign").click(() => {
-  $("#popup-content").html("");
-  $(".mask").removeClass('hidden');
-  $(".wrapper").removeClass('hidden');
-  $("#async-load").removeClass('hidden');
-
-  loadTemplate("/mask/signin")
-    .then((render) => {
-      $("#async-load").addClass("hidden");
-      $("#popup-content").html(render());
-    })
-    .then(() => {
-      // bind event: switch to signup
-      $("#switch-signup").on("click", { dest: "signup", from: "signin" }, switchSignTo);
-    }).catch((err) => console.log(err));
-});
-
-// TAG: mask hide when click close
-$("#sign_out").click(()=>{
-  window.location = "/sign_out";
-});
-
-// mask hide when click close
-$(".close").click(() => {
-  $(".mask").addClass('hidden');
-  $(".wrapper").addClass('hidden');
-  $("#async-load").addClass("hidden");
-  $("#popup-content").html("");
-});
-
-// TAG: get QR Code
-$("#get-qrcode").click((e) => {
-  let test_fgid = '6a736e667061693132396664';
-
-  // cancel a event bubling
-  e.stopPropagation();
-  e.preventDefault();
-
-  $("#popup-content").html("");
-  $(".mask").removeClass('hidden');
-  $(".wrapper").removeClass('hidden');
-  $("#async-load").removeClass('hidden');
-
-  loadTemplate("/mask/qrcode", { fgid: test_fgid }) //TODO: change to formal fgid
-    .then((render) => {
-      $("#async-load").addClass('hidden');
-      $("#popup-content").html(render());
-    })
-    .then(() => 
-      // bind event: copy short url
-      $("#copy-url").on("click", () => {
-        $("#short-url").select();
-        document.execCommand("copy");
-        $("#copy-url button").html("Copied");
-        $(".info-text").html("Copied to Clipboard!");
-      })
-    ).catch((err) => console.log(err));
-});
-
 // TAG: for save and send mail
 $("#putMail").submit((e) => {    
-  e.preventDefault();
-  e.stopPropagation();
+  stopActionAndBubbling(e);
 
   // get data from form
-  let sendData = $("#putMail").serializeArray();
-  sendData.push({
-    name: 'context',
-    value: $('#summernote').summernote('code')
-  });
-  
-  // process Array [{name: xxx, value: xxx}] to json
-  let tmp = {};
-  sendData.forEach((nv) => tmp[nv.name] = nv.value);
-  sendData = JSON.stringify(tmp);
+  let sendData = getFormData("#putMail");
+  sendData.push({ context: $('#summernote').summernote('code') });
 
   // check autosend field
   sendData.autoSend = (sendData.autoSend === 'on') ? true : false;
-  console.log(sendData);
 
   let fgUrl = $("[name='fgUrl']").val();
   let lid = $("[name='lid").val() || null;
@@ -206,11 +90,10 @@ $("#putMail").submit((e) => {
         success: (response, status, xhr) => {
           alert('Send mail success!');
           //console.log(response);
-          console.log()
           window.location.assign(`${window.location.origin}${fgUrl}/mail/ml/`);
         },
         error: (xhr, status, error) => {
-          alert('send mail error!');
+          alert('Send mail error!');
           console.log(error);
           return Promise.reject(error);
         }
@@ -218,10 +101,10 @@ $("#putMail").submit((e) => {
     })
     .catch((err) => console.log(err));
 })
+
 // TAG: for delete mail
 $('#deleteMail').click((e) => {
-  e.preventDefault();
-  e.stopPropagation();
+  stopActionAndBubbling(e);
 
   let fgUrl = $("[name='fgUrl']").val();
   let lid = $("[name='lid").val() || null;

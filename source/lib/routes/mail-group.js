@@ -3,7 +3,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const identity = require("../controllers/identity");
-const MailGroupController = require("../controllers/mail-group")
+const MailGroupController = require("../controllers/mail-group");
+const FamilyGroupController = require("../controllers/family-group");
 const config = require('../../config/default');
 const MailGroupAPI = express.Router();
 
@@ -22,16 +23,21 @@ MailGroupAPI.get('/', (req, res) => {
       let fgid = result[1];
       usr = result[0];
       fgUrl += fgid;
+      console.log({fgUrl, fgid, usr});
       return MailGroupController.getGroupList(fgid);
     })
-    .then((list) => res.render('pages/fg.ejs', { page: "mailgroup", list, fgUrl, usr }))
+    .then((list) => {
+      console.log(list);
+      console.log(list[0].memberlist);
+      res.render('pages/fg.ejs', { page: "mailgroup", list, fgUrl, usr })
+    })
     .catch((err) => {
       console.log(err);
       res.status(404).render('pages/error.ejs', { code: 404, usr });
     });
 });
 
-MailGroupAPI.route('/edit/:mgid')
+MailGroupAPI.route('/edit/:mgid?')
   // TAG: [v] 新增、修改mail group
   .get((req, res) => {
     var usr = false;
@@ -51,7 +57,7 @@ MailGroupAPI.route('/edit/:mgid')
         
         // 無mgid -> 新增mail group的popup頁面
         if(!mgid){
-          res.render('pages/fg.ejs', { page: "groupeditor", usr, fgUrl, mgid, groupContent: {} });
+          res.render('partials/mask/mg-editor', { page: "putGroup", mgid: null, groupContent: null, client: true });
           return Promise.resolve('bypass');
         }
         return MailGroupController.getGroup(mgid);
@@ -63,7 +69,7 @@ MailGroupAPI.route('/edit/:mgid')
         // for group not found
         if(!groupContent) groupContent = {};  
         // [v] 有mgid -> 修改個別mail group的頁面
-        res.render('pages/fg.ejs', { page: "groupeditor", usr, fgUrl, mgid, groupContent });
+        res.render('partials/mask/mg-editor', { page: "putGroup", mgid, groupContent, client: true });
       })
       .catch((err) => res.status(400).send({ status: false, message: err }));
   })
@@ -73,10 +79,18 @@ MailGroupAPI.route('/edit/:mgid')
     // [fn] 有mgid -> 更新mail group設定
     //      無mgid -> 新增一個mail group
     let mgid = req.params.mgid || null;
-    identity.isSignin(req)
-      .then((usr) => {
-        if(!usr)  return Promise.reject("[mail-group] no login");
-        return MailGroupController.putGroup(mgid, req.body);
+
+    let getUsr = identity.isSignin(req).then((usr) => usr);
+    let getFGID = identity.getFamilyID(req).then((fgid) => fgid);
+    
+    Promise.all([getUsr, getFGID])
+      .then((result) => {
+        // check login status
+        if(!result[0])  return Promise.reject("[mail-group] no login");
+        if(!result[1])  return Promise.reject("[mail-group] cannot find fgid by usr");
+        let sendData = req.body;
+        sendData.fgid = result[1];
+        return MailGroupController.putGroup(mgid, sendData);
       })
       .then(() => res.send({ status: true }))
       .catch((err) => res.status(400).send({ status: false, message: err}));
@@ -114,16 +128,23 @@ MailGroupAPI.get('/:mgid/adl', (req, res) => {
 // TAG: [v][fn] 新增一筆email
 MailGroupAPI.route('/:mgid/adl/add')
   .get((req, res) => {
-    // [v] 在mail group新增一個email的popup頁面
+    // TODO:[v] 在mail group新增一個email的popup頁面
     var usr = false;
     let mgid = req.params.mgid || null;
-    identity.isSignin(req)
-      .then((usr) => {
-        // check login status
-        if(!usr)  return Promise.reject("[mail-group] no login");
-        if(!mgid)  return Promise.reject("[mail-group] cannot find mgid");
-        
-        res.render('partials/mask/mgeditor.ejs', { mgid, client: true });
+    let getUsr = identity.isSignin(req).then((usr) => usr);
+    let getFGID = identity.getFamilyID(req).then((fgid) => fgid);
+    
+    Promise.all([getUsr, getFGID])
+      .then((result) => {
+        // check login status & get fgid
+        if(!result[0])  return Promise.reject("[mail-group] no login");
+        if(!result[1])  return Promise.reject("[mail-group] cannot find fgid by usr");
+        let fgid = result[1];
+        return FamilyGroupController.getAllMemberEmails(fgid);
+      })
+      .then((emaillist) => {
+        //FIXME:
+        res.render('partials/mask/mg-editor', { page: "putGroupMember", mgid: null, emaillist, client: true });
       })
       .catch((err) => res.status(400).render('partials/mask/mask-error.ejs', { client: true }))
   })
@@ -139,15 +160,16 @@ MailGroupAPI.route('/:mgid/adl/add')
       .catch((err) => res.status(400).send({ status: false, message: err}));
   });
 
-// [fn] 從mail group中移除一個email address
-MailGroupAPI.delete('/:mgid/adl/del/:ad', (req, res) => {
+// TAG:[fn] 從mail group中移除一個email address
+MailGroupAPI.delete('/:mgid/adl/del/:mbid', (req, res) => {
   let mgid = req.params.mgid || null;
-  let address = req.params.ad || null;
+  let mbid = req.params.mbid || null;
   
+  //TODO:
   identity.isSignin(req)
     .then((usr) => {
       if(!usr) return Promise.reject("[mail-group] not signin now");
-      return MailGroupController.deleteGroupMember(mgid, address);
+      return MailGroupController.deleteGroupMember(mgid, mbid);
     })
     .then(() => res.send({ status: true }))
     .catch((err) => res.status(400).send({ status: false, message: err}));

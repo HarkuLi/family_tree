@@ -105,16 +105,7 @@ app.use('/tree', tree_route);
 
  // popup window router
 const PopupWindowAPI = require('../lib/routes/popup');
-app.use('/mask', (req, res, next) => {
-  identity.isSignin(req)
-    .then((usr)=>{
-      if(usr) return next();
-      res.redirect("/");  //please signin
-    });
-  /* req.pathParams = req.params; 
-  req.pathParams.fgUrl = req.originalUrl.split('/').splice(0,3).join('/');
-  next(); */
-}, PopupWindowAPI);
+app.use('/mask', PopupWindowAPI);
 
 // mail group router
 const MailGroupAPI = require('../lib/routes/mail-group');
