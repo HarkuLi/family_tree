@@ -62,7 +62,7 @@ var newRoot = (usr, detail)=>{
     });
 }
 
-var addChild = (family_id, detail)=>{
+var addChild = (usr, detail)=>{
   var f_colle, p_colle;
   var id, parent_id;
   var sibling_num_front = 0;
@@ -72,7 +72,7 @@ var addChild = (family_id, detail)=>{
     .then((db)=>{
       f_colle = db.collection(colle_family);
       p_colle = db.collection(colle_person);
-      return getFamilyByID(family_id);
+      return getFamilyByUsr(usr);
     })
     .then((item)=>{
       OA = item.orderArray;
@@ -114,20 +114,20 @@ var addChild = (family_id, detail)=>{
       return Promise.all(promise_list);
     })
     .then(()=>{
-      return ComputeChildIdx(family_id, parent_id);
+      return ComputeChildIdx(usr, parent_id);
     })
     .then((child_idx)=>{
       /** modify orderArray */
       addChildToOA(OA, child_idx, id);
       return f_colle.updateOne(
-        {_id: Mongo.ObjectId(family_id)},
+        {usr},
         {
           $set: {orderArray: OA}
         });
     });
 };
 
-var remove = (family_id, person_id)=>{
+var remove = (usr, person_id)=>{
   var f_colle, p_colle;
   
   return getDB
@@ -149,21 +149,21 @@ var remove = (family_id, person_id)=>{
       return p_colle.remove({_id: Mongo.ObjectId(person_id)});
     })
     .then(()=>{
-      return getFamilyByID(family_id);
+      return getFamilyByUsr(usr);
     })
     .then((item)=>{
       /** modify orderArray */
       var OA = item.orderArray;
       deletePersonFromOA(OA, person_id);
       return f_colle.updateOne(
-        {_id: Mongo.ObjectId(family_id)},
+        {usr},
         {
           $set: {orderArray: OA}
         });
     });
 };
 
-var addMate = (family_id, detail)=>{
+var addMate = (usr, detail)=>{
   var p_colle, f_colle;
   var person_id;
   var OA;
@@ -185,21 +185,21 @@ var addMate = (family_id, detail)=>{
         });
     })
     .then(()=>{
-      return getFamilyByID(family_id);
+      return getFamilyByUsr(usr);
     })
     .then((item)=>{
       /** modify orderArray */
       OA = item.orderArray;
       addMateToOA(OA, detail.mate, person_id);
       return f_colle.updateOne(
-        {_id: Mongo.ObjectId(family_id)},
+        {usr},
         {
           $set: {orderArray: OA}
         });
     });
 };
 
-var removeMate = (family_id, person_id)=>{
+var removeMate = (usr, person_id)=>{
   var p_colle, f_colle;
   return getDB
     .then((db)=>{
@@ -219,17 +219,28 @@ var removeMate = (family_id, person_id)=>{
       return p_colle.remove({_id: Mongo.ObjectId(person_id)});
     })
     .then(()=>{
-      return getFamilyByID(family_id);
+      return getFamilyByUsr(usr);
     })
     .then((item)=>{
       /** modify orderArray */
       OA = item.orderArray;
       deletePersonFromOA(OA, person_id);
       return f_colle.updateOne(
-        {_id: Mongo.ObjectId(family_id)},
+        {usr},
         {
           $set: {orderArray: OA}
         });
+    });
+};
+
+var updatePerson = (id, data)=>{
+  return getDB
+    .then((db)=>{
+      var colle = db.collection(colle_person);
+      return colle.updateOne(
+        {_id: Mongo.ObjectId(id)},
+        {$set: data}
+      );
     });
 };
 /** public function */
@@ -319,7 +330,7 @@ var addMateToOA = (OA, target_id, added_id)=>{
  * used to compute new child index of the parent
  * should be called after the child is added to his/her parents' children lists
  */
-var ComputeChildIdx = (family_id, parent_id)=>{
+var ComputeChildIdx = (usr, parent_id)=>{
   var p_colle;
   var OA;
   var parent_idx, child_idx;
@@ -327,7 +338,7 @@ var ComputeChildIdx = (family_id, parent_id)=>{
     .then((db)=>{
       p_colle = db.collection(colle_person);
       // f_colle = db.collection(colle_family);
-      return getFamilyByID(family_id);
+      return getFamilyByUsr(usr);
     })
     .then((item)=>{
       var promise_chain = new Promise((resolve)=>{resolve(0)});
@@ -371,4 +382,4 @@ var ComputeChildIdx = (family_id, parent_id)=>{
 /** private function */
 
 module.exports = {getFamilyByID, getFamilyByUsr, getPersonByID, newFamily,
-                  newRoot, addChild, remove, addMate, removeMate, getDB};
+                  newRoot, addChild, remove, addMate, removeMate, updatePerson, getDB};

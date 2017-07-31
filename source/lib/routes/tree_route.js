@@ -14,12 +14,19 @@ app.use((req, res, next)=>{
 });
 
 app.get("/", (req, res)=>{
+  identity.isSignin(req)
+    .then((usr)=>{
+      res.redirect("/tree/"+usr);
+    });
+});
+
+app.get("/:usr", (req, res)=>{
   var usr = false;
   identity.isSignin(req)
-    .then((user)=>{
-      if(!user)  return {orderArray: []};
-      usr = user;
-      return dbop_tree.getFamilyByUsr(user);
+    .then((usr_name)=>{
+      if(!usr_name)  return {orderArray: []};
+      usr = usr_name;
+      return dbop_tree.getFamilyByUsr(usr_name);
     })
     .then((item)=>{
       return tree.orderArrayHandle(item.orderArray);
@@ -30,6 +37,27 @@ app.get("/", (req, res)=>{
         usr
       };
       res.render("pages/tree", DATA);
+    });
+});
+
+app.post("/detail", (req, res)=>{
+  var usr;
+  var id = req.body.id;
+  var detail_list = ["_id", "name", "birth", "email"];
+
+  identity.isSignin(req)
+    .then((usr_name)=>{
+      usr = usr_name;
+      return dbop_tree.getPersonByID(id);
+    })
+    .then((item)=>{
+      for(let prop in item){
+        if(detail_list.indexOf(prop) < 0){
+          delete item[prop];
+        }
+      }
+      item._id = id;
+      res.render("pages/person_detail", {item, usr});
     });
 });
 
@@ -75,7 +103,6 @@ app.post("/add_person", (req, res)=>{
 });
 
 app.post("/add_root", (req, res)=>{
-  var familyId;
   var detail = req.body;
   var usr;
 
@@ -96,9 +123,7 @@ app.post("/add_root", (req, res)=>{
 });
 
 app.post("/add_mate", (req, res)=>{
-  var familyId;
   var detail = req.body;
-  var usr;
 
   if(detail.children.length)
     detail.children = JSON.parse(detail.children);
@@ -106,15 +131,9 @@ app.post("/add_mate", (req, res)=>{
     delete detail.children;
 
   identity.isSignin(req)
-    .then((usr_name)=>{
-      if(!usr_name) return;
-      usr = usr_name;
-      return dbop_tree.getFamilyByUsr(usr);
-    })
-    .then((item)=>{
-      if(!item) return;
-      familyId = item._id.toString();
-      return dbop_tree.addMate(familyId, detail);
+    .then((usr)=>{
+      if(!usr) return;
+      return dbop_tree.addMate(usr, detail);
     })
     .then(()=>{
       res.redirect("/tree");
@@ -122,42 +141,43 @@ app.post("/add_mate", (req, res)=>{
 });
 
 app.post("/add_child", (req, res)=>{
-  var familyId;
   var detail = req.body;
   detail.parents = [detail.parents];
 
   identity.isSignin(req)
-    .then((usr_name)=>{
-      if(!usr_name) return;
-      usr = usr_name;
-      return dbop_tree.getFamilyByUsr(usr);
-    })
-    .then((item)=>{
-      if(!item) return;
-      familyId = item._id.toString();
-      return dbop_tree.addChild(familyId, detail);
+    .then((usr)=>{
+      if(!usr) return;
+      return dbop_tree.addChild(usr, detail);
     })
     .then(()=>{
       res.redirect("/tree");
     });
 });
 
-app.post("/delete_node", (req, res)=>{
-  var familyId;
+app.post("/update_person", (req, res)=>{
+  var detail = req.body;
+  var detail_list = ["name", "birth", "email"];
+  var id = req.body._id;
+  //check data
+  for(let prop in detail){
+    if(detail_list.indexOf(prop) < 0){
+      delete detail[prop];
+    }
+  }
+  dbop_tree.updatePerson(id, detail)
+    .then((r)=>{
+      res.json({update_count: r.upsertedCount});
+    });
+});
 
+app.post("/delete_node", (req, res)=>{
   identity.isSignin(req)
-    .then((usr_name)=>{
-      if(!usr_name) return;
-      usr = usr_name;
-      return dbop_tree.getFamilyByUsr(usr);
-    })
-    .then((item)=>{
-      if(!item) return;
-      familyId = item._id.toString();
+    .then((usr)=>{
+      if(!usr) return;
       if(req.body.kind === "mate")
-        return dbop_tree.removeMate(familyId, req.body.id);
-      else
-        return dbop_tree.remove(familyId, req.body.id);
+        return dbop_tree.removeMate(usr, req.body.id);
+
+      return dbop_tree.remove(usr, req.body.id);
     })
     .then(()=>{
       res.redirect("/tree");
