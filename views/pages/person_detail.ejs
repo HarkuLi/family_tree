@@ -13,7 +13,7 @@
   <!-- main content -->
   <div id="node_detail" class="container">
     <h3>detail:</h3>
-    <button type="button" id="edit_detail" class="btn btn-primary btn-sm edit_btn">edit</button>
+    <button type="button" id="edit_detail" class="btn btn-primary btn-sm margin_up_btn">edit</button>
     <% for(let prop in item){ %>
       <% if(prop === "_id"){ %>
         <input type="hidden" name="_id" value="<%= item[prop] %>"><br>
@@ -25,6 +25,7 @@
 
   <div class="container">
     <h3>dialog:</h3>
+    <button type="button" id="add_dialog" class="btn btn-primary btn-sm margin_up_btn">add</button>
     <div id="dialog_list">
       <% for(let ele of dialog_list){ %>
         <strong>pattern: </strong><input class="pattern" value="<%= ele.pattern %>" disabled>

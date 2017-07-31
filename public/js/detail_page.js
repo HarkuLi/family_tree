@@ -23,7 +23,7 @@ $(()=>{
   }
   id = $("#node_detail > input").val();
 
-  $("#edit_detail").click(()=>{
+  $("#edit_detail").on("click", ()=>{
     if($("#edit_detail").text() === "edit")
       convertToEditMod();
     else
@@ -32,7 +32,7 @@ $(()=>{
 
   //couldn't use arrow function here, or "this" will point to window object
   //because "this" is fixed when arrow function declared
-  $("#dialog_list > .btn-primary").click(function(){
+  $("#dialog_list").on("click", ".btn-primary", function(){
     var self = this;
     if($(self).text() === "edit"){
       if(dialog_edit_count)  return alert("請先結束進行中的編輯");
@@ -46,10 +46,16 @@ $(()=>{
 
   //couldn't use arrow function here, or "this" will point to window object
   //because "this" is fixed when arrow function declared
-  $("#dialog_list > .btn-danger").click(function(){
+  $("#dialog_list").on("click", ".btn-danger", function(){
     var self = this;
     if(dialog_edit_count) return alert("請先結束進行中的編輯");
+    console.log("delete");
     dialogDel(self);
+  });
+
+  $("#add_dialog").on("click", () => {
+    if(dialog_edit_count) return alert("請先結束進行中的編輯");
+    addDialog();
   });
 });
 
@@ -156,14 +162,20 @@ var dialogSave = (self) => {
   var pat = $(res).prev().prev();
 
   new Promise(resolve => {
-    if($(pat).val() !== old_pat) resolve(false);
-    else if($(res).val() === old_res) resolve(false);
-    else resolve(updateDialog($(res).val()));
+    if($(pat).val() === old_pat && $(res).val() === old_res) resolve(true); //no modified
+    else resolve(upsertDbDialog($(pat).val(), $(res).val()));
   })
-  .then(() => {
-    $(res).prop("disabled", true);
-    $(self).text("edit");
+  .then((rst) => {
     --dialog_edit_count;
+    if(rst){
+      $(res).prop("disabled", true);
+      $(self).text("edit");
+    }
+    else{
+      $(self).prevUntil("br").remove();
+      $(self).nextUntil("strong").remove();
+      $(self).remove();
+    }
   });
 };
 
@@ -171,36 +183,64 @@ var dialogDel = (self) => {
   if(!confirm("確定要刪除嗎?")) return;
   var res = $(self).prev().prev();
   var pat = $(res).prev().prev();
-
-  $(self).prevUntil("br").remove();
-  $(self).next().remove();
-  $(self).remove();
   
-  deleteDialog($(pat).val(), $(res).val())
+  deleteDbDialog($(pat).val(), $(res).val())
     .then(() => {
       //remove elements of the row
-      
+      $(self).prevUntil("br").remove();
+      $(self).next().remove();
+      $(self).remove();
     });
 };
 
-var updateDialog = (new_res) => {
-  console.log("update dialog");
+var addDialog = () => {
+  var input, button;
+  $("#dialog_list").prepend("<br>");
+  button = $("<button></button>");
+  $(button).prop("type", "button");
+  $(button).prop("class", "btn btn-danger btn-sm");
+  $(button).text("delete");
+  $("#dialog_list").prepend(button);
+  $("#dialog_list").prepend(" ");
+  button = $("<button></button>");
+  $(button).prop("type", "button");
+  $(button).prop("class", "btn btn-primary btn-sm");
+  $(button).text("save");
+  $("#dialog_list").prepend(button);
+  $("#dialog_list").prepend(" ");
+  input = $("<input></input>");
+  $(input).prop("class", "response");
+  $("#dialog_list").prepend(input);
+  $("#dialog_list").prepend("<strong>response: </strong>");
+  $("#dialog_list").prepend(" ");
+  input = $("<input></input>");
+  $(input).prop("class", "pattern");
+  $("#dialog_list").prepend(input);
+  $("#dialog_list").prepend("<strong>pattern: </strong>");
+  old_pat = "";
+  old_res = "";
+  ++dialog_edit_count;
+}
+
+var upsertDbDialog = (new_pat, new_res) => {
+  console.log("upsert dialog");
   var passed_data = {
     talkerId: id,
     old_pat,
     old_res,
+    new_pat,
     new_res
   };
 
   return new Promise((resolve, reject)=>{
-    $.post("/tree/update_dialog", passed_data, (data, status)=>{
+    $.post("/tree/upsert_dialog", passed_data, (data, status)=>{
       if(status !== "success")  return reject("post status: "+status);
-      resolve(data);
+      resolve(data.rst);
     });
   });
 };
 
-var deleteDialog = (pat, res) => {
+var deleteDbDialog = (pat, res) => {
   console.log("delete dialog");
   var passed_data = {
     talkerId: id,

@@ -191,7 +191,7 @@ app.post("/delete_node", (req, res)=>{
     });
 });
 
-app.post("/update_dialog", (req, res)=>{
+app.post("/upsert_dialog", (req, res)=>{
   identity.isSignin(req)
     .then((usr)=>{
       if(!usr) return;
@@ -201,10 +201,10 @@ app.post("/update_dialog", (req, res)=>{
         pattern: req.body.old_pat,
         response: req.body.old_res
       };
-      return dbop_dialog.resMapUpdate(colleName, filterData, req.body.new_res);
+      return dbop_dialog.resMapUpsert(colleName, filterData, req.body.new_pat, req.body.new_res);
     })
-    .then((r)=>{
-      res.json({updated_count: r.upsertedCount});
+    .then(rst => {
+      res.json({rst});
     });
 });
 

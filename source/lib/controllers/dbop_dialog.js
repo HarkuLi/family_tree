@@ -1,4 +1,5 @@
 var MongoClient = require('mongodb').MongoClient;
+var dbop_tree = require("./dbop_tree");
 
 const dbUrl = "mongodb://127.0.0.1:3000/linebot";
 
@@ -16,17 +17,44 @@ var getDialogList = (usr, talkerId) => {
 };
 
 /**
- * update response mapping
+ * upsert response mapping
  * @param {String} colleName collection name
  * @param {Object} filterData {talkerId, pattern, response}
+ * @param {String} newPat new pattern
  * @param {String} newRes new response
- * @return {Promise} a promise of updateOne()
+ * @return {Promise} a promise which return boolean result
  */
-var resMapUpdate = (colleName, filterData, newRes) => {
+var resMapUpsert = (colleName, filterData, newPat, newRes) => {
+  var colle;
   return getDb
     .then(db => {
-      var colle = db.collection(colleName);
+      //update an existed one
+      colle = db.collection(colleName);
       return colle.updateOne(filterData, {$set: {response: newRes}});
+    })
+    .then(rst => {
+      if(rst.modifiedCount) return -1;
+      return colle.count({pattern: newPat, response: newRes});
+    })
+    .then(count => {
+      if(count < 0) return true;  //updated
+      if(count > 0) return false; //no upserted
+      return dbop_tree.getPersonByID(filterData.talkerId);
+    })
+    .then(item => {
+      if(!item._id) return item;  //boolean
+      var enable = item.dialogEnable;
+      //insert a new one
+      return colle.insertOne({
+        pattern: newPat,
+        response: newRes,
+        talkerId: filterData.talkerId,
+        enable
+      });
+    })
+    .then(rst => {
+      if(rst) return true;
+      return false;
     });
 };
 
@@ -44,4 +72,4 @@ var resMapDelete = (colleName, filterData) => {
     });
 };
 
-module.exports = {getDialogList, resMapUpdate, resMapDelete};
+module.exports = {getDialogList, resMapUpsert, resMapDelete};
