@@ -32,3 +32,7 @@ function checkEmailFormat(email){
   }
   return true;
 }
+// check inmport data format
+function checkImportDataFormat(){
+  // TODO:
+}

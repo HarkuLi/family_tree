@@ -5,10 +5,11 @@ const ObjectID = require('mongodb').ObjectID;
 const Validate = require('../controllers/validate')
 const dbop_tree = require('../controllers/dbop_tree')
 const CollectionName = 'mailgroup';
-const Connection = MongoClient.connect('mongodb://localhost:3000/familytree');
+const Connection = MongoClient.connect('mongodb://mongodb.harkuli.nctu.me:27017/');
 const Collection = Connection.then((DB) => DB.collection(CollectionName));
 
 module.exports = {
+  getAllData,
   getGroupList,
   getGroup,
   putGroup,
@@ -16,6 +17,17 @@ module.exports = {
   getGroupMemberEmails,
   putGroupMember,
   deleteGroupMember,
+}
+
+// TAG: get all data in mailgroup collection
+function getAllData(fgid){
+  // check fgid format
+  if(!Validate.checkIDFormat(fgid)) return Promise.reject("[mail-group][getAllData] family group id format is invalid.");
+  
+  return Collection
+    .then((Col) => Col.find({fgid: {$eq: fgid}}, {}).sort({createTime: -1}).toArray())
+    .then((list) => (!list) ?  Promise.resolve([]) : Promise.resolve(list))
+    .catch((err) => Promise.reject(err));
 }
 
 // TAG: get all group list

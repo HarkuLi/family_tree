@@ -12,12 +12,12 @@
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li><a href="/">About</a></li>
-        <li><a href="/tree">Get Tree</a></li>
       <% var usr, fgUrl; %>
       <% if(usr) { %>
+        <li><a href="/tree">Get Tree</a></li>
         <li><a href="<%= fgUrl+'/mail/ml' %>">Mail</a></li>
         <li><a id="get-qrcode" href="#">Get QR Code</a></li>
+        <li><a href="/setting">Setting</a></li>
       <% } %>
       </ul>
       <% if(usr){ %>

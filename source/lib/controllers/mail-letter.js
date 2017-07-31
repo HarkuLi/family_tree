@@ -7,15 +7,27 @@ const DBOP_Tree = require('../controllers/dbop_tree')
 const Nodemailer = require('nodemailer');
 
 const CollectionName = 'mailletter';
-const Connection = MongoClient.connect('mongodb://localhost:3000/familytree');
+const Connection = MongoClient.connect('mongodb://mongodb.harkuli.nctu.me:27017/');
 const Collection = Connection.then((DB) => DB.collection(CollectionName));
 
 module.exports = {
+  getAllData,
   getMailList,
   getMail,
   putMail,
   deleteMail,
   sendMail,
+}
+
+// TAG: get all data in mailgroup collection
+function getAllData(fgid){
+  // check fgid format
+  if(!Validate.checkIDFormat(fgid)) return Promise.reject("[mail-letter][getAllData] family group id format is invalid.");
+  
+  return Collection
+    .then((Col) => Col.find({fgid: {$eq: fgid}}, {}).sort({createTime: -1}).toArray())
+    .then((list) => (!list) ?  Promise.resolve([]) : Promise.resolve(list))
+    .catch((err) => Promise.reject(err));
 }
 
 // TAG:

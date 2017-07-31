@@ -79,7 +79,7 @@
 }
 .icon-bar{
     width: 60px;
-    height: 248px;
+    height: 124px; //TODO: 
     margin: auto;
     background: #333;
     display: inline;
@@ -197,4 +197,9 @@
 }
 body{
     background-color: #F4EAE0;
+}
+
+/* for theme */
+.table{
+    background-color: #f9f9f9;
 }

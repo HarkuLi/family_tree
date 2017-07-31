@@ -97,7 +97,22 @@ app.get("/sign_out", function(req, res){
 });
 
 // setting page
-app.get('/setting', (req, res) => {});
+app.get('/setting', (req, res) => {
+  var DATA = { root: "/" };
+  identity.isSignin(req)
+    .then((usr)=>{
+      DATA.usr = usr;
+      return (usr) ? dbop_tree.getFamilyIDByUsr(usr) : Promise.resolve(false);
+    })
+    .then((result) => {  
+      if(result)  DATA.fgUrl = config.fgUrlRoot+result._id;
+      return res.render('pages/setting', DATA);
+     })
+    .catch((err) => {
+      console.log(err);
+      next();
+    })
+});
 
 // tree router
 const tree_route = require('../lib/routes/tree_route');
@@ -142,6 +157,8 @@ app.use('/fg/:fgid', (req, res, next) => {
   req.pathParams.fgUrl = req.originalUrl.split('/').splice(0,3).join('/');
   next(); */
 }, FamilyGroupAPI);
+
+
 
 // 404
 app.use((req,res) => {

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../partials/head') %>
+    <title>Family Tree</title>
+  </head>
+
+  <body>
+    <!-- navigator -->
+    <%- include('../partials/navigator') %>
+
+    <!-- main content -->
+    <div class="container  col-sm-8 col-sm-offset-2">
+      <div class="row">
+        <div class="page-header">
+          <h1 class="text-center">Setting</h1>
+        </div>
+      </div>
+      <!-- Inport All Data -->
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h2 class="panel-title">Import Tree Data</h2>
+            </div>
+            <div class="panel-body">
+              <form id="ImportForm" class="form-inline">
+                <p class="help-block bg-danger text-center">This operation will <b>OVERWRITE</b> all current data.</p>
+                <div class="form-group center-block">
+                  <label for="exampleInputFile">Upload .tree File</label>
+                  <input type="file" id="exampleInputFile">
+                </div>
+                <button type="submit" class="btn btn-default">Import</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <!-- Export All Data -->
+        <div class="col-sm-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h2 class="panel-title">Export Tree Data</h2>
+            </div>
+            <div class="panel-body">
+              <form id="ExportForm" class="form-inline">
+                <div class="form-group">
+                  <label for="exampleInputFile">Export .tree File</label>
+                  <input type="file" id="exampleInputFile">
+                </div>
+                <button type="submit" class="btn btn-default">Export</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr>
+      <!-- footer -->
+      <%- include('../partials/footer') %>
+    </div> <!-- /container -->
+    <%- include('../partials/mask/cover') %>
+    <!-- global scripts -->
+    <%- include('../partials/globalScripts') %>
+  </body>
+</html>

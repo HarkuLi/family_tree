@@ -13,13 +13,17 @@ const PopupWindowAPI = express.Router();
 // QR Code
 PopupWindowAPI.get('/qrcode', (req, res) => {
   let usr = false;
-  let shortUrl = config.domain + "fg/";
-  let qrcodeUrl = config.qrcodeAPI + config.domain + "fg/";
+  //let shortUrl = config.domain + "fg/";
+  //let qrcodeUrl = config.qrcodeAPI + config.domain + "fg/";
+  let shortUrl = config.domain + "tree/";
+  let qrcodeUrl = config.qrcodeAPI + config.domain + "tree/";
   
   identity.isSignin(req)
     .then((result) => {
       if(!result)  return Promise.reject("[mail-letter] no login");
       usr = result;
+      qrcodeUrl += usr;
+      shortUrl += usr;
       return dbop_tree.getFamilyIDByUsr(usr);
     })
     .then((result) => {
@@ -29,10 +33,11 @@ PopupWindowAPI.get('/qrcode', (req, res) => {
     .then((fgid) => {
       // check fgid format
       if(!validate.checkIDFormat(fgid)) return Promise.reject('FamilyGroup ID Validate Fail.');
-      qrcodeUrl += fgid;
+      let googleAPIKey = process.env.GOOGLE_API_KEY || null;
+      if(!googleAPIKey) return Promise.reject('Cannot Find Google API Key.');
+
       // shorten url
-      shortUrl += fgid;
-      request(config.googleShortenUrlAPI + config.googleAPIKey, {
+      request(config.googleShortenUrlAPI + googleAPIKey, {
         method: "POST",
         json: true,
         body: { longUrl: shortUrl }

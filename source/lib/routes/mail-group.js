@@ -27,8 +27,6 @@ MailGroupAPI.get('/', (req, res) => {
       return MailGroupController.getGroupList(fgid);
     })
     .then((list) => {
-      console.log(list);
-      console.log(list[0].memberlist);
       res.render('pages/fg.ejs', { page: "mailgroup", list, fgUrl, usr })
     })
     .catch((err) => {
