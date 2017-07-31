@@ -12,6 +12,7 @@
 
   <!-- main content -->
   <div id="node_detail" class="container">
+    <h3>detail:</h3>
     <button type="button" id="edit_detail" class="btn btn-primary btn-sm edit_btn">edit</button>
     <% for(let prop in item){ %>
       <% if(prop === "_id"){ %>
@@ -20,6 +21,18 @@
         <p><strong><%= prop %>: </strong><%= item[prop] %></p>
       <% } %>
     <% } %>
+  </div>
+
+  <div class="container">
+    <h3>dialog:</h3>
+    <div id="dialog_list">
+      <% for(let ele of dialog_list){ %>
+        <strong>pattern: </strong><input class="pattern" value="<%= ele.pattern %>" disabled>
+        <strong>response: </strong><input class="response" value="<%= ele.response %>" disabled>
+        <button type="button" class="btn btn-primary btn-sm">edit</button>
+        <button type="button" class="btn btn-danger btn-sm">delete</button><br>
+      <% } %>
+    </div>
   </div>
   
   <!-- footer -->

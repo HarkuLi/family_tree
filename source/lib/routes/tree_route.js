@@ -3,6 +3,7 @@ const tree = require("../controllers/tree");
 const identity = require("../controllers/identity");
 const config = require('../../config/default');
 const dbop_tree = require("../controllers/dbop_tree");
+const dbop_dialog = require("../controllers/dbop_dialog");
 
 const app = express();
 
@@ -52,10 +53,15 @@ app.post("/detail", (req, res)=>{
   var usr;
   var id = req.body.id;
   var detail_list = ["_id", "name", "birth", "email"];
+  var dialog_list;
 
   identity.isSignin(req)
     .then((usr_name)=>{
       usr = usr_name;
+      return dbop_dialog.getDialogList(usr, id);
+    })
+    .then(items => {
+      dialog_list = items;
       return dbop_tree.getPersonByID(id);
     })
     .then((item)=>{
@@ -65,7 +71,8 @@ app.post("/detail", (req, res)=>{
         }
       }
       item._id = id;
-      res.render("pages/person_detail", {item, usr});
+      
+      res.render("pages/person_detail", {item, usr, dialog_list});
     });
 });
 
@@ -174,7 +181,7 @@ app.post("/update_person", (req, res)=>{
   }
   dbop_tree.updatePerson(id, detail)
     .then((r)=>{
-      res.json({update_count: r.upsertedCount});
+      res.json({updated_count: r.upsertedCount});
     });
 });
 
@@ -189,6 +196,40 @@ app.post("/delete_node", (req, res)=>{
     })
     .then(()=>{
       res.redirect("/tree");
+    });
+});
+
+app.post("/update_dialog", (req, res)=>{
+  identity.isSignin(req)
+    .then((usr)=>{
+      if(!usr) return;
+      var colleName = "usr_" + usr;
+      var filterData = {
+        talkerId: req.body.talkerId,
+        pattern: req.body.old_pat,
+        response: req.body.old_res
+      };
+      return dbop_dialog.resMapUpdate(colleName, filterData, req.body.new_res);
+    })
+    .then((r)=>{
+      res.json({updated_count: r.upsertedCount});
+    });
+});
+
+app.post("/delete_dialog", (req, res)=>{
+  identity.isSignin(req)
+    .then((usr)=>{
+      if(!usr) return;
+      var colleName = "usr_" + usr;
+      var filterData = {
+        talkerId: req.body.talkerId,
+        pattern: req.body.pat,
+        response: req.body.res
+      };
+      return dbop_dialog.resMapDelete(colleName, filterData);
+    })
+    .then((r)=>{
+      res.json({deleted_count: r.deletedCount});
     });
 });
 
