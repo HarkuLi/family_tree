@@ -5,6 +5,14 @@ const dbop_tree = require("../controllers/dbop_tree");
 
 const app = express();
 
+app.use((req, res, next)=>{
+  identity.isSignin(req)
+    .then((usr)=>{
+      if(usr) return next();
+      res.redirect("/");  //please signin
+    });
+});
+
 app.get("/", (req, res)=>{
   var usr = false;
   identity.isSignin(req)
@@ -40,60 +48,123 @@ app.post("/OA", (req, res)=>{
 });
 
 app.post("/add_person", (req, res)=>{
-  var PERSON_DATA;
-  if(req.body.kind === "mate"){
-    var PERSON_DATA = {
-      mate_id: req.body.id,
-      kind: req.body.kind,
-      children: req.body.children //it is string instead of list because of passing data
-    };
-  }
-  else{
-    var PERSON_DATA = {
-      parent_id: req.body.id,
-      kind: req.body.kind,
-    };
-  }
-  res.render("pages/add_person", PERSON_DATA);
+  identity.isSignin(req)
+    .then((usr)=>{
+      var DATA;
+      if(req.body.kind === "mate"){
+        DATA = {
+          mate_id: req.body.id,
+          kind: req.body.kind,
+          children: req.body.children //it is string instead of list because of passing data
+        };
+      }
+      else if(req.body.kind === "root"){
+        DATA = {
+          kind: req.body.kind
+        };
+      }
+      else{
+        DATA = {
+          parent_id: req.body.id,
+          kind: req.body.kind,
+        };
+      }
+      DATA.usr = usr;
+      res.render("pages/add_person", DATA);
+    });
+});
+
+app.post("/add_root", (req, res)=>{
+  var familyId;
+  var detail = req.body;
+  var usr;
+
+  identity.isSignin(req)
+    .then((usr_name)=>{
+      if(!usr_name) return false;
+      usr = usr_name;
+      return dbop_tree.getFamilyByUsr(usr_name);
+    })
+    .then((item)=>{
+      if(!item) return false;
+      else if(item.orderArray.length) return false;
+      return dbop_tree.newRoot(usr, detail);
+    })
+    .then(()=>{
+      res.redirect("/tree");
+    });
 });
 
 app.post("/add_mate", (req, res)=>{
-  var familyId = test_family_id;   /** retrieve from cookie */
+  var familyId;
   var detail = req.body;
+  var usr;
+
   if(detail.children.length)
     detail.children = JSON.parse(detail.children);
   else
-    delete detail.children
-  dbop_tree.addMate(familyId, detail)
+    delete detail.children;
+
+  identity.isSignin(req)
+    .then((usr_name)=>{
+      if(!usr_name) return;
+      usr = usr_name;
+      return dbop_tree.getFamilyByUsr(usr);
+    })
+    .then((item)=>{
+      if(!item) return;
+      familyId = item._id.toString();
+      return dbop_tree.addMate(familyId, detail);
+    })
     .then(()=>{
-      res.redirect("/");
+      res.redirect("/tree");
     });
 });
 
 app.post("/add_child", (req, res)=>{
-  var familyId = test_family_id;   /** retrieve from cookie */
+  var familyId;
   var detail = req.body;
   detail.parents = [detail.parents];
-  dbop_tree.addChild(familyId, detail)
+
+  identity.isSignin(req)
+    .then((usr_name)=>{
+      if(!usr_name) return;
+      usr = usr_name;
+      return dbop_tree.getFamilyByUsr(usr);
+    })
+    .then((item)=>{
+      if(!item) return;
+      familyId = item._id.toString();
+      return dbop_tree.addChild(familyId, detail);
+    })
     .then(()=>{
-      res.redirect("/");
+      res.redirect("/tree");
     });
 });
 
 app.post("/delete_node", (req, res)=>{
-  var familyId = test_family_id;   /** retrieve from cookie */
-  if(req.body.kind === "mate"){
-    dbop_tree.removeMate(familyId, req.body.id)
-      .then(()=>{
-        res.redirect("/");
-      });
-  }
-  else{
-    dbop_tree.remove(familyId, req.body.id)
-      .then(()=>{
-        res.redirect("/");
-      });
-  }
+  var familyId;
+
+  identity.isSignin(req)
+    .then((usr_name)=>{
+      if(!usr_name) return;
+      usr = usr_name;
+      return dbop_tree.getFamilyByUsr(usr);
+    })
+    .then((item)=>{
+      if(!item) return;
+      familyId = item._id.toString();
+      if(req.body.kind === "mate")
+        return dbop_tree.removeMate(familyId, req.body.id);
+      else
+        return dbop_tree.remove(familyId, req.body.id);
+    })
+    .then(()=>{
+      res.redirect("/tree");
+    });
 });
+
+// 404
+app.use((req,res) => {res.status(404).render('pages/error.ejs', { code: 404 })});
 
 module.exports = app;

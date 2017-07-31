@@ -15,9 +15,9 @@ const tree_node_style = window.getComputedStyle(document.getElementsByClassName(
 const boundary_eles = document.getElementsByClassName("boundary");
 const boundary_style = boundary_eles.length ? window.getComputedStyle(boundary_eles[0]) : null;
 var container_width/* = pxStrToNum(window.getComputedStyle(path_container, null).getPropertyValue("width"))*/;
-const node_width = pxStrToNum(tree_node_style.getPropertyValue("width")) + border_width*2;
+const node_width = pxStrToNum(tree_node_style.getPropertyValue("width"));
 //assume that height of every node are constant
-const node_height = pxStrToNum(tree_node_style.getPropertyValue("height")) + border_width*2;
+const node_height = pxStrToNum(tree_node_style.getPropertyValue("height"));
 //margin_bottom of a row
 const row_mb = pxStrToNum(window.getComputedStyle(tree_row_list[0], null).getPropertyValue("margin-bottom"));
 //regular margin-right

@@ -35,6 +35,25 @@ var newFamily = (data)=>{
     });
 };
 
+var newRoot = (usr, detail)=>{
+  var f_colle, p_colle;
+  return getDB
+    .then((db)=>{
+      /** add person to database */
+      f_colle = db.collection(colle_family);
+      p_colle = db.collection(colle_person);
+      return p_colle.insertOne(detail);
+    })
+    .then((rst)=>{
+      var id = rst.insertedId.toString();
+      var OA = [1, id];
+      return f_colle.updateOne(
+        {usr},
+        {$set: {orderArray: OA}}
+      );
+    });
+}
+
 var addChild = (family_id, detail)=>{
   var f_colle, p_colle;
   var id, parent_id;
@@ -54,7 +73,7 @@ var addChild = (family_id, detail)=>{
     .then((item)=>{
       //check whether the parent is relation by blood in the family
       if(!item.parents && OA.indexOf(item._id.toString())!==1) detail.parents[0] = item.mate;
-      /** add person to database*/
+      /** add person to database */
       return p_colle.insertOne(detail);
     })
     .then((rst)=>{
@@ -343,4 +362,5 @@ var ComputeChildIdx = (family_id, parent_id)=>{
 };
 /** private function */
 
-module.exports = {getFamilyByID, getFamilyByUsr, getPersonByID, newFamily, addChild, remove, addMate, removeMate, getDB};
+module.exports = {getFamilyByID, getFamilyByUsr, getPersonByID, newFamily,
+                  newRoot, addChild, remove, addMate, removeMate, getDB};
