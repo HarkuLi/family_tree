@@ -90,7 +90,8 @@ var convertToEditMod = ()=>{
     $(title).text(prop+": ");
     $(input).attr("name", prop);
     if(boolPropList.indexOf(prop) < 0){
-      $(input).attr("type", "text");
+      if(prop === "birth")  $(input).attr("type", "date");
+      else $(input).attr("type", "text");
       $(input).attr("value", detail[prop]);
     }
     else{
