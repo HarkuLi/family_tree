@@ -61,7 +61,7 @@ var resMapUpsert = (colleName, filterData, newPat, newRes) => {
 /**
  * delete response mapping
  * @param {String} colleName collection name
- * @param {Object} filterData {talkerId, pattern, response}
+ * @param {Object} filterData {talkerId, pattern, response} not all required
  * @return {Promise} a promise of deleteOne()
  */
 var resMapDelete = (colleName, filterData) => {
