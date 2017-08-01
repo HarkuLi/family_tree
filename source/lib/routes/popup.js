@@ -35,6 +35,7 @@ PopupWindowAPI.get('/qrcode', (req, res) => {
       if(!validate.checkIDFormat(fgid)) return Promise.reject('FamilyGroup ID Validate Fail.');
       let googleAPIKey = process.env.GOOGLE_API_KEY || null;
       if(!googleAPIKey) return Promise.reject('Cannot Find Google API Key.');
+      console.log(shortUrl);
 
       // shorten url
       request(config.googleShortenUrlAPI + googleAPIKey, {

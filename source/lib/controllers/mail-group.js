@@ -5,7 +5,7 @@ const ObjectID = require('mongodb').ObjectID;
 const Validate = require('../controllers/validate')
 const dbop_tree = require('../controllers/dbop_tree')
 const CollectionName = 'mailgroup';
-const Connection = MongoClient.connect('mongodb://mongodb.harkuli.nctu.me:27017/');
+const Connection = MongoClient.connect('mongodb://mongodb.harkuli.nctu.me:27017/familytree');
 const Collection = Connection.then((DB) => DB.collection(CollectionName));
 
 module.exports = {

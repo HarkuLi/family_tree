@@ -158,7 +158,9 @@ app.use('/fg/:fgid', (req, res, next) => {
   next(); */
 }, FamilyGroupAPI);
 
-
+ // transport router
+const TransportAPI = require('../lib/routes/transport');
+app.use('/transport', TransportAPI);
 
 // 404
 app.use((req,res) => {

@@ -7,7 +7,7 @@ const DBOP_Tree = require('../controllers/dbop_tree')
 const Nodemailer = require('nodemailer');
 
 const CollectionName = 'mailletter';
-const Connection = MongoClient.connect('mongodb://mongodb.harkuli.nctu.me:27017/');
+const Connection = MongoClient.connect('mongodb://mongodb.harkuli.nctu.me:27017/familytree');
 const Collection = Connection.then((DB) => DB.collection(CollectionName));
 
 module.exports = {
