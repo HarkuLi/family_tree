@@ -4,7 +4,7 @@
 var MongoClient = require('mongodb').MongoClient;
 const bcrypt = require("bcrypt");
 
-const dbUrl = "mongodb://mongodb.harkuli.nctu.me:27017/";
+const dbUrl = "mongodb://mongodb.harkuli.nctu.me:27017/familytree";
 const collection_name = 'user';
 const salt_rounds = 13;
 const survive_time = 60 * 60 * 24 * 7; //(s), 1 week

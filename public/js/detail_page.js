@@ -2,13 +2,16 @@ var dialog_edit_count = 0;
 var detail;
 var id;
 var old_pat, old_res;
+var boolPropList = ["dialogEnable", "live"];
 
-/**
- * ready
- */
+////////////////////
+//ready
+////////////////////
 
 $(()=>{
+  ////////////////////
   //record details
+  ////////////////////
   detail = {};
   for(let ele of $("#node_detail > p")){
     let prop = $(ele).children().text();
@@ -16,14 +19,21 @@ $(()=>{
     prop = prop.substr(0, prop.length-2);
     //nodeType: https://www.w3schools.com/jsref/prop_node_nodetype.asp
     value = $(ele).contents().filter(function(){ 
-      return this.nodeType === 3; 
+      return this.nodeType === 3;
     })[0];
     value = value ? value.nodeValue : "";
+    //boolean prop
+    if(boolPropList.indexOf(prop) >= 0)
+      value = value === "true" ? true : false;
     detail[prop] = value;
   }
-  id = $("#node_detail > input").val();
+  id = $("#detail_id").val();
+  $("#detail_id").remove();
 
-  $("#edit_detail").click(()=>{
+  ////////////////////
+  //click listener
+  ////////////////////
+  $("#edit_detail").on("click", ()=>{
     if($("#edit_detail").text() === "edit")
       convertToEditMod();
     else
@@ -32,7 +42,7 @@ $(()=>{
 
   //couldn't use arrow function here, or "this" will point to window object
   //because "this" is fixed when arrow function declared
-  $("#dialog_list > .btn-primary").click(function(){
+  $("#dialog_list").on("click", ".btn-primary", function(){
     var self = this;
     if($(self).text() === "edit"){
       if(dialog_edit_count)  return alert("請先結束進行中的編輯");
@@ -46,16 +56,25 @@ $(()=>{
 
   //couldn't use arrow function here, or "this" will point to window object
   //because "this" is fixed when arrow function declared
-  $("#dialog_list > .btn-danger").click(function(){
+  $("#dialog_list").on("click", ".btn-danger", function(){
     var self = this;
     if(dialog_edit_count) return alert("請先結束進行中的編輯");
     dialogDel(self);
   });
+
+  $("#add_dialog").on("click", () => {
+    if(dialog_edit_count) return alert("請先結束進行中的編輯");
+    addDialog();
+  });
 });
 
-/**
- * functions
- */
+////////////////////
+//functions
+////////////////////
+
+  ////////////////////
+  //detail
+  ////////////////////
 
 var convertToEditMod = ()=>{
   $("#edit_detail").text("save");
@@ -67,10 +86,17 @@ var convertToEditMod = ()=>{
   for(let prop in detail){
     let title = $("<strong></strong>");
     let input = $("<input></input>");
+    
     $(title).text(prop+": ");
-    $(input).attr("type", "text");
     $(input).attr("name", prop);
-    $(input).attr("value", detail[prop]);
+    if(boolPropList.indexOf(prop) < 0){
+      $(input).attr("type", "text");
+      $(input).attr("value", detail[prop]);
+    }
+    else{
+      $(input).attr("type", "checkbox");
+      $(input).prop("checked", detail[prop]);
+    }
     $("#node_detail").append(title);
     $("#node_detail").append(input);
     $("#node_detail").append("<br>");
@@ -92,8 +118,13 @@ var endEdit = ()=>{
     new_prop = new_prop.substr(0, new_prop.length-2);
     prop.push(new_prop);
   }
-  for(let ele of $("#node_detail > :text"))
-    value.push($(ele).val());
+  for(let ele of $("#node_detail > input")){
+    if(boolPropList.indexOf($(ele).prop("name")) < 0){
+      value.push($(ele).val());
+      continue;
+    }
+    value.push($(ele).prop("checked"));
+  }
 
   //compare with original data
   for(let i=0; i<prop.length; ++i){
@@ -112,7 +143,7 @@ var endEdit = ()=>{
   .then(()=>{
     //remove inputs
     $("#node_detail > strong").remove();
-    $("#node_detail > :text").remove();
+    $("#node_detail > input").remove();
     $("#node_detail > br").remove();
     
     //create contents according to details
@@ -120,15 +151,19 @@ var endEdit = ()=>{
     for(let prop in detail){
       let p = $("<p></p>");
       let strong = $("<strong></strong>");
+
       $(strong).text(prop+": ");
       $(p).append(strong);
-      $(p).append(detail[prop]);
+      if(boolPropList.indexOf(prop) < 0)
+        $(p).append(detail[prop]);
+      else  
+        $(p).append(String(detail[prop]));
       $("#node_detail").append(p);
     }
   });
 };
 
-/** return: {update_count} */
+/** return: {rst: Boolean} */
 var updatePerson = (update_data)=>{
   update_data._id = id;
   return new Promise((resolve, reject)=>{
@@ -138,6 +173,10 @@ var updatePerson = (update_data)=>{
     });
   });
 };
+
+  ////////////////////
+  //dialog
+  ////////////////////
 
 var dialogEdit = (self) => {
   var res = $(self).prev();
@@ -156,14 +195,20 @@ var dialogSave = (self) => {
   var pat = $(res).prev().prev();
 
   new Promise(resolve => {
-    if($(pat).val() !== old_pat) resolve(false);
-    else if($(res).val() === old_res) resolve(false);
-    else resolve(updateDialog($(res).val()));
+    if($(pat).val() === old_pat && $(res).val() === old_res) resolve(true); //no modified
+    else resolve(upsertDbDialog($(pat).val(), $(res).val()));
   })
-  .then(() => {
-    $(res).prop("disabled", true);
-    $(self).text("edit");
+  .then((rst) => {
     --dialog_edit_count;
+    if(rst){
+      $(res).prop("disabled", true);
+      $(self).text("edit");
+    }
+    else{
+      $(self).prevUntil("br").remove();
+      $(self).nextUntil("strong").remove();
+      $(self).remove();
+    }
   });
 };
 
@@ -171,37 +216,63 @@ var dialogDel = (self) => {
   if(!confirm("確定要刪除嗎?")) return;
   var res = $(self).prev().prev();
   var pat = $(res).prev().prev();
-
-  $(self).prevUntil("br").remove();
-  $(self).next().remove();
-  $(self).remove();
   
-  deleteDialog($(pat).val(), $(res).val())
+  deleteDbDialog($(pat).val(), $(res).val())
     .then(() => {
       //remove elements of the row
-      
+      $(self).prevUntil("br").remove();
+      $(self).next().remove();
+      $(self).remove();
     });
 };
 
-var updateDialog = (new_res) => {
-  console.log("update dialog");
+var addDialog = () => {
+  var input, button;
+  $("#dialog_list").prepend("<br>");
+  button = $("<button></button>");
+  $(button).prop("type", "button");
+  $(button).prop("class", "btn btn-danger btn-sm");
+  $(button).text("delete");
+  $("#dialog_list").prepend(button);
+  $("#dialog_list").prepend(" ");
+  button = $("<button></button>");
+  $(button).prop("type", "button");
+  $(button).prop("class", "btn btn-primary btn-sm");
+  $(button).text("save");
+  $("#dialog_list").prepend(button);
+  $("#dialog_list").prepend(" ");
+  input = $("<input></input>");
+  $(input).prop("class", "response");
+  $("#dialog_list").prepend(input);
+  $("#dialog_list").prepend("<strong>response: </strong>");
+  $("#dialog_list").prepend(" ");
+  input = $("<input></input>");
+  $(input).prop("class", "pattern");
+  $("#dialog_list").prepend(input);
+  $("#dialog_list").prepend("<strong>pattern: </strong>");
+  old_pat = "";
+  old_res = "";
+  ++dialog_edit_count;
+}
+
+var upsertDbDialog = (new_pat, new_res) => {
   var passed_data = {
     talkerId: id,
     old_pat,
     old_res,
+    new_pat,
     new_res
   };
 
   return new Promise((resolve, reject)=>{
-    $.post("/tree/update_dialog", passed_data, (data, status)=>{
+    $.post("/tree/upsert_dialog", passed_data, (data, status)=>{
       if(status !== "success")  return reject("post status: "+status);
-      resolve(data);
+      resolve(data.rst);
     });
   });
 };
 
-var deleteDialog = (pat, res) => {
-  console.log("delete dialog");
+var deleteDbDialog = (pat, res) => {
   var passed_data = {
     talkerId: id,
     pat,

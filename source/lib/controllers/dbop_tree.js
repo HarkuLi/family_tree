@@ -1,7 +1,7 @@
 const Mongo = require('mongodb'); //for ObjectId()
 const MongoClient = require('mongodb').MongoClient;
 
-const dbUrl = "mongodb://mongodb.harkuli.nctu.me:27017/";
+const dbUrl = "mongodb://mongodb.harkuli.nctu.me:27017/familytree";
 const colle_family = 'family';
 const colle_person = 'person';
 

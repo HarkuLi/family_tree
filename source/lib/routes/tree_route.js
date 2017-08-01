@@ -7,6 +7,9 @@ const dbop_dialog = require("../controllers/dbop_dialog");
 
 const app = express();
 
+const detail_list = ["name", "birth", "email", "dialogEnable", "live"];
+var boolPropList = ["dialogEnable", "live"];
+
 app.use((req, res, next)=>{
   identity.isSignin(req)
     .then((usr)=>{
@@ -52,7 +55,6 @@ app.get("/:usr", (req, res)=>{
 app.post("/detail", (req, res)=>{
   var usr;
   var id = req.body.id;
-  var detail_list = ["_id", "name", "birth", "email"];
   var dialog_list;
 
   identity.isSignin(req)
@@ -121,6 +123,8 @@ app.post("/add_root", (req, res)=>{
   var detail = req.body;
   var usr;
 
+  replaceBoolProp(detail);
+
   identity.isSignin(req)
     .then((usr_name)=>{
       if(!usr_name) return false;
@@ -144,6 +148,7 @@ app.post("/add_mate", (req, res)=>{
     detail.children = JSON.parse(detail.children);
   else
     delete detail.children;
+  replaceBoolProp(detail);
 
   identity.isSignin(req)
     .then((usr)=>{
@@ -159,6 +164,8 @@ app.post("/add_child", (req, res)=>{
   var detail = req.body;
   detail.parents = [detail.parents];
 
+  replaceBoolProp(detail);
+
   identity.isSignin(req)
     .then((usr)=>{
       if(!usr) return;
@@ -169,9 +176,11 @@ app.post("/add_child", (req, res)=>{
     });
 });
 
+/**
+ * response: {rst: Boolean}
+ */
 app.post("/update_person", (req, res)=>{
   var detail = req.body;
-  var detail_list = ["name", "birth", "email"];
   var id = req.body._id;
   //check data
   for(let prop in detail){
@@ -180,8 +189,19 @@ app.post("/update_person", (req, res)=>{
     }
   }
   dbop_tree.updatePerson(id, detail)
-    .then((r)=>{
-      res.json({updated_count: r.upsertedCount});
+    .then(() => {
+      return identity.isSignin(req);
+    })
+    .then((usr) => {
+      if(!usr) return false;
+      var colleName = "usr_" + usr;
+      if(detail.dialogEnable !== undefined)
+        return dbop_dialog.enableDialog(colleName, id, detail.dialogEnable);
+      return true;
+    })
+    .then(rst => {
+      rst = rst ? true : false;
+      res.json({rst});
     });
 });
 
@@ -199,7 +219,7 @@ app.post("/delete_node", (req, res)=>{
     });
 });
 
-app.post("/update_dialog", (req, res)=>{
+app.post("/upsert_dialog", (req, res)=>{
   identity.isSignin(req)
     .then((usr)=>{
       if(!usr) return;
@@ -209,10 +229,10 @@ app.post("/update_dialog", (req, res)=>{
         pattern: req.body.old_pat,
         response: req.body.old_res
       };
-      return dbop_dialog.resMapUpdate(colleName, filterData, req.body.new_res);
+      return dbop_dialog.resMapUpsert(colleName, filterData, req.body.new_pat, req.body.new_res);
     })
-    .then((r)=>{
-      res.json({updated_count: r.upsertedCount});
+    .then(rst => {
+      res.json({rst});
     });
 });
 
@@ -235,5 +255,16 @@ app.post("/delete_dialog", (req, res)=>{
 
 // 404
 app.use((req,res) => {res.status(404).render('pages/error.ejs', { code: 404 })});
+
+/**
+ * replace the string value of the boolean properties with boolean value
+ * note: it would modify the obj
+ */
+var replaceBoolProp = (obj) => {
+  for(let prop in obj){
+    if(boolPropList.indexOf(prop) >= 0)
+      obj[prop] = obj[prop]==="true" ? true : false;
+  };
+};
 
 module.exports = app;
