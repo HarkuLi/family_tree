@@ -196,12 +196,24 @@ var dialogSave = (self) => {
   var pat = $(res).prev().prev();
 
   new Promise(resolve => {
-    if($(pat).val() === old_pat && $(res).val() === old_res) resolve(true); //no modified
+    if(!$(pat).val().length || !$(res).val().length){
+      //add an empty dialog and save
+      if(!old_pat.length && !old_res.length)  resolve(false);
+      //edited with empty new value
+      else{
+        //nothing modified
+        $(pat).val(old_pat);
+        $(res).val(old_res);
+        resolve(true);
+      }
+    }
+    else if($(pat).val() === old_pat && $(res).val() === old_res) resolve(true); //nothing modified
     else resolve(upsertDbDialog($(pat).val(), $(res).val()));
   })
   .then((rst) => {
     --dialog_edit_count;
     if(rst){
+      $(pat).prop("disabled", true);
       $(res).prop("disabled", true);
       $(self).text("edit");
     }
