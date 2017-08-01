@@ -123,6 +123,11 @@ var get_row_height = (row)=>{
 };
 /** declaration */
 
+////////////////////
+//ready
+////////////////////
+
+$(()=>{
 /** change container size dynamically */
 var width = 0;
 for(let i=0; i<bound_record.length; ++i){
@@ -239,3 +244,4 @@ getObjList
     }
     /** draw path */
   });
+});
