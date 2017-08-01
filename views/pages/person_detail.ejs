@@ -16,7 +16,7 @@
     <button type="button" id="edit_detail" class="btn btn-primary btn-sm margin_up_btn">edit</button>
     <% for(let prop in item){ %>
       <% if(prop === "_id"){ %>
-        <input type="hidden" name="_id" value="<%= item[prop] %>"><br>
+        <input type="hidden" id="detail_id" name="_id" value="<%= item[prop] %>"><br>
       <% }else{ %>
         <p><strong><%= prop %>: </strong><%= item[prop] %></p>
       <% } %>

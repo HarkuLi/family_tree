@@ -2,13 +2,16 @@ var dialog_edit_count = 0;
 var detail;
 var id;
 var old_pat, old_res;
+var boolPropList = ["dialogEnable", "live"];
 
-/**
- * ready
- */
+////////////////////
+//ready
+////////////////////
 
 $(()=>{
+  ////////////////////
   //record details
+  ////////////////////
   detail = {};
   for(let ele of $("#node_detail > p")){
     let prop = $(ele).children().text();
@@ -16,13 +19,20 @@ $(()=>{
     prop = prop.substr(0, prop.length-2);
     //nodeType: https://www.w3schools.com/jsref/prop_node_nodetype.asp
     value = $(ele).contents().filter(function(){ 
-      return this.nodeType === 3; 
+      return this.nodeType === 3;
     })[0];
     value = value ? value.nodeValue : "";
+    //boolean prop
+    if(boolPropList.indexOf(prop) >= 0)
+      value = value === "true" ? true : false;
     detail[prop] = value;
   }
-  id = $("#node_detail > input").val();
+  id = $("#detail_id").val();
+  $("#detail_id").remove();
 
+  ////////////////////
+  //click listener
+  ////////////////////
   $("#edit_detail").on("click", ()=>{
     if($("#edit_detail").text() === "edit")
       convertToEditMod();
@@ -59,9 +69,13 @@ $(()=>{
   });
 });
 
-/**
- * functions
- */
+////////////////////
+//functions
+////////////////////
+
+  ////////////////////
+  //detail
+  ////////////////////
 
 var convertToEditMod = ()=>{
   $("#edit_detail").text("save");
@@ -73,10 +87,17 @@ var convertToEditMod = ()=>{
   for(let prop in detail){
     let title = $("<strong></strong>");
     let input = $("<input></input>");
+    
     $(title).text(prop+": ");
-    $(input).attr("type", "text");
     $(input).attr("name", prop);
-    $(input).attr("value", detail[prop]);
+    if(boolPropList.indexOf(prop) < 0){
+      $(input).attr("type", "text");
+      $(input).attr("value", detail[prop]);
+    }
+    else{
+      $(input).attr("type", "checkbox");
+      $(input).prop("checked", detail[prop]);
+    }
     $("#node_detail").append(title);
     $("#node_detail").append(input);
     $("#node_detail").append("<br>");
@@ -98,8 +119,13 @@ var endEdit = ()=>{
     new_prop = new_prop.substr(0, new_prop.length-2);
     prop.push(new_prop);
   }
-  for(let ele of $("#node_detail > :text"))
-    value.push($(ele).val());
+  for(let ele of $("#node_detail > input")){
+    if(boolPropList.indexOf($(ele).prop("name")) < 0){
+      value.push($(ele).val());
+      continue;
+    }
+    value.push($(ele).prop("checked"));
+  }
 
   //compare with original data
   for(let i=0; i<prop.length; ++i){
@@ -107,6 +133,7 @@ var endEdit = ()=>{
       detail[prop[i]] = value[i];
       udata[prop[i]] = value[i];
       modified = true;
+      console.log("update: "+prop[i]);
     }
   }
 
@@ -118,7 +145,7 @@ var endEdit = ()=>{
   .then(()=>{
     //remove inputs
     $("#node_detail > strong").remove();
-    $("#node_detail > :text").remove();
+    $("#node_detail > input").remove();
     $("#node_detail > br").remove();
     
     //create contents according to details
@@ -126,9 +153,13 @@ var endEdit = ()=>{
     for(let prop in detail){
       let p = $("<p></p>");
       let strong = $("<strong></strong>");
+
       $(strong).text(prop+": ");
       $(p).append(strong);
-      $(p).append(detail[prop]);
+      if(boolPropList.indexOf(prop) < 0)
+        $(p).append(detail[prop]);
+      else  
+        $(p).append(String(detail[prop]));
       $("#node_detail").append(p);
     }
   });
@@ -144,6 +175,10 @@ var updatePerson = (update_data)=>{
     });
   });
 };
+
+  ////////////////////
+  //dialog
+  ////////////////////
 
 var dialogEdit = (self) => {
   var res = $(self).prev();
