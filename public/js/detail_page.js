@@ -59,7 +59,6 @@ $(()=>{
   $("#dialog_list").on("click", ".btn-danger", function(){
     var self = this;
     if(dialog_edit_count) return alert("請先結束進行中的編輯");
-    console.log("delete");
     dialogDel(self);
   });
 
@@ -133,7 +132,6 @@ var endEdit = ()=>{
       detail[prop[i]] = value[i];
       udata[prop[i]] = value[i];
       modified = true;
-      console.log("update: "+prop[i]);
     }
   }
 
@@ -165,7 +163,7 @@ var endEdit = ()=>{
   });
 };
 
-/** return: {update_count} */
+/** return: {rst: Boolean} */
 var updatePerson = (update_data)=>{
   update_data._id = id;
   return new Promise((resolve, reject)=>{
@@ -258,7 +256,6 @@ var addDialog = () => {
 }
 
 var upsertDbDialog = (new_pat, new_res) => {
-  console.log("upsert dialog");
   var passed_data = {
     talkerId: id,
     old_pat,
@@ -276,7 +273,6 @@ var upsertDbDialog = (new_pat, new_res) => {
 };
 
 var deleteDbDialog = (pat, res) => {
-  console.log("delete dialog");
   var passed_data = {
     talkerId: id,
     pat,
