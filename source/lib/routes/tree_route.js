@@ -116,7 +116,7 @@ app.post("/add_root", (req, res)=>{
   var usr;
 
   replaceBoolProp(detail);
-  
+
   identity.isSignin(req)
     .then((usr_name)=>{
       if(!usr_name) return false;
@@ -168,6 +168,9 @@ app.post("/add_child", (req, res)=>{
     });
 });
 
+/**
+ * response: {rst: Boolean}
+ */
 app.post("/update_person", (req, res)=>{
   var detail = req.body;
   var id = req.body._id;
@@ -178,8 +181,19 @@ app.post("/update_person", (req, res)=>{
     }
   }
   dbop_tree.updatePerson(id, detail)
-    .then((r)=>{
-      res.json({updated_count: r.upsertedCount});
+    .then(() => {
+      return identity.isSignin(req);
+    })
+    .then((usr) => {
+      if(!usr) return false;
+      var colleName = "usr_" + usr;
+      if(detail.dialogEnable !== undefined)
+        return dbop_dialog.enableDialog(colleName, id, detail.dialogEnable);
+      return true;
+    })
+    .then(rst => {
+      rst = rst ? true : false;
+      res.json({rst});
     });
 });
 

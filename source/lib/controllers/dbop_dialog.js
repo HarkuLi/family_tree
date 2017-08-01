@@ -1,7 +1,7 @@
 var MongoClient = require('mongodb').MongoClient;
 var dbop_tree = require("./dbop_tree");
 
-const dbUrl = "mongodb://127.0.0.1:3000/linebot";
+const dbUrl = "mongodb://mongodb.harkuli.nctu.me:27017/linebot";
 
 const getDb = MongoClient.connect(dbUrl);
 
@@ -72,4 +72,21 @@ var resMapDelete = (colleName, filterData) => {
     });
 };
 
-module.exports = {getDialogList, resMapUpsert, resMapDelete};
+/**
+ * update enable properties of dialogs of id
+ * @param {String} colleName collection name
+ * @param {String} talkerId talker id
+ * @param {Boolean} enable 
+ */
+var enableDialog = (colleName, talkerId, enable) => {
+  return getDb
+    .then(db => {
+      var colle = db.collection(colleName);
+      return colle.updateMany(
+        {talkerId},
+        {$set: {enable}}
+      );
+    });
+};
+
+module.exports = {getDialogList, resMapUpsert, resMapDelete, enableDialog};
