@@ -8,7 +8,7 @@ var orderArrayHandle = (OA)=>{
   });
 
   for(let i=0; i<OA.length; ++i){
-    if(Number(OA[i])){
+    if(typeof(OA[i]) === "number"){
       let gen_num = OA[i];    //number of a generation
       promise_chain = promise_chain
         .then((rst)=>{

@@ -1,9 +1,11 @@
-var MongoClient = require('mongodb').MongoClient;
-var dbop_tree = require("./dbop_tree");
+const Mongo = require('mongodb'); //for ObjectId()
+const MongoClient = require('mongodb').MongoClient;
 
 const dbUrl = "mongodb://mongodb.harkuli.nctu.me:27017/linebot";
+const dbUrl_ft = "mongodb://mongodb.harkuli.nctu.me:27017/familytree";
 
 const getDb = MongoClient.connect(dbUrl);
+const getDb_ft = MongoClient.connect(dbUrl_ft);
 
 var getDialogList = (usr, talkerId) => {
   var colleName = "usr_" + usr;
@@ -39,7 +41,11 @@ var resMapUpsert = (colleName, filterData, newPat, newRes) => {
     .then(count => {
       if(count < 0) return true;  //updated
       if(count > 0) return false; //no upserted
-      return dbop_tree.getPersonByID(filterData.talkerId);
+      return getDb_ft;
+    })
+    .then(db => {
+      var colle_person = db.collection("person");
+      return colle_person.findOne({_id: Mongo.ObjectId(filterData.talkerId)});
     })
     .then(item => {
       if(!item._id) return item;  //boolean
