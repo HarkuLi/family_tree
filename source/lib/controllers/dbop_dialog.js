@@ -1,17 +1,14 @@
-const Mongo = require('mongodb'); //for ObjectId()
-const MongoClient = require('mongodb').MongoClient;
-
-const dbUrl = "mongodb://mongodb.harkuli.nctu.me:27017/linebot";
-const dbUrl_ft = "mongodb://mongodb.harkuli.nctu.me:27017/familytree";
-
-const getDb = MongoClient.connect(dbUrl);
-const getDb_ft = MongoClient.connect(dbUrl_ft);
+/**
+ * database operations for dialog collection in linebot db
+ */
+const Mongo = require("mongodb"); //for ObjectId()
+const dbConnect = require("./db");
 
 var getDialogList = (usr, talkerId) => {
   var colleName = "usr_" + usr;
   var colle;
 
-  return getDb
+  return dbConnect.getDb_lb
     .then(db => {
       colle = db.collection(colleName);
       return colle.find({talkerId}).toArray();
@@ -28,7 +25,7 @@ var getDialogList = (usr, talkerId) => {
  */
 var resMapUpsert = (colleName, filterData, newPat, newRes) => {
   var colle;
-  return getDb
+  return dbConnect.getDb_lb
     .then(db => {
       //update an existed one
       colle = db.collection(colleName);
@@ -41,7 +38,7 @@ var resMapUpsert = (colleName, filterData, newPat, newRes) => {
     .then(count => {
       if(count < 0) return true;  //updated
       if(count > 0) return false; //no upserted
-      return getDb_ft;
+      return dbConnect.getDb_ft;
     })
     .then(db => {
       var colle_person = db.collection("person");
@@ -71,7 +68,7 @@ var resMapUpsert = (colleName, filterData, newPat, newRes) => {
  * @return {Promise} a promise of deleteOne()
  */
 var resMapDelete = (colleName, filterData) => {
-  return getDb
+  return dbConnect.getDb_lb
     .then(db => {
       var colle = db.collection(colleName);
       return colle.deleteOne(filterData);
@@ -85,7 +82,7 @@ var resMapDelete = (colleName, filterData) => {
  * @param {Boolean} enable 
  */
 var enableDialog = (colleName, talkerId, enable) => {
-  return getDb
+  return dbConnect.getDb_lb
     .then(db => {
       var colle = db.collection(colleName);
       return colle.updateMany(

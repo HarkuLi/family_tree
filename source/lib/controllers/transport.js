@@ -1,14 +1,12 @@
 'use strict';
 
 const Crypto = require('crypto');
-const MongoClient = require('mongodb').MongoClient;
+const dbConnect = require("./db");
 const ObjectID = require('mongodb').ObjectID;
 const Validate = require('../controllers/validate')
 const dbop_tree = require('../controllers/dbop_tree')
 const MaillGroup = require('../controllers/mail-group')
 const MaillLetter = require('../controllers/mail-letter')
-
-const Connection = MongoClient.connect('mongodb://mongodb.harkuli.nctu.me:27017/familytree');
 
 module.exports = {
   exportAllData, 
@@ -108,7 +106,7 @@ function importAllData(usr, fileContent){
     .then((replaceContent) => {
       //console.log(replaceContent);
       let replaceProcess = replaceContent.map((service) => {
-        return Connection.then((DB) => DB.collection(service.collectionName))
+        return dbConnect.getDb_ft.then((DB) => DB.collection(service.collectionName))
           .then((Col) => {
             return new Promise((resolve, reject) => {
               if(service.overwriteData instanceof Array){
@@ -188,7 +186,7 @@ function decryption(ciphertext){
 function getChatbotDataByUsr(usr){
   if(!usr) return Promise.reject("[import-export][getChatbotByUsr] cannot find usr, not login.");
 
-  return Connection
+  return dbConnect.getDb_ft
     .then((DB) => DB.collection(`usr_${usr}`).find() || {})
     .then((chatBotData) => (chatBotData) ? Promise.resolve({}) : Promise.resolve(chatBotData))
     .catch((err) => Promise.reject(err));

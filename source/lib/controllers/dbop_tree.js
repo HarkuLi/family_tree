@@ -1,23 +1,20 @@
-const Mongo = require('mongodb'); //for ObjectId()
-const MongoClient = require('mongodb').MongoClient;
+/**
+ * database operations for family and person collection in familytree db
+ */
+const Mongo = require("mongodb"); //for ObjectId()
+const dbConnect = require("./db");
 
-const dbUrl = "mongodb://mongodb.harkuli.nctu.me:27017/familytree";
-const dbUrl_lb = "mongodb://mongodb.harkuli.nctu.me:27017/linebot";
-
-const colle_family = 'family';
-const colle_person = 'person';
-
-const getDB_lb = MongoClient.connect(dbUrl_lb);
+const colle_family = "family";
+const colle_person = "person";
 
 /** public function */
-const getDB = MongoClient.connect(dbUrl);
 
 var getFamilyByID = (id)=>{
   return getByIDColle(id, colle_family);
 };
 
 var getFamilyIDByUsr = (usr)=>{
-  return getDB
+  return dbConnect.getDb_ft
     .then((db)=>{
       var colle = db.collection(colle_family);
       return colle.findOne({usr}, {_id: 1});
@@ -25,7 +22,7 @@ var getFamilyIDByUsr = (usr)=>{
 };
 
 var getFamilyByUsr = (usr)=>{
-  return getDB
+  return dbConnect.getDb_ft
     .then((db)=>{
       var colle = db.collection(colle_family);
       return colle.findOne({usr});
@@ -40,7 +37,7 @@ var getPersonByID = (id)=>{
 var newFamily = (data)=>{
   data.orderArray = [];
   data.createTime = new Date().getTime();
-  return getDB
+  return dbConnect.getDb_ft
     .then((db)=>{
       var colle = db.collection(colle_family);
       colle.insertOne(data);
@@ -51,7 +48,7 @@ var newRoot = (usr, detail)=>{
   var f_colle, p_colle;
   detail.usr = usr;
 
-  return getDB
+  return dbConnect.getDb_ft
     .then((db)=>{
       /** add person to database */
       f_colle = db.collection(colle_family);
@@ -76,7 +73,7 @@ var addChild = (usr, detail)=>{
   var OA;
   detail.usr = usr;
 
-  return getDB
+  return dbConnect.getDb_ft
     .then((db)=>{
       f_colle = db.collection(colle_family);
       p_colle = db.collection(colle_person);
@@ -138,7 +135,7 @@ var addChild = (usr, detail)=>{
 var remove = (usr, person_id)=>{
   var f_colle, p_colle;
   
-  return getDB
+  return dbConnect.getDb_ft
     .then((db)=>{
       f_colle = db.collection(colle_family);
       p_colle = db.collection(colle_person);
@@ -177,7 +174,7 @@ var addMate = (usr, detail)=>{
   var OA;
   detail.usr = usr;
   
-  return getDB
+  return dbConnect.getDb_ft
     .then((db)=>{
       p_colle = db.collection(colle_person);
       f_colle = db.collection(colle_family);
@@ -210,7 +207,7 @@ var addMate = (usr, detail)=>{
 
 var removeMate = (usr, person_id)=>{
   var p_colle, f_colle;
-  return getDB
+  return dbConnect.getDb_ft
     .then((db)=>{
       p_colle = db.collection(colle_person);
       f_colle = db.collection(colle_family);
@@ -243,7 +240,7 @@ var removeMate = (usr, person_id)=>{
 };
 
 var updatePerson = (id, data)=>{
-  return getDB
+  return dbConnect.getDb_ft
     .then((db)=>{
       var colle = db.collection(colle_person);
       return colle.updateOne(
@@ -264,7 +261,7 @@ var dropFamily = (usr)=>{
   var f_colle, p_colle;
   var final_rst = true;
 
-  return getDB
+  return dbConnect.getDb_ft
     .then(db => {
       f_colle = db.collection(colle_family);
       p_colle = db.collection(colle_person);
@@ -278,7 +275,7 @@ var dropFamily = (usr)=>{
     })
     .then(r => {
       if(!r) return false;
-      return getDB_lb;
+      return dbConnect.getDb_lb;
     })
     .then(db => {
       if(!db) return false;
@@ -295,7 +292,7 @@ var dropFamily = (usr)=>{
 
 /** private function */
 var getByIDColle = (id, colle_name)=>{
-  return getDB
+  return dbConnect.getDb_ft
     .then((db)=>{
       var colle = db.collection(colle_name);
       return colle.findOne({_id: Mongo.ObjectId(id)});
@@ -304,7 +301,7 @@ var getByIDColle = (id, colle_name)=>{
 
 var removeChild = (parent_id, child_id)=>{
   var colle;
-  return getDB
+  return dbConnect.getDb_ft
     .then((db)=>{
       colle = db.collection(colle_person);
       return colle.findOne({_id: Mongo.ObjectId(parent_id)});
@@ -382,7 +379,7 @@ var ComputeChildIdx = (usr, parent_id)=>{
   var p_colle;
   var OA;
   var parent_idx, child_idx;
-  return getDB
+  return dbConnect.getDb_ft
     .then((db)=>{
       p_colle = db.collection(colle_person);
       // f_colle = db.collection(colle_family);
@@ -430,4 +427,4 @@ var ComputeChildIdx = (usr, parent_id)=>{
 /** private function */
 
 module.exports = {getFamilyByID, getFamilyByUsr, getPersonByID, getFamilyIDByUsr, newFamily, 
-                  newRoot, addChild, remove, addMate, removeMate, updatePerson, getDB};
+                  newRoot, addChild, remove, addMate, removeMate, updatePerson};

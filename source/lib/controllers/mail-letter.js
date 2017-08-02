@@ -1,14 +1,12 @@
 'use strict';
 
-const MongoClient = require('mongodb').MongoClient;
+const dbConnect = require("./db");
 const ObjectID = require('mongodb').ObjectID;
 const Validate = require('../controllers/validate')
 const DBOP_Tree = require('../controllers/dbop_tree')
 const Nodemailer = require('nodemailer');
 
 const CollectionName = 'mailletter';
-const Connection = MongoClient.connect('mongodb://mongodb.harkuli.nctu.me:27017/familytree');
-const Collection = Connection.then((DB) => DB.collection(CollectionName));
 
 module.exports = {
   getAllData,
@@ -24,8 +22,11 @@ function getAllData(fgid){
   // check fgid format
   if(!Validate.checkIDFormat(fgid)) return Promise.reject("[mail-letter][getAllData] family group id format is invalid.");
   
-  return Collection
-    .then((Col) => Col.find({fgid: {$eq: fgid}}, {}).sort({createTime: -1}).toArray())
+  return dbConnect.getDb_ft
+    .then((db) => {
+      var Col = db.collection(CollectionName);
+      return Col.find({fgid: {$eq: fgid}}, {}).sort({createTime: -1}).toArray();
+    })
     .then((list) => (!list) ?  Promise.resolve([]) : Promise.resolve(list))
     .catch((err) => Promise.reject(err));
 }
@@ -39,8 +40,9 @@ function getMailList(fgid, filter = {}){
   if(!Validate.checkIDFormat(fgid)) return Promise.reject("[mail-letter] family group id format is invalid.");
 
   // find all mail with this person
-  return Collection
-    .then((Col) => {
+  return dbConnect.getDb_ft
+    .then((db) => {
+      var Col = db.collection(CollectionName);
       return new Promise((resolve, reject) => {
         Col.find({
           fgid: { $eq: fgid }, 
@@ -65,11 +67,16 @@ function getMail(lid){
   if(!Validate.checkIDFormat(lid)) return Promise.reject("[mail-letter] letter id format is invalid.");
 
   // find mail with mid
-  return Collection
-    .then((col) => col.findOne({
-        _id: { $eq: new ObjectID(lid) }, 
-        status: { $ne: 'deleted' }
-      }, Projection))
+  return dbConnect.getDb_ft
+    .then((db) => {
+      var col = db.collection(CollectionName);
+      return col.findOne(
+        {
+          _id: { $eq: new ObjectID(lid) }, 
+          status: { $ne: 'deleted' }
+        },
+        Projection);
+    })
     .then((mail) => {
       console.log(`[mail-letter] getMail with mid = ${lid} success.`);
       return Promise.resolve(mail);
@@ -101,14 +108,17 @@ function putMail(lid = null, modifiedData, upsert = true){
     // update data if status is draft or pending
     .then((mail) => {
       if(mail && (mail.status === 'draft' || mail.status === 'pending')){
-        return Promise.resolve(Collection);
+        return Promise.resolve(dbConnect.getDb_ft);
       }else{
         return Promise.reject("update a mail only if status is draft or pending");
       }
     })
-    .catch(() => Promise.resolve(Collection))
+    .catch(() => Promise.resolve(dbConnect.getDb_ft))
     // update or insert data (upsert)
-    .then((col) => col.findOneAndUpdate({_id: new ObjectID(lid)}, { $set: modifiedData }, option))
+    .then((db) => {
+      var col = db.collection(CollectionName);
+      return col.findOneAndUpdate({_id: new ObjectID(lid)}, { $set: modifiedData }, option);
+    })
     .then((result) => {
       if(result.ok !== 1) return Promise.reject(result);
       //console.log(result);

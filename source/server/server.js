@@ -55,7 +55,7 @@ app.post("/signup_action", (req, res)=>{
       .then((new_user_rst)=>{
         rst = new_user_rst;
         if(new_user_rst)  return dbop_tree.newFamily({name, usr});
-        return 0;
+        return false;
       })
       .then(()=>{
         res.json({rst});

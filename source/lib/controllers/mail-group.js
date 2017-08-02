@@ -1,12 +1,10 @@
 'use strict';
 
-const MongoClient = require('mongodb').MongoClient;
+const dbConnect = require("./db");
 const ObjectID = require('mongodb').ObjectID;
 const Validate = require('../controllers/validate')
 const dbop_tree = require('../controllers/dbop_tree')
 const CollectionName = 'mailgroup';
-const Connection = MongoClient.connect('mongodb://mongodb.harkuli.nctu.me:27017/familytree');
-const Collection = Connection.then((DB) => DB.collection(CollectionName));
 
 module.exports = {
   getAllData,
@@ -24,8 +22,11 @@ function getAllData(fgid){
   // check fgid format
   if(!Validate.checkIDFormat(fgid)) return Promise.reject("[mail-group][getAllData] family group id format is invalid.");
   
-  return Collection
-    .then((Col) => Col.find({fgid: {$eq: fgid}}, {}).sort({createTime: -1}).toArray())
+  return dbConnect.getDb_ft
+    .then((db) => {
+      var Col = db.collection(CollectionName);
+      return Col.find({fgid: {$eq: fgid}}, {}).sort({createTime: -1}).toArray();
+    })
     .then((list) => (!list) ?  Promise.resolve([]) : Promise.resolve(list))
     .catch((err) => Promise.reject(err));
 }
@@ -38,8 +39,9 @@ function getGroupList(fgid){
   if(!Validate.checkIDFormat(fgid)) return Promise.reject("[mail-group] family group id format is invalid.");
 
   // find all mail with this person
-  return Collection
-    .then((Col) => {
+  return dbConnect.getDb_ft
+    .then((db) => {
+      var Col = db.collection(CollectionName);
       return new Promise((resolve, reject) => {
         Col.find({
           fgid: {$eq: fgid}, 
@@ -69,8 +71,11 @@ function getGroup(mgid, display){
   if(!Validate.checkIDFormat(mgid)) return Promise.reject("[mail-group] mail group id format is invalid.");
 
   // find mail with mid
-  return Collection
-    .then((col) => col.findOne({_id: new ObjectID(mgid), enable: {$ne: false}}, Projection))
+  return dbConnect.getDb_ft
+    .then((db) => {
+      var col = db.collection(CollectionName);
+      return col.findOne({_id: new ObjectID(mgid), enable: {$ne: false}}, Projection);
+    })
     .then((group) => {
       // group not found
       if(!group) return Promise.resolve(group);
@@ -116,15 +121,21 @@ function putGroup(mgid = null, modifiedData, upsert = true){
   if(mgid){
     if(!Validate.checkIDFormat(mgid)) return Promise.reject("[mail-group] mail group id format error");
   }
-  return Collection
+  return dbConnect.getDb_ft
     // update or insert data (upsert)
-    .then((col) => col.findOneAndUpdate({
-      _id: new ObjectID(mgid), 
-      enable: {$ne: false}
-    }, { 
-      $set: modifiedData,
-      $setOnInsert: { createTime: new Date().getTime() }
-    }, option))
+    .then((db) => {
+      var col = db.collection(CollectionName)
+      return col.findOneAndUpdate(
+        {
+          _id: new ObjectID(mgid), 
+          enable: {$ne: false}
+        },
+        { 
+          $set: modifiedData,
+          $setOnInsert: { createTime: new Date().getTime() }
+        },
+        option);
+    })
     .then((result) => {
       if(result.ok !== 1) return Promise.reject(result);
       (mgid) ? console.log(`[mail-group] putGroup with mid = ${mgid} success.`) : console.log(`[mail-group] putGroup new success.`);
@@ -178,14 +189,20 @@ function putGroupMember(mgid, rawData){
       case 'addEmail': memberData.email = rawData[attr]; break;
     }
   }
-  return Collection
-    .then((col) => col.findOneAndUpdate({
-      _id: new ObjectID(mgid), 
-      enable: {$ne: false}
-    }, {
-      $addToSet: { memberlist: memberData },
-      $set: { modifyTime: new Date().getTime() },
-    }, option))
+  return dbConnect.getDb_ft
+    .then((db) => {
+      var col = db.collection(CollectionName);
+      return col.findOneAndUpdate(
+        {
+          _id: new ObjectID(mgid), 
+          enable: {$ne: false}
+        },
+        {
+          $addToSet: { memberlist: memberData },
+          $set: { modifyTime: new Date().getTime() },
+        },
+        option);
+    })
     .then((result) => {
       if(result.ok !== 1) return Promise.reject(result);
       console.log(`[mail-group] putGroupMember with mid = ${mgid} success.`);
@@ -206,14 +223,20 @@ function deleteGroupMember(mgid, mbid){
     returnOriginal: false
   };
 
-  return Collection
-    .then((col) => col.findOneAndUpdate({
-      _id: new ObjectID(mgid), 
-      enable: {$ne: false}
-    }, {
-      $pull: { memberlist: { mbid: new ObjectID(mbid) } },
-      $set: { modifyTime: new Date().getTime() }
-    }, option))
+  return dbConnect.getDb_ft
+    .then((db) => {
+      var col = db.collection(CollectionName);
+      return col.findOneAndUpdate(
+        {
+          _id: new ObjectID(mgid), 
+          enable: {$ne: false}
+        },
+        {
+          $pull: { memberlist: { mbid: new ObjectID(mbid) } },
+          $set: { modifyTime: new Date().getTime() }
+        },
+        option);
+    })
     .then((result) => {
       if(result.ok !== 1) return Promise.reject(result);
       console.log(`[mail-group] deleteGroupMember with mgid = ${mgid}, mbid = ${mbid} success.`);

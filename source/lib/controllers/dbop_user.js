@@ -1,35 +1,31 @@
 /**
- * database operations for user collection
+ * database operations for user collection in familytree db
  */
-var MongoClient = require('mongodb').MongoClient;
+const dbConnect = require("./db");
 const bcrypt = require("bcrypt");
 
-const dbUrl = "mongodb://mongodb.harkuli.nctu.me:27017/familytree";
-const collection_name = 'user';
+const collection_name = "user";
 const salt_rounds = 13;
 const survive_time = 60 * 60 * 24 * 7; //(s), 1 week
-
-var getColle = MongoClient.connect(dbUrl)
-  .then((db)=>{
-    return db.collection(collection_name);
-  });
 
 /** public function */
 var newUser = (data)=>{
   return bcrypt.hash(data.pw, salt_rounds)
     .then((hash)=>{
       data.pw = hash;
-      return getColle;
+      return dbConnect.getDb_ft;
     })
-    .then((colle)=>{
+    .then((db)=>{
+      var colle = db.collection(collection_name);
       colle.insertOne(data);
-      return 1;
+      return true;
     });
 };
 
 var getUserByName = (usr)=>{
-  return getColle
-    .then((colle)=>{
+  return dbConnect.getDb_ft
+    .then((db)=>{
+      var colle = db.collection(collection_name);
       return colle.findOne({usr});
     });
 };
@@ -38,9 +34,9 @@ var signin = (usr, pw)=>{
   var colle_usr;
   var token;
   var usr_found
-  return getColle
-    .then((colle)=>{
-      colle_usr = colle;
+  return dbConnect.getDb_ft
+    .then((db)=>{
+      colle_usr = db.collection(collection_name);
       return colle_usr.findOne({usr});
     })
     .then((item)=>{
@@ -70,8 +66,9 @@ var signin = (usr, pw)=>{
 /** return usr if checked or retrun false */
 var check_token = (token)=>{
   token = token || false;
-  return getColle
-    .then((colle)=>{
+  return dbConnect.getDb_ft
+    .then((db)=>{
+      var colle = db.collection(collection_name);
       return colle.findOne({token});
     })
     .then((item)=>{

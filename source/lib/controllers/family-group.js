@@ -1,7 +1,5 @@
 'use strict';
 
-const MongoClient = require('mongodb').MongoClient;
-const ObjectID = require('mongodb').ObjectID;
 const Validate = require('../controllers/validate')
 const DBOP_Tree = require('../controllers/dbop_tree')
 
