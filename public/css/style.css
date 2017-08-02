@@ -203,3 +203,9 @@ body{
 .table{
     background-color: #f9f9f9;
 }
+/* for email dropdown */
+.e-mg-menu{
+    padding: 5px 10px;
+    overflow-y: scroll;
+    height: 115px;
+}

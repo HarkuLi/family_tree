@@ -83,7 +83,7 @@ function getGroup(mgid, display){
       // for getting every member name
       let memberlist = group.memberlist || [];
       let getMemberDetail = memberlist.filter((member) => member !== {}).map((member) => {
-        console.log(member);
+        //console.log(member);
         if(!member.pid){
           // member who is not in the tree
           if(!member.name) member.name = 'unnamed member';

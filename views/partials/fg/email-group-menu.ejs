@@ -1,0 +1,16 @@
+              <!-- email and mailgroup dropdown -->
+              <div class="dropdown">
+                <ul class="dropdown-menu e-mg-menu" aria-labelledby="e-mg-menu">
+                  <% if(e_mg_list.length === 0){ %>
+                    <li class="text-center"><p style="color: #000; " class="emaile_mg_list">No email and mail group found.</p></li>  
+                  <% }else{ %>
+                    <% for(let i = 0; i < e_mg_list.length; i++){ %>
+                      <% if(e_mg_list[i].type === "group") { %>
+                        <li id="<%= e_mg_list[i].id || '' %>"><a href="#" class="emaillist"><%= e_mg_list[i].context %></a></li>
+                      <% }else{ %>
+                        <li id="<%= e_mg_list[i].id || '' %>"><a href="#" class="emaillist"><%= e_mg_list[i].context %></a></li>
+                      <% } %>
+                    <% } %>
+                  <% } %>
+                </ul>
+              </div><!-- / email and mailgroup dropdown -->

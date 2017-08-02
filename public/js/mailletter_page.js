@@ -60,15 +60,18 @@ $("#putMail").submit((e) => {
   stopActionAndBubbling(e);
 
   // get data from form
-  let sendData = getFormData("#putMail");
-  sendData.push({ context: $('#summernote').summernote('code') });
-
+  let sendData = getFormSendData("#putMail");
+  
+  sendData = JSON.parse(sendData);
+  sendData.context = $('#summernote').summernote('code');
+  
   // check autosend field
   sendData.autoSend = (sendData.autoSend === 'on') ? true : false;
 
   let fgUrl = $("[name='fgUrl']").val();
   let lid = $("[name='lid").val() || null;
 
+  console.log(sendData);
   // send to server
   Promise.resolve(sendData)
     .then((sendData) => {
@@ -84,7 +87,7 @@ $("#putMail").submit((e) => {
         url: obj.sendUrl,
         type: 'PUT',
         contentType: 'application/json',
-        data: obj.sendData,
+        data: JSON.stringify(obj.sendData),
         async: true,
         //dataType: 'json',
         success: (response, status, xhr) => {
@@ -138,14 +141,31 @@ $(".mail-letter-list").click(function() {
   switch(status){
     case 'draft':
     case 'pending':
-      window.location.assign(`${window.location.origin}${window.location.pathname}edit/${lid}`);
+      window.location.assign(`${window.location.origin}${window.location.pathname}/edit/${lid}`);
       break;
     case 'success':
     case 'fail':
-      window.location.assign(`${window.location.origin}${window.location.pathname}show/${lid}`);
+      window.location.assign(`${window.location.origin}${window.location.pathname}/show/${lid}`);
       break;
     default: 
       console.log("[event] unknown status");
       return;
   }
+});
+
+//TAG: e-mg-menu operation
+$(".emaillist").click(function(e){
+  stopActionAndBubbling(e);
+  let added = $(this).html().replace('&lt;', '<').replace('&gt;', '>');
+  let field = $(this).parent().parent().parent().prev();
+  let tmp = field.val();
+  (!tmp) ? field.val(added) : field.val(tmp+', '+added);
+});
+$(".dropdown-toggle").focus(function (e) {
+  $(".dropdown").removeClass("open");
+  $(this).siblings(".dropdown").addClass("open");
+});
+$(".dropdown-toggle").blur(function(e){
+  // INFO: because blur prior to click event, deffer blur cb.
+  setTimeout(() => {$(".dropdown").removeClass("open");}, 200);
 });

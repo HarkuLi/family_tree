@@ -4,6 +4,7 @@ const dbConnect = require("./db");
 const ObjectID = require('mongodb').ObjectID;
 const Validate = require('../controllers/validate')
 const DBOP_Tree = require('../controllers/dbop_tree')
+const MailGroup = require('../controllers/mail-group')
 const Nodemailer = require('nodemailer');
 
 const CollectionName = 'mailletter';
@@ -34,8 +35,6 @@ function getAllData(fgid){
 // TAG:
 function getMailList(fgid, filter = {}){
   const listProjection = { createTime: 1, subject: 1, from: 1, status: 1, tags: 1, _id: 1 };
-  // TODO:process filter
-
   // check fgid format
   if(!Validate.checkIDFormat(fgid)) return Promise.reject("[mail-letter] family group id format is invalid.");
 
@@ -47,7 +46,7 @@ function getMailList(fgid, filter = {}){
         Col.find({
           fgid: { $eq: fgid }, 
           status: { $ne: 'deleted' }
-        }, listProjection).sort({createTime: -1}).limit(20).toArray((err, list) => {
+        }, listProjection).sort({createTime: 1}).limit(20).toArray((err, list) => {
           if(err) reject(err);
           console.log('[mail-letter] getMailList success.');
           resolve(list);
@@ -87,19 +86,17 @@ function getMail(lid){
     });
 }
 // TAG:
-function putMail(lid = null, modifiedData, upsert = true){
+function putMail(usr, modifiedData, lid = null, upsert = true){
+  console.log("putMail's input lid = "+lid);
   const option = {
     upsert: upsert,
     returnOriginal: false,
     projection: { fgid: 0 }
   };
-  console.log(lid);
   // check lid format if lid exist
   if(lid){
     if(!Validate.checkIDFormat(lid)) return Promise.reject("[mail-letter] mail id format error");
   }
-
-  // TODO:check modifiedData format
   modifiedData.modifiedTime = new Date().getTime();
   
   return Promise.resolve(lid)
@@ -117,7 +114,7 @@ function putMail(lid = null, modifiedData, upsert = true){
     // update or insert data (upsert)
     .then((db) => {
       var col = db.collection(CollectionName);
-      return col.findOneAndUpdate({_id: new ObjectID(lid)}, { $set: modifiedData }, option);
+      return col.findOneAndUpdate({_id: new ObjectID(lid)}, { $set: modifiedData, $addToSet: { createTime: new Date().getTime() }}, option);
     })
     .then((result) => {
       if(result.ok !== 1) return Promise.reject(result);
@@ -131,7 +128,7 @@ function putMail(lid = null, modifiedData, upsert = true){
     });
 }
 // TAG:
-function deleteMail(lid){
+function deleteMail(usr, lid){
   let modifiedData = {
     status: "deleted",
     autoSend: false,
@@ -141,7 +138,7 @@ function deleteMail(lid){
   };
 
   // change status not real delete
-  return putMail(lid, modifiedData, false)
+  return putMail(usr, modifiedData, lid, false)
     .then((res) => {
       console.log(`[mail-letter] deleteMail with mid = ${lid} success.`);
       return Promise.resolve(res);
@@ -154,6 +151,8 @@ function deleteMail(lid){
 
 function sendMail(usr, lid, sendOptions){
   // INFO: Use GMAIL for Temporary Choice UNLESS Haraka SMTP Server established
+
+  console.log(lid);
   let transporter = Nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 465,
@@ -161,18 +160,21 @@ function sendMail(usr, lid, sendOptions){
       auth: { user: 'einfachstudio@gmail.com',pass: process.env.GMAIL_KEY }
   });
 
-  // TODO: check autoSend is disable
+  // check autoSend
+  let now = new Date().getTime();
+  if(sendOptions.autoSend && sendOptions.reserveTime > now){
+    return Promise.resolve({sending: false, message: "Not the reserved time to send mail"});
+  }
+
   return DBOP_Tree
     // get family data from db (familyname)
     .getFamilyByUsr(usr)
     .then((family) => {
       // set default and check mail options
       sendOptions.familyname = family.name || 'unknown';
-      sendOptions.username = usr;
       return Promise.resolve(checkMailOptions(sendOptions));
     })
     .then((mailOptions) =>{
-     
       return transporter.sendMail(mailOptions, (err, info) => {
         if (err){
           console.log(err);
@@ -183,21 +185,79 @@ function sendMail(usr, lid, sendOptions){
       })
     })
     // update status and sendtime
-    .then(() => putMail(lid, { status: "success", sendTime: new Date().getTime() }))
+    .then(() => putMail(usr, { status: "success", sendTime: new Date().getTime() }, lid))
     .catch((err) => {
       console.log(err);
       return Promise.reject(err);
     });
 }
 
+// TAG: check and set default value with mail content
 function checkMailOptions(sendOptions){
-  
   let mailOptions = {};
-  mailOptions.from = `"[Sender]${sendOptions.from}" <test@tree.com>`;
-  mailOptions.to = sendOptions.to.split(',').map((receiver) => receiver.trim()).join(',');
-  mailOptions.cc = (sendOptions.cc) ? sendOptions.cc.split(',').map((receiver) => receiver.trim()).join(',') : '';
-  mailOptions.bcc = (sendOptions.bcc) ? sendOptions.bcc.split(',').map((receiver) => receiver.trim()).join(',') : '';
-  mailOptions.subject = sendOptions.subject || `[FamilyGroup][${sendOptions.familyname}][${sendOptions.username}]`;
+  mailOptions.from = `"${sendOptions.familyname}"`;
+  mailOptions.subject = sendOptions.subject || `[FamilyGroup] New Message from ${sendOptions.familyname}.`;
   mailOptions.html = sendOptions.context || '';
-  return mailOptions;
+
+  // convert mail group to legal email address string in nodemailer
+  let process = [
+    E_MG_ListToEmails(sendOptions.to).then((v) => mailOptions.to = v),
+    (!sendOptions.cc) ? mailOptions.cc = '' : E_MG_ListToEmails(sendOptions.cc).then((v) => mailOptions.cc = v),
+    (!sendOptions.bcc) ? mailOptions.bcc = '' : E_MG_ListToEmails(sendOptions.bcc).then((v) => mailOptions.bcc = v)
+  ];
+  
+  return Promise.all(process)
+    .then(() => mailOptions);
+}
+
+// TAG: change mail group and email mixed list to address list
+function E_MG_ListToEmails(e_mg_list){
+  let groupRegExp = /\".*\"\s*\[group\:([0-9a-f]{24})\]/i;
+  let memberRegExp = /\".*\"\s*\<([\w_\-+]+@([\w_\-+]+)(\.[\w_\-+]+)+)\>/i;
+
+  let process = e_mg_list.split(',').map((item) => {
+    item = item.trim(" ");
+
+    // "xxxx" <xxx@xxx>
+    if(memberRegExp.test(item)){ return item; }
+
+    // "xxxx" <xxx@xxx>,"oooo" <ooo@oo>.......
+    if(groupRegExp.test(item)){
+      let mgid = item.match(groupRegExp)[1];
+      return MailGroup.getGroup(mgid, {memberlist: 1})
+        .then((group) => {
+          // for getting every member
+          let memberlist = group.memberlist || [];
+          return memberlist.filter((member) => member !== {});
+        })
+        .then((memberlist) => {
+          let process_inner = memberlist.map((member) => {
+            // member who is not in the tree
+            if(!member.pid) return `"${member.name}" <${member.email}>`;
+            // member who is in the tree, get their detail
+            return new Promise((resolve, reject) => {
+              DBOP_Tree.getPersonByID(member.pid)
+                .then((person) => resolve(`"${person.name}" <${person.email}>`))
+                .catch((err) => reject(err));
+            });
+          });
+          return Promise.all(process_inner);
+        })
+        .then((emaillist) => emaillist.join(','))
+        .catch((err) => Promise.reject(err));
+    }
+    // not the "xxx" <xxx@xx> format
+    // get only email part
+    let emailRegExp = /[\w_\-+]+@([\w_\-+]+)(\.[\w_\-+]+)+/i;
+    let ary = item.match(emailRegExp);
+    return (ary.lentgh === 0) ? '' : ary[0];
+  });
+
+  return Promise.all(process)
+    .then((AddressStrArray) => AddressStrArray.join(','))
+    .catch((err) => {
+      console.log("[mail-letter][E_MG_ListToEmails] Something Error:");
+      console.log(err);
+      return false;
+    });
 }

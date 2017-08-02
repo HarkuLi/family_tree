@@ -34,20 +34,26 @@
             </div>
             <div class="form-group">
               <label for="to" class="col-sm-1 control-label">To</label>
-              <div class="col-sm-11">
-                <input type="email" class="form-control" id="to" name="to" placeholder="Email / Mail Group" value="<%= mailContent.to || '' %>" <%= (editable) ? '' : 'disabled'; %>>
+              <div class="col-sm-11 e-mg-group">
+                <input type="text" class="form-control dropdown-toggle" aria-haspopup="true" aria-expanded="true" id="to" name="to" placeholder="Email / Mail Group" value="<%= mailContent.to || '' %>" <%= (editable) ? '' : 'disabled'; %>>
+                <!-- email and mailgroup dropdown -->
+                <%- include('email-group-menu') %>
               </div>
             </div>
             <div class="form-group">
               <label for="cc" class="col-sm-1 control-label">CC</label>
-              <div class="col-sm-11">
-                <input type="email" class="form-control" id="cc" name="cc" placeholder="Email / Mail Group" value="<%= mailContent.cc || '' %>" <%= (editable) ? '' : 'disabled'; %>>
+              <div class="col-sm-11 e-mg-group">
+                <input type="text" class="form-control dropdown-toggle" id="cc" aria-haspopup="true" aria-expanded="true" name="cc" placeholder="Email / Mail Group" value="<%= mailContent.cc || '' %>" <%= (editable) ? '' : 'disabled'; %>>
+                <!-- email and mailgroup dropdown -->
+                <%- include('email-group-menu') %>
               </div>
             </div>
             <div class="form-group">
               <label for="bcc" class="col-sm-1 control-label">BCC</label>
-              <div class="col-sm-11">
-                <input type="email" class="form-control" id="bcc" name="bcc" placeholder="Email / Mail Group" value="<%= mailContent.bcc || '' %>" <%= (editable) ? '' : 'disabled'; %>>
+              <div class="col-sm-11 e-mg-group">
+                <input type="text" class="form-control dropdown-toggle" id="bcc" aria-haspopup="true" aria-expanded="true" name="bcc" placeholder="Email / Mail Group" value="<%= mailContent.bcc || '' %>" <%= (editable) ? '' : 'disabled'; %>>
+                <!-- email and mailgroup dropdown -->
+                <%- include('email-group-menu') %>
               </div>
             </div>
             <div class="form-group">
@@ -61,7 +67,7 @@
             <% if(lid){ %>
               <input type="hidden" name="lid" value=<%= lid %>>
             <% } %>
-            <% if(editable) { %>
+            <% if(editable && lid) { %>
             <div class="form-group text-center">
               <button id="deleteMail" type="button" class="btn btn-danger">Delete Mail</button>
             </div>
