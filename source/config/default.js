@@ -5,4 +5,5 @@ module.exports = {
   googleShortenUrlAPI: "https://www.googleapis.com/urlshortener/v1/url?key=",
   fgUrlRoot: "/fg/",
   tmpDir: __dirname+"/../../tmp/",
+  autoSendCheckTime: 1000*60*10
 };

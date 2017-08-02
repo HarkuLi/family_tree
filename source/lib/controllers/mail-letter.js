@@ -114,7 +114,7 @@ function putMail(usr, modifiedData, lid = null, upsert = true){
     // update or insert data (upsert)
     .then((db) => {
       var col = db.collection(CollectionName);
-      return col.findOneAndUpdate({_id: new ObjectID(lid)}, { $set: modifiedData, $addToSet: { createTime: new Date().getTime() }}, option);
+      return col.findOneAndUpdate({_id: new ObjectID(lid)}, { $set: modifiedData, $setOnInsert: { createTime: new Date().getTime() }}, option);
     })
     .then((result) => {
       if(result.ok !== 1) return Promise.reject(result);
@@ -162,7 +162,7 @@ function sendMail(usr, lid, sendOptions){
 
   // check autoSend
   let now = new Date().getTime();
-  if(sendOptions.autoSend && sendOptions.reserveTime > now){
+  if(sendOptions.autoSend && new Date(sendOptions.reserveTime).getTime() > now){
     return Promise.resolve({sending: false, message: "Not the reserved time to send mail"});
   }
 

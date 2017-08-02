@@ -1,6 +1,7 @@
 const MongoClient = require('mongodb').MongoClient;
 
-const serverUrl = "mongodb://mongodb.harkuli.nctu.me:27017";
+//const serverUrl = "mongodb://mongodb.harkuli.nctu.me:27017";
+const serverUrl = "mongodb://127.0.0.1:3000";
 const dbUrl_ft = serverUrl + "/familytree";
 const dbUrl_lb = serverUrl + "/linebot";
 

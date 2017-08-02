@@ -179,10 +179,9 @@ MailLetterAPI.route('/edit/:lid?')
           bcc: req.body.bcc,
           subject: req.body.subject,
           context: req.body.context,
-          reserveTime: req.body.reserveTime,
           autoSend: req.body.autoSend
         };
-        
+        modifiedData.reserveTime = new Date(req.body.reserveTime);
         modifiedData.fgid = req.body.fgUrl.substr(4);
         modifiedData.status = (req.body.autoSend) ? "pending" : "draft";
         modifiedData.tags = (req.body.autoSend) ? ["auto-send"] : [];
