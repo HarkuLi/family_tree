@@ -206,13 +206,20 @@ app.post("/update_person", (req, res)=>{
 });
 
 app.post("/delete_node", (req, res)=>{
+  var colleName;
+
   identity.isSignin(req)
     .then((usr)=>{
       if(!usr) return;
+      colleName = "usr_" + usr;
       if(req.body.kind === "mate")
         return dbop_tree.removeMate(usr, req.body.id);
 
       return dbop_tree.remove(usr, req.body.id);
+    })
+    .then(()=>{
+      //delete dialogs of the person
+      return dbop_dialog.resMapDelete(colleName, {talkerId: req.body.id});
     })
     .then(()=>{
       res.redirect("/tree");

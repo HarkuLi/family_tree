@@ -2,11 +2,15 @@ const Mongo = require('mongodb'); //for ObjectId()
 const MongoClient = require('mongodb').MongoClient;
 
 const dbUrl = "mongodb://mongodb.harkuli.nctu.me:27017/familytree";
+const dbUrl_lb = "mongodb://mongodb.harkuli.nctu.me:27017/linebot";
+
 const colle_family = 'family';
 const colle_person = 'person';
 
+const getDB_lb = MongoClient.connect(dbUrl_lb);
+
 /** public function */
-var getDB = MongoClient.connect(dbUrl);
+const getDB = MongoClient.connect(dbUrl);
 
 var getFamilyByID = (id)=>{
   return getByIDColle(id, colle_family);
@@ -45,6 +49,8 @@ var newFamily = (data)=>{
 
 var newRoot = (usr, detail)=>{
   var f_colle, p_colle;
+  detail.usr = usr;
+
   return getDB
     .then((db)=>{
       /** add person to database */
@@ -68,6 +74,8 @@ var addChild = (usr, detail)=>{
   var sibling_num_front = 0;
   var children = [];
   var OA;
+  detail.usr = usr;
+
   return getDB
     .then((db)=>{
       f_colle = db.collection(colle_family);
@@ -167,6 +175,7 @@ var addMate = (usr, detail)=>{
   var p_colle, f_colle;
   var person_id;
   var OA;
+  detail.usr = usr;
   
   return getDB
     .then((db)=>{
@@ -241,6 +250,45 @@ var updatePerson = (id, data)=>{
         {_id: Mongo.ObjectId(id)},
         {$set: data}
       );
+    });
+};
+
+/**
+ * Warning: this method will delete all person details of the family
+ * deleted: all person details in the orderArray (includes dialogs)
+ * orderArray will become an empty array
+ * @param {String} usr user name
+ */
+var dropFamily = (usr)=>{
+  var colleName = "usr_" + usr;
+  var f_colle, p_colle;
+  var final_rst = true;
+
+  return getDB
+    .then(db => {
+      f_colle = db.collection(colle_family);
+      p_colle = db.collection(colle_person);
+      //clean orderArray
+      return f_colle.updateOne({usr}, {$set: {orderArray: []}});
+    })
+    .then(r => {
+      if(!r || !r.modifiedCount) return final_rst = false;
+      //delete all people
+      return p_colle.deleteMany({usr});
+    })
+    .then(r => {
+      if(!r) return false;
+      return getDB_lb;
+    })
+    .then(db => {
+      if(!db) return false;
+      //drop the dialog colleciton
+      var dialogColle = db.collection(colleName);
+      return dialogColle.drop();
+    })
+    .then(r => {
+      if(!r) return false;
+      return final_rst;
     });
 };
 /** public function */
