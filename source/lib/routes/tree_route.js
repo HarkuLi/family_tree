@@ -188,6 +188,7 @@ app.post("/update_person", (req, res)=>{
       delete detail[prop];
     }
   }
+  replaceBoolProp(detail);
   dbop_tree.updatePerson(id, detail)
     .then(() => {
       return identity.isSignin(req);
