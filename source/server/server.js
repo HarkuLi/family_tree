@@ -163,7 +163,9 @@ app.use((req,res) => {
     .then((usr)=>res.status(404).render('pages/error.ejs', { code: 404, usr }))
 });
 
-app.listen(10010, function (err) {
-  if(err) console.log(err);
-  console.log('Server is listening on port 10010!');
+
+const port = process.env.PORT || 5000;
+
+app.listen(port, ()=>{
+  console.log("listening on "+port);
 });
