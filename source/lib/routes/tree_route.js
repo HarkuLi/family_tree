@@ -56,14 +56,16 @@ app.post("/detail", (req, res)=>{
   var usr;
   var id = req.body.id;
   var dialog_list;
+  var total_page;
 
   identity.isSignin(req)
     .then((usr_name)=>{
       usr = usr_name;
       return dbop_dialog.getDialogList(usr, id);
     })
-    .then(items => {
-      dialog_list = items;
+    .then(rst => {
+      dialog_list = rst.dialog_list;
+      total_page = rst.total_page;
       return dbop_tree.getPersonByID(id);
     })
     .then((item)=>{
@@ -74,7 +76,23 @@ app.post("/detail", (req, res)=>{
       }
       item._id = id;
       
-      res.render("pages/person_detail", {item, usr, dialog_list});
+      res.render("pages/person_detail", {item, usr, dialog_list, total_page});
+    });
+});
+
+app.post("/dialog", (req, res)=>{
+  var usr;
+  var id = req.body.id;
+  var page = req.body.page;
+  var filter = req.body.filter;
+
+  identity.isSignin(req)
+    .then(usr_name => {
+      usr = usr_name;
+      return dbop_dialog.getDialogList(usr, id, page, filter);
+    })
+    .then(rst => {
+      res.json(rst);
     });
 });
 

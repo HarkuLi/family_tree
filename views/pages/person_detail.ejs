@@ -27,12 +27,17 @@
   <div class="container">
     <h3>dialog:</h3>
     <button type="button" id="add_dialog" class="btn btn-primary btn-sm margin_up_btn">add</button><br>
-    <textarea rows=1 class="input_ele" placeholder="pattern"></textarea>
-    <textarea rows=1 class="input_ele" placeholder="response"></textarea>
-    <button type="button" class="btn btn-info btn-sm material-icons" style="font-size:16px">search</button><br>
-    <button type="button" class="btn btn-default btn-sm margin_up_btn">◀</button>
-    <input type="text" maxlength="3" size="3" class="input_ele text_center" name="page" value="1" disabled>
-    <button type="button" class="btn btn-default btn-sm margin_up_btn">▶</button>
+    <textarea rows=1 id="pat_filter" class="input_ele" placeholder="pattern"></textarea>
+    <textarea rows=1 id="res_filter" class="input_ele" placeholder="response"></textarea>
+    <button type="button" id="filter_search" class="btn btn-info btn-sm material-icons" style="font-size:16px">search</button><br>
+    <div id="paging_row" class="margin_up_btn">
+      <button type="button" id="last_page" class="btn btn-default btn-sm">◀</button>
+      <button type="button" class="btn btn-primary btn-sm paging_btn">1</button>
+      <% for(let i=2; i<=total_page && i<=5; ++i){ %>
+        <button type="button" class="btn btn-default btn-sm paging_btn"><%= i %></button>
+      <% } %>
+      <button type="button" id=next_page class="btn btn-default btn-sm">▶</button>
+    </div>
     <div id="dialog_list">
       <% for(let ele of dialog_list){ %>
         <strong>pattern: </strong><textarea rows=1 class="input_ele" disabled><%= ele.pattern %></textarea>

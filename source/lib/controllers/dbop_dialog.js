@@ -4,14 +4,41 @@
 const Mongo = require("mongodb"); //for ObjectId()
 const dbConnect = require("./db");
 
-var getDialogList = (usr, talkerId) => {
+const DIALOGS_PER_PAGE = 10;
+
+/**
+ * @param {String} usr
+ * @param {String} talkerId
+ * @param {String} page not required
+ * @param {Object} filter not required, {pattern, response}
+ * @return {Object} {dialog_list, total_page(Number)}
+ */
+var getDialogList = (usr, talkerId, page, filter) => {
   var colleName = "usr_" + usr;
   var colle;
+  var total_page;
+
+  page = Number(page) || 1;
+  filter = filter || {};
+  filter.talkerId = talkerId;
 
   return dbConnect.getDb_lb
     .then(db => {
       colle = db.collection(colleName);
-      return colle.find({talkerId}).toArray();
+      return colle.count(filter);
+    })
+    .then(count => {
+      total_page = Math.ceil(count / DIALOGS_PER_PAGE) || 1;
+      if(page > total_page) page = total_page;
+      else if(page < 1) page = 1;
+      return colle.find(filter).sort({"_id" : -1}).skip(DIALOGS_PER_PAGE*(page-1)).limit(DIALOGS_PER_PAGE).toArray();
+    })
+    .then(dialog_list => {
+      var rst = {
+        dialog_list,
+        total_page
+      }
+      return rst;
     });
 };
 

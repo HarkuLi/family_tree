@@ -1,8 +1,12 @@
+const boolPropList = ["dialogEnable", "live"];
+
 var dialog_edit_count = 0;
 var detail;
 var id;
 var old_pat, old_res;
-var boolPropList = ["dialogEnable", "live"];
+var current_page = 1;
+var pat_filter = "";  //be changed while clicking search
+var res_filter = "";
 
 ////////////////////
 //ready
@@ -54,6 +58,7 @@ $(()=>{
     }
   });
 
+  //delete a dialog
   //couldn't use arrow function here, or "this" will point to window object
   //because "this" is fixed when arrow function declared
   $("#dialog_list").on("click", ".btn-danger", function(){
@@ -65,6 +70,27 @@ $(()=>{
   $("#add_dialog").on("click", () => {
     if(dialog_edit_count) return alert("請先結束進行中的編輯");
     addDialog();
+  });
+
+  $("#filter_search").on("click", function(){
+    pat_filter = $(this).prev().prev().prop("value");
+    res_filter = $(this).prev().prop("value");
+    current_page = 1;
+    selectPage(current_page);
+  });
+
+  $("#last_page").on("click", () => {
+    lastPage();
+  });
+
+  $("#next_page").on("click", () => {
+    nextPage();
+  });
+
+  $("#paging_row").on("click", ".paging_btn", function(){
+    var page = Number($(this).text());
+    var self = this;
+    selectPage(page, self);
   });
 });
 
@@ -164,7 +190,10 @@ var endEdit = ()=>{
   });
 };
 
-/** return: {rst: Boolean} */
+/**
+ * @param {Object} update_data data to update
+ * @return {Object} {rst: Boolean}
+ */
 var updatePerson = (update_data)=>{
   update_data._id = id;
   return new Promise((resolve, reject)=>{
@@ -213,6 +242,7 @@ var dialogSave = (self) => {
     else resolve(upsertDbDialog(new_pat, new_res));
   })
   .then((rst) => {
+    if(typeof(rst) !== "boolean") return selectPage(current_page); //reload
     --dialog_edit_count;
     if(rst){
       $(pat).prop("disabled", true);
@@ -234,10 +264,11 @@ var dialogDel = (self) => {
   
   deleteDbDialog($(pat).prop("value"), $(res).prop("value"))
     .then(() => {
-      //remove elements of the row
-      $(self).prevUntil("br").remove();
-      $(self).next().remove();
-      $(self).remove();
+      selectPage(current_page);
+      // //remove elements of the row
+      // $(self).prevUntil("br").remove();
+      // $(self).next().remove();
+      // $(self).remove();
     });
 };
 
@@ -284,7 +315,7 @@ var upsertDbDialog = (new_pat, new_res) => {
   return new Promise((resolve, reject)=>{
     $.post("/tree/upsert_dialog", passed_data, (data, status)=>{
       if(status !== "success")  return reject("post status: "+status);
-      resolve(data.rst);
+      resolve(data);
     });
   });
 };
@@ -302,4 +333,189 @@ var deleteDbDialog = (pat, res) => {
       resolve(data);
     });
   });
-}
+};
+
+var lastPage = () => {
+  if(current_page === 1)  return;
+
+  var page = --current_page;
+  var filter = {};
+  if(pat_filter.length) filter.pattern = pat_filter;
+  if(res_filter.length) filter.pattern = res_filter;
+
+  $("body").css("cursor", "progress");
+  //clear dialogs
+  $("#dialog_list").empty();
+
+  getDialog(page, filter)
+    .then(rst =>{
+      resetDialogEdit();
+      renderDialog(rst.dialog_list);
+      changePagingBtn(rst.total_page);
+      $("body").css("cursor", "");
+    });
+};
+
+var nextPage = () => {
+  var page = ++current_page;
+  var filter = {};
+  if(pat_filter.length) filter.pattern = pat_filter;
+  if(res_filter.length) filter.pattern = res_filter;
+
+  $("body").css("cursor", "progress");
+  //clear dialogs
+  $("#dialog_list").empty();
+
+  getDialog(page, filter)
+    .then(rst =>{
+      if(rst.total_page < current_page) current_page = rst.total_page;
+      resetDialogEdit();
+      renderDialog(rst.dialog_list);
+      changePagingBtn(rst.total_page);
+      $("body").css("cursor", "");
+    });
+};
+
+/**
+ * can called with current_page for reload
+ * @param {Number} page the page want to load
+ * @param {Object} self not required, copy of this
+ */
+var selectPage = (page, self) => {
+  if(self && Number($(self).text())===current_page) return;
+  var filter = {};
+
+  current_page = page;
+  if(pat_filter.length) filter.pattern = pat_filter;
+  if(res_filter.length) filter.response = res_filter;
+
+  $("body").css("cursor", "progress");
+  //clear dialogs
+  $("#dialog_list").empty();
+
+  getDialog(page, filter)
+    .then(rst =>{
+      console.log("rst.total_page: "+rst.total_page);
+      if(rst.total_page < current_page) current_page = rst.total_page;
+      resetDialogEdit();
+      renderDialog(rst.dialog_list);
+      changePagingBtn(rst.total_page);
+      $("body").css("cursor", "");
+    });
+};
+
+var resetDialogEdit = () => {
+  old_pat = "";
+  old_res = "";
+  dialog_edit_count = 0;
+};
+
+/**
+ * append dialogs to #dialog_list and set filter view
+ * @param {Array<Object>} list [{pattern, response},{..},...]
+ */
+var renderDialog = (list) => {
+  setFilterView();
+  for(let ele of list){
+    var textarea, button;
+    $("#dialog_list").append("<strong>pattern: </strong>");
+    textarea = $("<textarea></textarea>");
+    $(textarea).prop("rows", 1);
+    $(textarea).prop("class", "input_ele");
+    $(textarea).text(ele.pattern);
+    $(textarea).prop("disabled", true);
+    $("#dialog_list").append(textarea);
+    $("#dialog_list").append(" ");
+    $("#dialog_list").append("<strong>response: </strong>");
+    textarea = $("<textarea></textarea>");
+    $(textarea).prop("rows", 1);
+    $(textarea).prop("class", "input_ele");
+    $(textarea).text(ele.response);
+    $(textarea).prop("disabled", true);
+    $("#dialog_list").append(textarea);
+    $("#dialog_list").append(" ");
+    button = $("<button></button>");
+    $(button).prop("type", "button");
+    $(button).prop("class", "btn btn-primary btn-sm");
+    $(button).text("edit");
+    $("#dialog_list").append(button);
+    $("#dialog_list").append(" ");
+    button = $("<button></button>");
+    $(button).prop("type", "button");
+    $(button).prop("class", "btn btn-danger btn-sm");
+    $(button).text("delete");
+    $("#dialog_list").append(button);
+    $("#dialog_list").append("<br>");
+  }
+};
+
+var changePagingBtn = (total_page) => {
+  //max: 5 buttons
+  var min_page, max_page;
+  var page_num, num_diff;
+
+  //determine the bound of page number on the buttons
+  if(current_page+2 > total_page){
+    max_page = total_page;
+    min_page = max_page-4 <= 1 ? 1 : max_page-4;
+  }
+  else if(current_page-2 < 1){
+    min_page = 1;
+    max_page = min_page+4 >= total_page ? total_page : min_page+4;
+  }
+  else{
+    min_page = current_page - 2;
+    max_page = current_page +2;
+  }
+  page_num = max_page - min_page + 1;
+
+  //check the number of buttons
+  num_diff = page_num - $(".paging_btn").length;
+  if(num_diff > 0){
+    for(let i=0; i<num_diff; ++i){
+      let button = $("<button></button>");
+      $(button).prop("type", "button")
+      $(button).prop("class", "paging_btn")
+      $("#next_page").before(button);
+      $("#next_page").before(" ");
+    }
+  }
+  else if(num_diff < 0){
+    for(let i=0; i<-num_diff; ++i){
+      $("#next_page").prev().remove();
+    }
+  }
+
+  //change the contents of buttons
+  var page_dig = min_page;
+  for(let ele of $(".paging_btn")){
+    console.log("page_dig: "+page_dig);
+    $(ele).text(page_dig);
+    if(page_dig === current_page){
+      $(ele).prop("class", "btn btn-primary btn-sm paging_btn");
+    }
+    else{
+      $(ele).prop("class", "btn btn-default btn-sm paging_btn");
+    }
+    ++page_dig;
+  }
+};
+
+var getDialog = (page, filter) => {
+  var passed_data = {
+    id,
+    page,
+    filter
+  };
+  return new Promise((resolve, reject)=>{
+    $.post("/tree/dialog", passed_data, (data, status)=>{
+      if(status !== "success")  return reject("post status: "+status);
+      resolve(data);
+    });
+  });
+};
+
+var setFilterView = () => {
+  $("#pat_filter").prop("value", pat_filter);
+  $("#res_filter").prop("value", res_filter);
+};
