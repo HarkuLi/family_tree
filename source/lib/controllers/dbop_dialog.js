@@ -41,6 +41,7 @@ var resMapUpsert = (colleName, filterData, newPat, newRes) => {
       return dbConnect.getDb_ft;
     })
     .then(db => {
+      if(typeof(db) === "boolean")  return db;
       var colle_person = db.collection("person");
       return colle_person.findOne({_id: Mongo.ObjectId(filterData.talkerId)});
     })
