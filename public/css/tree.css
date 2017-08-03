@@ -82,10 +82,10 @@
   margin: 10px 0px;
 }
 
-.pattern{
+.input_ele{
   vertical-align: middle;
 }
 
-.response{
-  vertical-align: middle;
+.text_center{
+  text-align: center;
 }

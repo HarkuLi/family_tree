@@ -258,13 +258,13 @@ var addDialog = () => {
   $("#dialog_list").prepend(" ");
   textarea = $("<textarea></textarea>");
   $(textarea).prop("rows", 1);
-  $(textarea).prop("class", "response");
+  $(textarea).prop("class", "input_ele");
   $("#dialog_list").prepend(textarea);
   $("#dialog_list").prepend("<strong>response: </strong>");
   $("#dialog_list").prepend(" ");
   textarea = $("<textarea></textarea>");
   $(textarea).prop("rows", 1);
-  $(textarea).prop("class", "pattern");
+  $(textarea).prop("class", "input_ele");
   $("#dialog_list").prepend(textarea);
   $("#dialog_list").prepend("<strong>pattern: </strong>");
   old_pat = "";
