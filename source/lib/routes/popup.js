@@ -13,8 +13,6 @@ const PopupWindowAPI = express.Router();
 // QR Code
 PopupWindowAPI.get('/qrcode', (req, res) => {
   let usr = false;
-  //let shortUrl = config.domain + "fg/";
-  //let qrcodeUrl = config.qrcodeAPI + config.domain + "fg/";
   let shortUrl = config.domain + "tree/";
   let qrcodeUrl = config.qrcodeAPI + config.domain + "tree/";
   
@@ -35,7 +33,6 @@ PopupWindowAPI.get('/qrcode', (req, res) => {
       if(!validate.checkIDFormat(fgid)) return Promise.reject('FamilyGroup ID Validate Fail.');
       let googleAPIKey = process.env.GOOGLE_API_KEY || null;
       if(!googleAPIKey) return Promise.reject('Cannot Find Google API Key.');
-      console.log(shortUrl);
 
       // shorten url
       request(config.googleShortenUrlAPI + googleAPIKey, {
@@ -61,7 +58,6 @@ PopupWindowAPI.get('/:page', (req, res) => {
   switch(req.params.page){
     case "signin": path = 'partials/mask/signin.ejs'; break;
     case "signup": path = 'partials/mask/signup.ejs'; break;
-    case "detail": path = 'partials/mask/detail.ejs'; break;
   }
   res.render(path, { client: true });
 });

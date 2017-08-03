@@ -23,7 +23,6 @@ MailGroupAPI.get('/', (req, res) => {
       let fgid = result[1];
       usr = result[0];
       fgUrl += fgid;
-      console.log({fgUrl, fgid, usr});
       return MailGroupController.getGroupList(fgid);
     })
     .then((list) => {
@@ -126,7 +125,7 @@ MailGroupAPI.get('/:mgid/adl', (req, res) => {
 // TAG: [v][fn] 新增一筆email
 MailGroupAPI.route('/:mgid/adl/add')
   .get((req, res) => {
-    // TODO:[v] 在mail group新增一個email的popup頁面
+    // [v] 在mail group新增一個email的popup頁面
     var usr = false;
     let mgid = req.params.mgid || null;
     let getUsr = identity.isSignin(req).then((usr) => usr);
@@ -140,9 +139,7 @@ MailGroupAPI.route('/:mgid/adl/add')
         let fgid = result[1];
         return FamilyGroupController.getAllMemberEmails(fgid);
       })
-      .then((emaillist) => {
-        res.render('partials/mask/mg-editor', { page: "putGroupMember", mgid: null, emaillist, client: true });
-      })
+      .then((emaillist) => res.render('partials/mask/mg-editor', { page: "putGroupMember", mgid: null, emaillist, client: true }))
       .catch((err) => res.status(400).render('partials/mask/mask-error.ejs', { client: true }))
   })
   // TAG: [fn] 在mail group中新增一個email address
@@ -162,7 +159,6 @@ MailGroupAPI.delete('/:mgid/adl/del/:mbid', (req, res) => {
   let mgid = req.params.mgid || null;
   let mbid = req.params.mbid || null;
   
-  //TODO:
   identity.isSignin(req)
     .then((usr) => {
       if(!usr) return Promise.reject("[mail-group] not signin now");

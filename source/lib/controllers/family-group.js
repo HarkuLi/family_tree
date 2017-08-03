@@ -14,7 +14,6 @@ function getAllMemberEmails(fgid){
 
   return DBOP_Tree.getFamilyByID(fgid)
     .then((family) => {
-      console.log(family);
       let getPeople = family.orderArray
         .filter((element) => Validate.checkIDFormat(element))
         .map((uid) => DBOP_Tree.getPersonByID(uid));
@@ -29,11 +28,7 @@ function getAllMemberEmails(fgid){
         return member;
       }).filter((member) => member.email && member.pid);
       console.log("[family-group] getAllMemberEmails success!");
-      console.log(emaillist);
       return Promise.resolve(emaillist);
     })
-    .catch((err) => {
-      console.log(err);
-      return Promise.reject(err);
-    })
+    .catch((err) => Promise.reject(err));
 }

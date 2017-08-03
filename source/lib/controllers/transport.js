@@ -52,7 +52,6 @@ function exportAllData(usr, fgid){
         res = (!res) ? [] : res;
         exportData.push(res);
       });
-      console.log(exportData); //TODO: check content
       // encrypt export data
       return encryption(JSON.stringify(exportData));
     })
@@ -60,11 +59,10 @@ function exportAllData(usr, fgid){
     .then((cipher) => Promise.resolve(cipher))
     .catch((err) => {
       console.log("[import-export][exportData] got error. detail are below. ");
-      console.log(err);
       return Promise.reject(err);
     });
 }
-// TODO: import file to overwrite data
+// import file to overwrite data
 function importAllData(usr, fileContent){
   if(!usr) return Promise.reject("[import-export][importAllData] cannot find usr, not login.");
   if(!fileContent) return Promise.reject("[import-export][importAllData] cannot find import file content.");
@@ -79,7 +77,7 @@ function importAllData(usr, fileContent){
         return Promise.reject("[import-export][importAllData] detect invalid file content format");
       }
 
-      // TODO: check current usr is the same with import file's usr;
+      // check current usr is the same with import file's usr;
       let importUSR = content[0].usr || null;
       if(usr !== importUSR) return Promise.reject("[import-export][importAllData] validate current usr with import file fail.");
 
@@ -191,16 +189,3 @@ function getChatbotDataByUsr(usr){
     .then((chatBotData) => (chatBotData) ? Promise.resolve({}) : Promise.resolve(chatBotData))
     .catch((err) => Promise.reject(err));
 }
-
-
-
-
-
-
-// test
-/* var p = JSON.stringify(["a",1,0,23,{"a":"b","c":"d"},{"e":1},[1,2,"c"]]);
-Promise.resolve()
-  .then(() => encryption(p))
-  .then((ciphertext) => decryption(ciphertext))
-  .then((res) => console.log(res))
-  .catch((err) => console.log(err)); */

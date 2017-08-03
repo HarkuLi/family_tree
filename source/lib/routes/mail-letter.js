@@ -193,7 +193,6 @@ MailLetterAPI.route('/edit/:lid?')
         modifiedData.status = (req.body.autoSend) ? "pending" : "draft";
         modifiedData.tags = (req.body.autoSend) ? ["auto-send"] : [];
 
-        console.log(modifiedData);
         let mailContent = MailLetterController.putMail(usr, modifiedData, lid);
         return Promise.all([usr, mailContent]);
       })

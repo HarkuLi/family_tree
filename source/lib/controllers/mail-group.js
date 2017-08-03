@@ -59,10 +59,7 @@ function getGroupList(fgid){
       let getEveryGroup = list.map((group) => getGroup(group._id, {}));
       return Promise.all(getEveryGroup);
     })
-    .catch((err) => {
-      console.log(err);
-      return Promise.reject(err);
-    });
+    .catch((err) => Promise.reject(err));
 }
 // TAG: get detail from a group and even every person
 function getGroup(mgid, display){
@@ -105,17 +102,12 @@ function getGroup(mgid, display){
         });
     })
     .then((memberlist) => Promise.resolve(memberlist))
-    .catch((err) => {
-      console.log(err);
-      return Promise.reject(err);
-    });
+    .catch((err) => Promise.reject(err));
 }
+
 // TAG: update group include add member
 function putGroup(mgid = null, modifiedData, upsert = true){
-  const option = { 
-    upsert: upsert, 
-    returnOriginal: false 
-  };
+  const option = { upsert: upsert, returnOriginal: false };
   modifiedData.modifyTime = new Date().getTime();
 
   if(mgid){
@@ -126,14 +118,8 @@ function putGroup(mgid = null, modifiedData, upsert = true){
     .then((db) => {
       var col = db.collection(CollectionName)
       return col.findOneAndUpdate(
-        {
-          _id: new ObjectID(mgid), 
-          enable: {$ne: false}
-        },
-        { 
-          $set: modifiedData,
-          $setOnInsert: { createTime: new Date().getTime() }
-        },
+        { _id: new ObjectID(mgid), enable: { $ne: false } },
+        { $set: modifiedData,$setOnInsert: { createTime: new Date().getTime() }},
         option);
     })
     .then((result) => {
@@ -141,10 +127,7 @@ function putGroup(mgid = null, modifiedData, upsert = true){
       (mgid) ? console.log(`[mail-group] putGroup with mid = ${mgid} success.`) : console.log(`[mail-group] putGroup new success.`);
       return Promise.resolve(result.value);
     })
-    .catch((err) => {
-      console.log(err);
-      return Promise.reject(err);
-    });
+    .catch((err) => Promise.reject(err));
 }
 // TAG: change to disable
 function deleteGroup(mgid){
@@ -160,10 +143,7 @@ function deleteGroup(mgid){
       console.log(`[mail-group] deleteGroup with mid = ${mgid} success.`);
       return Promise.resolve(res);
     })
-    .catch((err) => {
-      console.log(err);
-      return Promise.reject(err);
-    });
+    .catch((err) => Promise.reject(err));
 }
  // TAG: for preparation
 function getGroupMemberEmails(mgid){
@@ -208,33 +188,22 @@ function putGroupMember(mgid, rawData){
       console.log(`[mail-group] putGroupMember with mid = ${mgid} success.`);
       return Promise.resolve(result.value);
     })
-    .catch((err) => {
-      console.log(err);
-      return Promise.reject(err);
-    });
+    .catch((err) => Promise.reject(err));
 }
 // TAG: remove a member from group (real remove)
 function deleteGroupMember(mgid, mbid){
   if(!Validate.checkIDFormat(mgid)) return Promise.reject("[mail-group] mail group id format error");
   if(!Validate.checkIDFormat(mbid)) return Promise.reject("[mail-group] member id format error");
   //if(!Validate.checkEmailFormat(email)) return Promise.reject("[mail-group] added email format is invalid.");
-  const option = {
-    upsert: false,
-    returnOriginal: false
-  };
+  const option = { upsert: false, returnOriginal: false };
 
   return dbConnect.getDb_ft
     .then((db) => {
       var col = db.collection(CollectionName);
       return col.findOneAndUpdate(
-        {
-          _id: new ObjectID(mgid), 
-          enable: {$ne: false}
-        },
-        {
-          $pull: { memberlist: { mbid: new ObjectID(mbid) } },
-          $set: { modifyTime: new Date().getTime() }
-        },
+        { _id: new ObjectID(mgid), enable: { $ne: false } },
+        { $pull: { memberlist: { mbid: new ObjectID(mbid) } },
+          $set: { modifyTime: new Date().getTime() } },
         option);
     })
     .then((result) => {
@@ -242,8 +211,5 @@ function deleteGroupMember(mgid, mbid){
       console.log(`[mail-group] deleteGroupMember with mgid = ${mgid}, mbid = ${mbid} success.`);
       return Promise.resolve(result.value);
     })
-    .catch((err) => {
-      console.log(err);
-      return Promise.reject(err);
-    });
+    .catch((err) => Promise.reject(err));
 }

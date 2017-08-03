@@ -55,10 +55,7 @@ function getMailList(fgid, filter = {}){
       });
     })
     .then((list) => Promise.resolve(list) || Promise.resolve(null))
-    .catch((err) => {
-      console.log(err);
-      return Promise.reject(err);
-    });
+    .catch((err) => Promise.reject(err));
 }
 // TAG:
 function getMail(lid){
@@ -71,29 +68,19 @@ function getMail(lid){
     .then((db) => {
       var col = db.collection(CollectionName);
       return col.findOne(
-        {
-          _id: { $eq: new ObjectID(lid) }, 
-          status: { $ne: 'deleted' }
-        },
+        { _id: { $eq: new ObjectID(lid) }, status: { $ne: 'deleted' } },
         Projection);
     })
     .then((mail) => {
       console.log(`[mail-letter] getMail with mid = ${lid} success.`);
       return Promise.resolve(mail);
     })
-    .catch((err) => {
-      console.log(err);
-      return Promise.reject(err);
-    });
+    .catch((err) => Promise.reject(err));
 }
 // TAG:
 function putMail(usr, modifiedData, lid = null, upsert = true){
   console.log("putMail's input lid = "+lid);
-  const option = {
-    upsert: upsert,
-    returnOriginal: false,
-    projection: { fgid: 0 }
-  };
+  const option = { upsert: upsert, returnOriginal: false, projection: { fgid: 0 } };
   // check lid format if lid exist
   if(lid){
     if(!Validate.checkIDFormat(lid)) return Promise.reject("[mail-letter] mail id format error");
@@ -123,10 +110,7 @@ function putMail(usr, modifiedData, lid = null, upsert = true){
       (lid) ? console.log(`[mail-letter] putMail with mid = ${lid} success.`) : console.log(`[mail-letter] putMail new success.`);
       return Promise.resolve(result.value);
     })
-    .catch((err) => {
-      console.log(err);
-      return Promise.reject(err);
-    });
+    .catch((err) => Promise.reject(err));
 }
 // TAG:
 function deleteMail(usr, lid){
@@ -144,10 +128,7 @@ function deleteMail(usr, lid){
       console.log(`[mail-letter] deleteMail with mid = ${lid} success.`);
       return Promise.resolve(res);
     })
-    .catch((err) => {
-      console.log(err);
-      return Promise.reject(err);
-    });
+    .catch((err) => Promise.reject(err));
 }
 
 function sendMail(usr, lid, sendOptions){
@@ -180,7 +161,7 @@ function sendMail(usr, lid, sendOptions){
         //FIXME: change status to 'cancel' and autoSend to 'false';
         return putMail(usr, {status: "cancel", autoSend: false, $addToSet:{ tags: "error"}}, lid)
           .then(() => Promise.reject("No receiver setting."))
-          .catch((err) => Promise,reject(err));
+          .catch((err) => Promise.reject(err));
       }
       return transporter.sendMail(mailOptions, (err, info) => {
         if (err){
@@ -213,8 +194,7 @@ function checkMailOptions(sendOptions){
     (!sendOptions.bcc) ? mailOptions.bcc = '' : E_MG_ListToEmails(sendOptions.bcc).then((v) => mailOptions.bcc = v)
   ];
   
-  return Promise.all(process)
-    .then(() => mailOptions);
+  return Promise.all(process).then(() => mailOptions);
 }
 
 // TAG: change mail group and email mixed list to address list
@@ -250,26 +230,19 @@ function E_MG_ListToEmails(e_mg_list){
           });
           return Promise.all(process_inner);
         })
-        .then((emaillist) => {
-          console.log("here");
-          console.log(emaillist);
-          return emaillist.join(',')  //FIXME:
-        })
+        .then((emaillist) => emaillist.join(','))
         .catch((err) => Promise.reject(err));
     }
-    // not the "xxx" <xxx@xx> format
-    // get only email part
+    // not the "xxx" <xxx@xx> format, get only email part
     let emailRegExp = /[\w_\-+]+@([\w_\-+]+)(\.[\w_\-+]+)+/i;
     let ary = item.match(emailRegExp);
     return (!ary || ary.lentgh === 0) ? null : ary[0];
   }).filter((v) => v, []);
-  //FIXME:
-  console.log(process);
 
   return Promise.race(process)
     .then((AddressStrArray) => {
-      console.log(AddressStrArray);
-      return AddressStrArray.join(',');
+      if(!AddressStrArray) return Promise.reject("No receiver can be process.");
+      return (!(AddressStrArray instanceof Array)) ? AddressStrArray : AddressStrArray.join(',');
     })
     .catch((err) => {
       console.log("[mail-letter][E_MG_ListToEmails] Something Error:");

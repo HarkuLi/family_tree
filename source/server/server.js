@@ -128,11 +128,8 @@ app.use('/fg/:fgid/mail/mg', (req, res, next) => {
   identity.isSignin(req)
     .then((usr)=>{
       if(usr) return next();
-      res.redirect("/");  //please signin
+      res.redirect("/");  
     });
-  /* req.pathParams = req.params; 
-  req.pathParams.fgUrl = req.originalUrl.split('/').splice(0,3).join('/');
-  next(); */
 }, MailGroupAPI);
 
 // mail letter router
@@ -141,7 +138,7 @@ app.use('/fg/:fgid/mail/ml', (req, res, next)=>{
   identity.isSignin(req)
     .then((usr)=>{
       if(usr) return next();
-      res.redirect("/");  //please signin
+      res.redirect("/");  
     });
 }, MailLetterAPI);
 
@@ -151,11 +148,8 @@ app.use('/fg/:fgid', (req, res, next) => {
   identity.isSignin(req)
     .then((usr)=>{
       if(usr) return next();
-      res.redirect("/");  //please signin
+      res.redirect("/");  
     });
-  /* req.pathParams = req.params; 
-  req.pathParams.fgUrl = req.originalUrl.split('/').splice(0,3).join('/');
-  next(); */
 }, FamilyGroupAPI);
 
  // transport router
