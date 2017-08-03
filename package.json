@@ -14,6 +14,9 @@
     "url": "https://github.com/HarkuLi/family_tree/issues"
   },
   "homepage": "https://github.com/HarkuLi/family_tree#readme",
+  "engines": {
+    "ndoe": "6.10.3"
+  },
   "main": "app.js",
   "dependencies": {
     "bcrypt": "^1.0.2",
@@ -33,6 +36,7 @@
     "should": "^7.1.0"
   },
   "scripts": {
+    "deploy": "node source/server/server.js",
     "start-mailserver": "sudo nodemon source/server/mail-server.js",
     "start": "nodemon source/server/server.js",
     "start-dev-docker": "docker run -it --rm -v $(pwd):/opt/app -p 10010:10010 family-tree",
