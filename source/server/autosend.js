@@ -14,7 +14,7 @@ function main(){
   dbConnect.getDb_ft
     .then((db)=>{
       var colle = db.collection(collection_name);
-      return colle.find({reverseTime: {$lte: new Date().getTime()}, autoSend: {$eq: true}}).toArray();
+      return colle.find({reserveTime: { $lte: new Date().getTime()}, autoSend: {$eq: true}, status: {$eq: "pending"}}).toArray();
     })
     .then((letterlist) => {
       if(letterlist.length === 0){

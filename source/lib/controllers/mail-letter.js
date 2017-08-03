@@ -16,6 +16,7 @@ module.exports = {
   putMail,
   deleteMail,
   sendMail,
+  TimestampToDisplay,
 }
 
 // TAG: get all data in mailgroup collection
@@ -175,6 +176,12 @@ function sendMail(usr, lid, sendOptions){
       return Promise.resolve(checkMailOptions(sendOptions));
     })
     .then((mailOptions) =>{
+      if(!mailOptions.to){
+        //FIXME: change status to 'cancel' and autoSend to 'false';
+        return putMail(usr, {status: "cancel", autoSend: false, $addToSet:{ tags: "error"}}, lid)
+          .then(() => Promise.reject("No receiver setting."))
+          .catch((err) => Promise,reject(err));
+      }
       return transporter.sendMail(mailOptions, (err, info) => {
         if (err){
           console.log(err);
@@ -243,21 +250,40 @@ function E_MG_ListToEmails(e_mg_list){
           });
           return Promise.all(process_inner);
         })
-        .then((emaillist) => emaillist.join(','))
+        .then((emaillist) => {
+          console.log("here");
+          console.log(emaillist);
+          return emaillist.join(',')  //FIXME:
+        })
         .catch((err) => Promise.reject(err));
     }
     // not the "xxx" <xxx@xx> format
     // get only email part
     let emailRegExp = /[\w_\-+]+@([\w_\-+]+)(\.[\w_\-+]+)+/i;
     let ary = item.match(emailRegExp);
-    return (ary.lentgh === 0) ? '' : ary[0];
-  });
+    return (!ary || ary.lentgh === 0) ? null : ary[0];
+  }).filter((v) => v, []);
+  //FIXME:
+  console.log(process);
 
-  return Promise.all(process)
-    .then((AddressStrArray) => AddressStrArray.join(','))
+  return Promise.race(process)
+    .then((AddressStrArray) => {
+      console.log(AddressStrArray);
+      return AddressStrArray.join(',');
+    })
     .catch((err) => {
       console.log("[mail-letter][E_MG_ListToEmails] Something Error:");
       console.log(err);
       return false;
     });
+}
+// TAG: change timestamp to yyyy-mm-dd hh:mm
+function TimestampToDisplay(timestamp){
+  let time = new Date(timestamp);
+  let year = time.getFullYear();
+  let month = (time.getMonth() < 10) ? '0'+time.getMonth().toString() : time.getMonth().toString();;
+  let date = (time.getDate() < 10) ? '0'+time.getDate() : time.getDate();
+  let hours = (time.getHours() < 10) ? '0'+time.getHours() : time.getHours();
+  let minutes = (time.getMinutes() < 10) ? '0'+time.getMinutes() : time.getMinutes();
+  return `${year}-${month}-${date} ${hours}:${minutes}`; 
 }

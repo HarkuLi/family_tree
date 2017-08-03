@@ -29,6 +29,7 @@ function initSummerNote(){
 
 /* TAG: initialize datepicler */
 function initDateTimePicker(){
+  //$('#autoSendField').removeClass('hidden');
   $('#datetimepicker').datetimepicker({
     format: "yyyy-mm-dd hh:ii",
       autoclose: true,
@@ -61,12 +62,15 @@ $("#putMail").submit((e) => {
 
   // get data from form
   let sendData = getFormSendData("#putMail");
-  
   sendData = JSON.parse(sendData);
   sendData.context = $('#summernote').summernote('code');
-  
-  // check autosend field
   sendData.autoSend = (sendData.autoSend === 'on') ? true : false;
+
+  // check send now and no to
+  if(!sendData.to && !sendData.autoSend){
+    alert('In the "Send Now" mode, please fill the "To" field.');
+    return;
+  }
 
   let fgUrl = $("[name='fgUrl']").val();
   let lid = $("[name='lid").val() || null;
@@ -91,12 +95,12 @@ $("#putMail").submit((e) => {
         async: true,
         //dataType: 'json',
         success: (response, status, xhr) => {
-          alert('Send mail success!');
+          alert('Send/save mail success!');
           //console.log(response);
           window.location.assign(`${window.location.origin}${fgUrl}/mail/ml/`);
         },
         error: (xhr, status, error) => {
-          alert('Send mail error!');
+          alert('Send/save mail error!');
           console.log(error);
           return Promise.reject(error);
         }
@@ -167,5 +171,5 @@ $(".dropdown-toggle").focus(function (e) {
 });
 $(".dropdown-toggle").blur(function(e){
   // INFO: because blur prior to click event, deffer blur cb.
-  setTimeout(() => {$(".dropdown").removeClass("open");}, 200);
+  setTimeout(() => {$(this).siblings(".dropdown").removeClass("open");}, 200);
 });

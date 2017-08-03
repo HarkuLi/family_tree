@@ -103,7 +103,10 @@ MailLetterAPI.get('/show/:lid', (req, res) => {
       });
       return MailLetterController.getMail(lid);
     })
-    .then((mailContent) => res.render('pages/fg.ejs', { page: "maileditor", usr, fgUrl, lid, mailContent, editable: false, e_mg_list }))
+    .then((mailContent) => {
+      mailContent.displayTime = (!mailContent.reserveTime) ? '' : MailLetterController.TimestampToDisplay(mailContent.reserveTime);
+      res.render('pages/fg.ejs', { page: "maileditor", usr, fgUrl, lid, mailContent, editable: false, e_mg_list });
+    })
     .catch((err) => res.status(404).render('pages/error.ejs', { code: 404 }));
 });
 
@@ -156,6 +159,10 @@ MailLetterAPI.route('/edit/:lid?')
         if(lid && !mailContent) return Promise.reject(`[mail-letter] mail not found with lid = ${lid}`);
         // for mail not found
         if(!mailContent) mailContent = {};  
+
+        // address timestamp to string format
+        mailContent.displayTime = (!mailContent.reserveTime) ? '' : MailLetterController.TimestampToDisplay(mailContent.reserveTime);
+
         //  有lid -> 顯示信件編輯頁面
         res.render('pages/fg.ejs', { page: "maileditor", usr, fgUrl, lid, mailContent, editable: true, e_mg_list });
       })
@@ -181,7 +188,7 @@ MailLetterAPI.route('/edit/:lid?')
           context: req.body.context,
           autoSend: req.body.autoSend
         };
-        modifiedData.reserveTime = new Date(req.body.reserveTime);
+        modifiedData.reserveTime = new Date(req.body.reserveTime).getTime();
         modifiedData.fgid = req.body.fgUrl.substr(4);
         modifiedData.status = (req.body.autoSend) ? "pending" : "draft";
         modifiedData.tags = (req.body.autoSend) ? ["auto-send"] : [];

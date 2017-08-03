@@ -10,7 +10,7 @@
               <div class="btn-group" role="group" aria-label="...">
                 <% if(editable) { %>
                   <div class="onoffswitch">
-                    <input type="checkbox" name="autoSend" class="onoffswitch-checkbox" id="myonoffswitch">
+                    <input type="checkbox" name="autoSend" class="onoffswitch-checkbox" id="myonoffswitch" <%= (mailContent.autoSend) ? "checked" : "" %>>
                     <label class="onoffswitch-label" for="myonoffswitch">
                       <!-- text are in css content -->
                       <span class="onoffswitch-inner"></span>
@@ -26,10 +26,10 @@
                 <% } %>
               </div>
             </div>
-            <div id="autoSendField" class="form-group hidden">
+            <div id="autoSendField" class="form-group <%= (mailContent.autoSend === true) ? '' : 'hidden' %>">
               <label for="datetimepicker" class="col-sm-1 control-label">Appoint<br>Time</label>
               <div class="col-sm-11">
-                <input id="datetimepicker" name="reserveTime" class="form-control" type="text" placeholder="yyyy-mm-dd hh:mm" data-date-format="yyyy-mm-dd hh:ii" <%= (editable) ? '' : 'disabled'; %>>
+                <input id="datetimepicker" name="reserveTime" class="form-control" type="text" placeholder="yyyy-mm-dd hh:mm" data-date-format="yyyy-mm-dd hh:ii" value="<%= mailContent.displayTime %>" <%= (editable) ? '' : 'disabled'; %>>
               </div>
             </div>
             <div class="form-group">
