@@ -183,8 +183,8 @@ var dialogEdit = (self) => {
   var res = $(self).prev();
   var pat = $(res).prev().prev();
 
-  old_pat = $(pat).val();
-  old_res = $(res).val();
+  old_pat = $(pat).prop("value");
+  old_res = $(res).prop("value");
 
   $(res).prop("disabled", false);
   $(self).text("save");
@@ -194,21 +194,23 @@ var dialogEdit = (self) => {
 var dialogSave = (self) => {
   var res = $(self).prev();
   var pat = $(res).prev().prev();
+  var new_pat = $(pat).prop("value");
+  var new_res = $(res).prop("value");
 
   new Promise(resolve => {
-    if(!$(pat).val().length || !$(res).val().length){
+    if(!new_pat.length || !new_res.length){
       //add an empty dialog and save
       if(!old_pat.length && !old_res.length)  resolve(false);
       //edited with empty new value
       else{
         //nothing modified
-        $(pat).val(old_pat);
-        $(res).val(old_res);
+        $(pat).prop("value", old_pat);
+        $(res).prop("value", old_res);
         resolve(true);
       }
     }
-    else if($(pat).val() === old_pat && $(res).val() === old_res) resolve(true); //nothing modified
-    else resolve(upsertDbDialog($(pat).val(), $(res).val()));
+    else if(new_pat === old_pat && new_res === old_res) resolve(true); //nothing modified
+    else resolve(upsertDbDialog(new_pat, new_res));
   })
   .then((rst) => {
     --dialog_edit_count;
@@ -230,7 +232,7 @@ var dialogDel = (self) => {
   var res = $(self).prev().prev();
   var pat = $(res).prev().prev();
   
-  deleteDbDialog($(pat).val(), $(res).val())
+  deleteDbDialog($(pat).prop("value"), $(res).prop("value"))
     .then(() => {
       //remove elements of the row
       $(self).prevUntil("br").remove();
@@ -240,7 +242,7 @@ var dialogDel = (self) => {
 };
 
 var addDialog = () => {
-  var input, button;
+  var textarea, button;
   $("#dialog_list").prepend("<br>");
   button = $("<button></button>");
   $(button).prop("type", "button");
@@ -254,14 +256,16 @@ var addDialog = () => {
   $(button).text("save");
   $("#dialog_list").prepend(button);
   $("#dialog_list").prepend(" ");
-  input = $("<input></input>");
-  $(input).prop("class", "response");
-  $("#dialog_list").prepend(input);
+  textarea = $("<textarea></textarea>");
+  $(textarea).prop("rows", 1);
+  $(textarea).prop("class", "response");
+  $("#dialog_list").prepend(textarea);
   $("#dialog_list").prepend("<strong>response: </strong>");
   $("#dialog_list").prepend(" ");
-  input = $("<input></input>");
-  $(input).prop("class", "pattern");
-  $("#dialog_list").prepend(input);
+  textarea = $("<textarea></textarea>");
+  $(textarea).prop("rows", 1);
+  $(textarea).prop("class", "pattern");
+  $("#dialog_list").prepend(textarea);
   $("#dialog_list").prepend("<strong>pattern: </strong>");
   old_pat = "";
   old_res = "";

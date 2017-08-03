@@ -28,8 +28,8 @@
     <button type="button" id="add_dialog" class="btn btn-primary btn-sm margin_up_btn">add</button>
     <div id="dialog_list">
       <% for(let ele of dialog_list){ %>
-        <strong>pattern: </strong><input class="pattern" value="<%= ele.pattern %>" disabled>
-        <strong>response: </strong><input class="response" value="<%= ele.response %>" disabled>
+        <strong>pattern: </strong><textarea rows=1 class="pattern" disabled><%= ele.pattern %></textarea>
+        <strong>response: </strong><textarea rows=1 class="response" disabled><%= ele.response %></textarea>
         <button type="button" class="btn btn-primary btn-sm">edit</button>
         <button type="button" class="btn btn-danger btn-sm">delete</button><br>
       <% } %>

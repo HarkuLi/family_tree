@@ -78,7 +78,14 @@
   background-color: #8fd9f0;
 }
 
-
 .margin_up_btn{
   margin: 10px 0px;
+}
+
+.pattern{
+  vertical-align: middle;
+}
+
+.response{
+  vertical-align: middle;
 }
