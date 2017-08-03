@@ -86,6 +86,13 @@ app.post("/dialog", (req, res)=>{
   var page = req.body.page;
   var filter = req.body.filter;
 
+  //using keyword query
+  //note that the speed is slow
+  for(let prop in filter){
+    let value = filter[prop];
+    filter[prop] = {$regex: value, $options: "i"};
+  }
+
   identity.isSignin(req)
     .then(usr_name => {
       usr = usr_name;

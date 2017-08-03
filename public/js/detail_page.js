@@ -395,7 +395,6 @@ var selectPage = (page, self) => {
 
   getDialog(page, filter)
     .then(rst =>{
-      console.log("rst.total_page: "+rst.total_page);
       if(rst.total_page < current_page) current_page = rst.total_page;
       resetDialogEdit();
       renderDialog(rst.dialog_list);
@@ -489,7 +488,6 @@ var changePagingBtn = (total_page) => {
   //change the contents of buttons
   var page_dig = min_page;
   for(let ele of $(".paging_btn")){
-    console.log("page_dig: "+page_dig);
     $(ele).text(page_dig);
     if(page_dig === current_page){
       $(ele).prop("class", "btn btn-primary btn-sm paging_btn");
