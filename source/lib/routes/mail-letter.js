@@ -77,8 +77,10 @@ MailLetterAPI.get('/show/:lid', (req, res) => {
   if(!lid) return res.status(400).send({ status: false, message: "letter id is invalid" });
   
   identity.isSignin(req)
-    .then((usr) => {
+    .then((result) => {
+      usr = result;
       if(!usr)  return Promise.reject("[mail-letter] no login");
+      
       return dbop_tree.getFamilyIDByUsr(usr);
     })
     .then((result) => {

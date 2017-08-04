@@ -234,7 +234,7 @@ function E_MG_ListToEmails(e_mg_list){
         .catch((err) => Promise.reject(err));
     }
     // not the "xxx" <xxx@xx> format, get only email part
-    let emailRegExp = /[\w_\-+]+@([\w_\-+]+)(\.[\w_\-+]+)+/i;
+    let emailRegExp = /[\w_\-\.+]+@([\w_\-+]+)(\.[\w_\-+]+)+/i;
     let ary = item.match(emailRegExp);
     return (!ary || ary.lentgh === 0) ? null : ary[0];
   }).filter((v) => v, []);

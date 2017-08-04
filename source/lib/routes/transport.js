@@ -41,27 +41,10 @@ TransportRouterAPI.post('/export', (req, res) => {
         return TransportController.exportAllData(usr, fgid);
       })
       .then((fileContent) => {
+        // data uri
         let filename = 'export-'+usr+'.txt';
-        let path = config.tmpDir+filename;
-
-        // create file and save to /tmp
-        return Promise.resolve()
-          .then(() => new Promise((resolve, reject) => {
-            fs.writeFile(path, fileContent, (err) => {
-              if (err) reject(err);
-              resolve(console.log('[transport] Save temp file to /tmp success!'));
-            });
-          }))
-          // send download response and waiting for finish cb
-          .then(() => new Promise((resolve, reject) => {
-            res.download(path, filename, (err) => {
-              if (err) return Promise.reject(err);
-              resolve(console.log('[transport] Client download file success!'));
-            })
-          }))
-          // if success, delete tmp file with unlink its filename
-          .then(() => new Promise((resolve, reject) => fs.unlink(path, (err) => (err) ? reject(err) : resolve(console.log('[transport] Remove temp file success!')))))
-          .catch((err) => Promise.reject(err));
+        let encodedFileContent = Buffer.from(fileContent).toString('base64');
+        res.json({ status: true, data: encodedFileContent });
       })
       .catch((err) => {
         console.log(err);

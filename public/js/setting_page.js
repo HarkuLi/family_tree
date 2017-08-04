@@ -1,28 +1,48 @@
+// TAG: for auto download file
+function autoDownloadFile(filename, data) {
+  // USE DATA URI
+  var elem = window.document.createElement('a');
+  elem.href = `data:application/octet-stream;base64,${data}`;
+  elem.download = filename;
+  document.body.appendChild(elem);
+  elem.click();        
+  document.body.removeChild(elem);
+  alert("Export data success!");
+
+  // USE BLOB and Object URI
+  /* var blob = new Blob([data], {type: 'text/plain'});
+  if(window.navigator.msSaveOrOpenBlob) {
+    window.navigator.msSaveBlob(blob, filename);
+  }else{
+    var elem = window.document.createElement('a');
+    elem.href = window.URL.createObjectURL(blob);
+    elem.download = filename;        
+    document.body.appendChild(elem);
+    elem.click();        
+    document.body.removeChild(elem);
+  } */
+}
+
 // TAG: export file 
-/* function exportFile(e){
+function exportFile(e){
   stopActionAndBubbling(e);
   
   let sendData = getFormSendData("#ExportForm");
   let sendUrl = window.location.origin+'/transport/export';
 
   sendDataToServer('POST', sendUrl, sendData)
-    .then((response) => {
-      console.log(response);
-      // FIXME: => DEPRECATED: because of inability with custom filename and compatibility of browsers
-      window.location = "data:application/octet-stream," + encodeURIComponent(response);
-      alert('Export data success!');
-    })
+    .then((response) => autoDownloadFile('export-tree.txt', response.data))
     .catch((err) => {
       alert('Export data error!');
       console.log(err);
     });
-} */
+}
 
 // TAG: import file
 function importFile(e){
   stopActionAndBubbling(e);
 
-  // TODO: get input's selected file
+  // get input's selected file
   // use .get() to return first match DOM and get the files attribute (FileList Web API)
   let selectedFile = $("#ImportTreeFile").get(0).files[0];
   if(!selectedFile) return alert("Please Choose an file.");
@@ -55,7 +75,7 @@ function importFile(e){
         // {response, status}
         if(!response.status) return Promise.reject(response);
         alert('Import data success!');
-        //window.location.reload();
+        window.location.reload();
       })
       .catch((err) => {
         err = JSON.parse(err.responseText);
@@ -67,3 +87,4 @@ function importFile(e){
 }
 
 $("#ImportForm").on('submit', (e) => importFile(e));
+$("#ExportForm").on('submit', (e) => exportFile(e));

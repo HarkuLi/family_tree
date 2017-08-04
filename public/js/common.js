@@ -79,7 +79,7 @@ function sendDataToServer(method, sendUrl, sendData){
   // send to server
   return Promise.resolve({ sendData, sendUrl })
     .then((obj) => {
-      console.log(obj);
+      //console.log(obj);
       return $.ajax({
         url: obj.sendUrl,
         method: method,

@@ -73,7 +73,7 @@ $("#putMail").submit((e) => {
   }
 
   let fgUrl = $("[name='fgUrl']").val();
-  let lid = $("[name='lid").val() || null;
+  let lid = $("[name='lid']").val() || null;
 
   console.log(sendData);
   // send to server
@@ -114,7 +114,7 @@ $('#deleteMail').click((e) => {
   stopActionAndBubbling(e);
 
   let fgUrl = $("[name='fgUrl']").val();
-  let lid = $("[name='lid").val() || null;
+  let lid = $("[name='lid']").val() || null;
   if(!lid){
     alert("delete mail failed");
     return console.log("[event] empty lid");
