@@ -139,7 +139,7 @@ function sendMail(usr, lid, sendOptions){
       host: 'smtp.gmail.com',
       port: 465,
       secure: true, // secure:true for port 465
-      auth: { user: 'einfachstudio@gmail.com',pass: process.env.GMAIL_KEY }
+      auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_KEY }
   });
 
   // check autoSend

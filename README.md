@@ -25,6 +25,36 @@ Export your family data and download it for backup.
 
 ## Get started
 
+### Environment variables
+
+* used in code by process.env.[VARIABLE_NAME]
+
+#### Required
+
+GMAIL_USER: user of google accout
+
+GMAIL_KEY: password of google account
+
+GOOGLE_API_KEY: for shortenUrl API
+
+TREE_FILE_EXCHANGE_IV: for encrypting exported data by AES
+
+TREE_FILE_EXCHANGE_KEY: for encrypting exported data by AES
+
+#### Not required if running locally
+
+DB_URL: URL of remote db ex: mongodb://mydb.xxx.xxx:27017/
+
+USER_FT: user name of familytree db account
+
+PWD_FT: password of familytree db account
+
+USER_LB: user name of linebot db account
+
+PWD_LB: password of linebot db account
+
+### Steps for run loaclly
+
 The following commands use docker, so please ensure that you have installed docker in your computer.
 
 * [docker](https://www.docker.com/)
@@ -58,13 +88,7 @@ now, you can access your server on [localhost:5000](http://localhost:5000)
 
 ## Linebot
 
-line id: @zjz2485k
-
-or QR code
-
-<img src="http://qr-official.line.me/L/K_XIKkRcNQ.png">
-
-go to repository of [linebot](https://github.com/HarkuLi/family-tree-linebot) to see more detail
+go to the repository of [linebot](https://github.com/HarkuLi/family-tree-linebot) to see more detail
 
 ## Project detail
 
