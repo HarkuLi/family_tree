@@ -31,27 +31,27 @@ Export your family data and download it for backup.
 
 #### Required
 
-GMAIL_USER: user of google accout
+* GMAIL_USER: user of google accout
 
-GMAIL_KEY: password of google account
+* GMAIL_KEY: password of google account
 
-GOOGLE_API_KEY: for shortenUrl API
+* GOOGLE_API_KEY: for shortenUrl API
 
-TREE_FILE_EXCHANGE_IV: for encrypting exported data by AES
+* TREE_FILE_EXCHANGE_IV: for encrypting exported data by AES (16 bytes to base64)
 
-TREE_FILE_EXCHANGE_KEY: for encrypting exported data by AES
+* TREE_FILE_EXCHANGE_KEY: for encrypting exported data by AES (32 bytes to base64)
 
 #### Not required if running locally
 
-DB_URL: URL of remote db ex: mongodb://mydb.xxx.xxx:27017/
+* DB_URL: URL of remote db ex: mongodb://mydb.xxx.xxx:27017/
 
-USER_FT: user name of familytree db account
+* USER_FT: user name of familytree db account
 
-PWD_FT: password of familytree db account
+* PWD_FT: password of familytree db account
 
-USER_LB: user name of linebot db account
+* USER_LB: user name of linebot db account
 
-PWD_LB: password of linebot db account
+* PWD_LB: password of linebot db account
 
 ### Steps for run loaclly
 
