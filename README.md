@@ -25,12 +25,47 @@ Export your family data and download it for backup.
 
 ## Get started
 
+The following commands use docker, so please ensure that you have installed docker in your computer.
+
+* [docker](https://www.docker.com/)
+
+first, clone this repository
+
     git clone https://github.com/HarkuLi/family_tree.git
     cd family_tree
+    
+create a volume to saving data of mongodb
+    
     npm run create-vol
+    
+build docker image by Dockerfile
+
     npm run build-dev
+    
+if you don't have mongo image, run this
+
+    docker pull mongo
+    
+then, run mongodb in docker
+
     npm run mongo-docker
+
+start the server
+
     npm run start-dev-docker
 
+now, you can access your server on [localhost:5000](http://localhost:5000)
 
-* [各種紀錄](https://docs.google.com/document/d/10L52n5J54-Tds4jL721LofZ8IoGtpFYYIdubO3CgWT0/edit?ts=596c70a8)
+## Linebot
+
+line id: @zjz2485k
+
+or QR code
+
+<img src="http://qr-official.line.me/L/K_XIKkRcNQ.png">
+
+go to repository of [linebot](https://github.com/HarkuLi/family-tree-linebot) to see more detail
+
+## Project detail
+
+* [google doc](https://docs.google.com/document/d/10L52n5J54-Tds4jL721LofZ8IoGtpFYYIdubO3CgWT0/edit?ts=596c70a8)
