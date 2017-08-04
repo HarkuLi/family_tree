@@ -37,14 +37,11 @@
   },
   "scripts": {
     "deploy": "node source/server/server.js",
-    "start-mailserver": "sudo nodemon source/server/mail-server.js",
-    "start": "nodemon source/server/server.js",
-    "start-dev-docker": "docker run -it --rm -v $(pwd):/opt/app -p 10010:10010 family-tree",
-    "start-docker": "docker run -it --rm -p 10010:10010 family-tree",
-    "docker-mongo": "docker run -it --rm --name ftDB -v ftDBvol:/data/db -p 3000:27017 mongo",
-    "test": "mocha family-tree",
-    "build": "docker build -t family_tree .",
-    "build-dev": "docker build -t family-tree-dev -f dockerfiles/dev .",
-    "build-staging": "docker build -t family-tree-staging -f dockerfiles/staging ."
+    "start": "npm install; nodemon source/server/server.js",
+    "create-vol": "docker volume create ftDBvol",
+    "build-dev": "docker build -t family_tree .",
+    "mongo-docker": "docker run -it --rm --name ftDB -v ftDBvol:/data/db mongo",
+    "start-dev-docker": "docker run -it --rm --name family_tree --link ftDB -v $(pwd):/family_tree -p 5000:5000 family_tree",
+    "test": "mocha family-tree"
   }
 }

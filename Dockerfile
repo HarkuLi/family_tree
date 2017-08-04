@@ -1,13 +1,8 @@
 FROM node:6
 
-ENV NODE_ENV=production
-RUN groupadd -r app && useradd -r -g app app
+RUN npm install -g -y nodemon
+RUN mkdir /family_tree
 
-COPY . /opt/app
-WORKDIR /
-RUN npm i --silent
-
-EXPOSE 10010
-USER app
-
-CMD ["node", "/opt/app/server.js"]
+WORKDIR /family_tree
+CMD ["npm", "run", "start"]
+EXPOSE 5000
