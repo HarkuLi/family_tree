@@ -6,6 +6,8 @@ const dbConnect = require("./db");
 
 const colle_family = "family";
 const colle_person = "person";
+const colle_mailgroup = "mailgroup";
+const colle_mailletter = "mailletter";
 
 /** public function */
 
@@ -258,23 +260,36 @@ var updatePerson = (id, data)=>{
  */
 var dropFamily = (usr)=>{
   var colleName = "usr_" + usr;
-  var f_colle, p_colle;
+  var f_colle, p_colle, mg_colle, ml_colle;
   var final_rst = true;
 
   return dbConnect.getDb_ft
     .then(db => {
       f_colle = db.collection(colle_family);
       p_colle = db.collection(colle_person);
+      mg_colle = db.collection(colle_mailgroup);
+      ml_colle = db.collection(colle_mailletter);
       //clean orderArray
       return f_colle.updateOne({usr}, {$set: {orderArray: []}});
     })
     .then(r => {
-      if(!r || !r.modifiedCount) return final_rst = false;
+      if(!r || !r.matchedCount) return final_rst = false;
       //delete all people
       return p_colle.deleteMany({usr});
     })
     .then(r => {
-      if(!r) return false;
+      if(!r) return final_rst = false;
+      //delete all people
+      return mg_colle.deleteMany({usr});
+    })
+    .then(r => {
+      if(!r) return final_rst = false;
+      //delete all people
+      return ml_colle.deleteMany({usr});
+    })
+    .then(r => {
+      //if(!r) return false;
+      if(!r) return final_rst = false;
       return dbConnect.getDb_lb;
     })
     .then(db => {
@@ -282,6 +297,10 @@ var dropFamily = (usr)=>{
       //drop the dialog colleciton
       var dialogColle = db.collection(colleName);
       return dialogColle.drop();
+    })
+    .catch((err) => {
+      console.log(err);
+      return true;
     })
     .then(r => {
       if(!r) return false;
@@ -427,4 +446,4 @@ var ComputeChildIdx = (usr, parent_id)=>{
 /** private function */
 
 module.exports = {getFamilyByID, getFamilyByUsr, getPersonByID, getFamilyIDByUsr, newFamily, 
-                  newRoot, addChild, remove, addMate, removeMate, updatePerson};
+                  newRoot, addChild, remove, addMate, removeMate, updatePerson, dropFamily};

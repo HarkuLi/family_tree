@@ -19,7 +19,11 @@ module.exports = {
   TimestampToDisplay,
 }
 
-// TAG: get all data in mailgroup collection
+
+/** 
+ * TAG: get all data in mailgroup collection
+ * @param {String} fgid, family's _id, required.
+ */
 function getAllData(fgid){
   // check fgid format
   if(!Validate.checkIDFormat(fgid)) return Promise.reject("[mail-letter][getAllData] family group id format is invalid.");
@@ -33,7 +37,11 @@ function getAllData(fgid){
     .catch((err) => Promise.reject(err));
 }
 
-// TAG:
+/** 
+ * TAG: get all mail letters with fgid
+ * @param {String} fgid, family's _id, required.
+ * @param {Object} filter, { name: [values] } //TODO:
+ */
 function getMailList(fgid, filter = {}){
   const listProjection = { createTime: 1, subject: 1, from: 1, status: 1, tags: 1, _id: 1 };
   // check fgid format
@@ -44,20 +52,22 @@ function getMailList(fgid, filter = {}){
     .then((db) => {
       var Col = db.collection(CollectionName);
       return new Promise((resolve, reject) => {
-        Col.find({
-          fgid: { $eq: fgid }, 
-          status: { $ne: 'deleted' }
-        }, listProjection).sort({createTime: 1}).limit(20).toArray((err, list) => {
-          if(err) reject(err);
-          console.log('[mail-letter] getMailList success.');
-          resolve(list);
-        });
+        Col.find({ fgid: { $eq: fgid }, status: { $ne: 'deleted' } }, listProjection)
+          .sort({createTime: 1}).limit(20).toArray((err, list) => {
+            if(err) reject(err);
+            console.log('[mail-letter] getMailList success.');
+            resolve(list);
+          });
       });
     })
     .then((list) => Promise.resolve(list) || Promise.resolve(null))
     .catch((err) => Promise.reject(err));
 }
-// TAG:
+
+/** 
+ * TAG: get a mail letter with lid
+ * @param {String} lid, mailletter's _id, required.
+ */
 function getMail(lid){
   const Projection = { fgid: 0 };
   // check mid format
@@ -67,9 +77,7 @@ function getMail(lid){
   return dbConnect.getDb_ft
     .then((db) => {
       var col = db.collection(CollectionName);
-      return col.findOne(
-        { _id: { $eq: new ObjectID(lid) }, status: { $ne: 'deleted' } },
-        Projection);
+      return col.findOne({ _id: { $eq: new ObjectID(lid) }, status: { $ne: 'deleted' } }, Projection);
     })
     .then((mail) => {
       console.log(`[mail-letter] getMail with mid = ${lid} success.`);
@@ -77,28 +85,35 @@ function getMail(lid){
     })
     .catch((err) => Promise.reject(err));
 }
-// TAG:
+
+/** 
+ * TAG: insert or update a mail letter
+ * @param {String} usr, get from module identity.isSignin(), required.
+ * @param {Object} modifiedData, required.
+ * @param {String} lid, mailletter's _id, NOT Required when insert new one.
+ * @param {Boolean} upsert, true will insert new mailgroup when it is not be found
+ */
 function putMail(usr, modifiedData, lid = null, upsert = true){
   console.log("putMail's input lid = "+lid);
   const option = { upsert: upsert, returnOriginal: false, projection: { fgid: 0 } };
   // check lid format if lid exist
-  if(lid){
-    if(!Validate.checkIDFormat(lid)) return Promise.reject("[mail-letter] mail id format error");
-  }
+  if(lid && !Validate.checkIDFormat(lid)) return Promise.reject("[mail-letter] mail id format error");
   modifiedData.modifiedTime = new Date().getTime();
   
   return Promise.resolve(lid)
     // if no lid, jump to upsert part
-    .then((lid) => (lid) ? getMail(lid) : Promise.reject())
+    .then((lid) => (lid) ? getMail(lid) : Promise.reject(true))
     // update data if status is draft or pending
     .then((mail) => {
       if(mail && (mail.status === 'draft' || mail.status === 'pending')){
         return Promise.resolve(dbConnect.getDb_ft);
       }else{
-        return Promise.reject("update a mail only if status is draft or pending");
+        console.log("update a mail only if status is draft or pending");
+        return Promise.reject(false);
       }
     })
-    .catch(() => Promise.resolve(dbConnect.getDb_ft))
+    // if true, represent no lid and insert; if false, represent not an allowed update status
+    .catch((res) => (res) ? Promise.resolve(dbConnect.getDb_ft) : Promise.reject("update a mail only if status is draft or pending"))
     // update or insert data (upsert)
     .then((db) => {
       var col = db.collection(CollectionName);
@@ -112,7 +127,12 @@ function putMail(usr, modifiedData, lid = null, upsert = true){
     })
     .catch((err) => Promise.reject(err));
 }
-// TAG:
+
+/** 
+ * TAG: delete a mail letter. soft change status to deleted, disable autosend, and add time
+ * @param {String} usr, get from module identity.isSignin(), required.
+ * @param {String} lid, mailletter's _id, NOT Required when insert new one.
+ */
 function deleteMail(usr, lid){
   let modifiedData = {
     status: "deleted",
@@ -131,10 +151,14 @@ function deleteMail(usr, lid){
     .catch((err) => Promise.reject(err));
 }
 
+/** 
+ * TAG: Send emails
+ * TODO: Use GMAIL for Temporary Choice UNLESS Haraka SMTP Server established
+ * @param {String} usr, get from module identity.isSignin(), required.
+ * @param {String} lid, mailletter's _id, NOT Required when insert new one.
+ * @param {Object} sendOptions, will check and convert format with function checkMailOptions.
+ */
 function sendMail(usr, lid, sendOptions){
-  // INFO: Use GMAIL for Temporary Choice UNLESS Haraka SMTP Server established
-
-  console.log(lid);
   let transporter = Nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 465,
@@ -168,7 +192,7 @@ function sendMail(usr, lid, sendOptions){
           console.log(err);
           return Promise.reject(err);
         }
-        console.log('Mail %s sent: %s', info.messageId, info.response);
+        console.log('[mailletter] Mail %s sent: %s', info.messageId, info.response);
         return Promise.resolve();
       })
     })
@@ -180,7 +204,10 @@ function sendMail(usr, lid, sendOptions){
     });
 }
 
-// TAG: check and set default value with mail content
+/** 
+ * TAG: check and set default value with mail content
+ * @param {Object} sendOptions, will check and convert format, required
+ */
 function checkMailOptions(sendOptions){
   let mailOptions = {};
   mailOptions.from = `"${sendOptions.familyname}"`;
@@ -193,11 +220,16 @@ function checkMailOptions(sendOptions){
     (!sendOptions.cc) ? mailOptions.cc = '' : E_MG_ListToEmails(sendOptions.cc).then((v) => mailOptions.cc = v),
     (!sendOptions.bcc) ? mailOptions.bcc = '' : E_MG_ListToEmails(sendOptions.bcc).then((v) => mailOptions.bcc = v)
   ];
-  
   return Promise.all(process).then(() => mailOptions);
 }
 
-// TAG: change mail group and email mixed list to address list
+/** 
+ * TAG: change mail group and email mixed list to address list, will handle 3 types:
+ *   1. "group name" [group:<_id, string, 24 bytes hex>]
+ *   2. "person name" <person@domail.com>
+ *   3. get only email part from other string representation
+ * @param {String} e_mg_list, mixed email and mail group string
+ */
 function E_MG_ListToEmails(e_mg_list){
   let groupRegExp = /\".*\"\s*\[group\:([0-9a-f]{24})\]/i;
   let memberRegExp = /\".*\"\s*\<([\w_\-+]+@([\w_\-+]+)(\.[\w_\-+]+)+)\>/i;
@@ -250,7 +282,11 @@ function E_MG_ListToEmails(e_mg_list){
       return false;
     });
 }
-// TAG: change timestamp to yyyy-mm-dd hh:mm
+// 
+/** 
+ * TAG: change timestamp to yyyy-mm-dd hh:mm
+ * @param {Number} timestamp from 1970
+ */
 function TimestampToDisplay(timestamp){
   let time = new Date(timestamp);
   let year = time.getFullYear();

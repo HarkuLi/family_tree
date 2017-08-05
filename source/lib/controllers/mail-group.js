@@ -17,7 +17,10 @@ module.exports = {
   deleteGroupMember,
 }
 
-// TAG: get all data in mailgroup collection
+/** 
+ * TAG: get all data in mailgroup collection
+ * @param {String} fgid, family's _id
+ */
 function getAllData(fgid){
   // check fgid format
   if(!Validate.checkIDFormat(fgid)) return Promise.reject("[mail-group][getAllData] family group id format is invalid.");
@@ -31,7 +34,10 @@ function getAllData(fgid){
     .catch((err) => Promise.reject(err));
 }
 
-// TAG: get all group list
+/** 
+ * TAG: get all group list
+ * @param {String} fgid, family's _id
+ */
 function getGroupList(fgid){
   const listProjection = { name: 1, _id: 1, memberlist: 1 };
 
@@ -43,10 +49,7 @@ function getGroupList(fgid){
     .then((db) => {
       var Col = db.collection(CollectionName);
       return new Promise((resolve, reject) => {
-        Col.find({
-          fgid: {$eq: fgid}, 
-          enable: {$ne: false}
-        }, listProjection)
+        Col.find({ fgid: {$eq: fgid}, enable: {$ne: false} }, listProjection)
            .sort({createTime: -1}).toArray((err, list) => {
             if(err) reject(err);
             console.log('[mail-group] getGroupList success.');
@@ -61,7 +64,12 @@ function getGroupList(fgid){
     })
     .catch((err) => Promise.reject(err));
 }
-// TAG: get detail from a group and even every person
+
+/** 
+ * TAG: get detail from a group and even every person
+ * @param {String} mgid, mailgroup's _id
+ * @param {Object} display projection, { filed: 1 or 0 }
+ */
 function getGroup(mgid, display){
   const Projection = display || { fgid: 0 };
   // check mid format
@@ -105,14 +113,17 @@ function getGroup(mgid, display){
     .catch((err) => Promise.reject(err));
 }
 
-// TAG: update group include add member
+/** 
+ * TAG: update group include add member
+ * @param {String} mgid, mailgroup's _id, NOT REQUIRED when INSERT new mailgroup
+ * @param {Object} modified data
+ * @param {Boolean} upsert, true will insert new mailgroup when it is not be found
+ */
 function putGroup(mgid = null, modifiedData, upsert = true){
   const option = { upsert: upsert, returnOriginal: false };
   modifiedData.modifyTime = new Date().getTime();
-
-  if(mgid){
-    if(!Validate.checkIDFormat(mgid)) return Promise.reject("[mail-group] mail group id format error");
-  }
+  
+  if(mgid && !Validate.checkIDFormat(mgid)) return Promise.reject("[mail-group] mail group id format error");
   return dbConnect.getDb_ft
     // update or insert data (upsert)
     .then((db) => {
@@ -129,7 +140,11 @@ function putGroup(mgid = null, modifiedData, upsert = true){
     })
     .catch((err) => Promise.reject(err));
 }
-// TAG: change to disable
+
+/** 
+ * TAG: delete a mailgroup, soft change it to disable
+ * @param {String} mgid, mailgroup's _id, required.
+ */ 
 function deleteGroup(mgid){
   let modifiedData = {
     enable: false,
@@ -145,15 +160,23 @@ function deleteGroup(mgid){
     })
     .catch((err) => Promise.reject(err));
 }
- // TAG: for preparation
+
+/** 
+ * TAG: get a group's all members' emails
+ * @param {String} mgid, mailgroup's _id, required.
+ */ 
 function getGroupMemberEmails(mgid){
   const display = { memberlist: 1, _id: 0 };
   return getGroup(mgid, display)
     .then((memberlist) => Promise.resolve(memberlist))  // object array
     .catch((err) => Promise.reject(err));
 }
-// TAG: add new member with update group 
-// rawData: { name: xxx, email: xxx } or { pid:xxx }
+
+/** 
+ * TAG: add new member with update group 
+ * @param {String} mgid, mailgroup's _id, required.
+ * @param {Object} rawData: { name: xxx, email: xxx } or { pid:xxx }
+ */ 
 function putGroupMember(mgid, rawData){
   if(!Validate.checkIDFormat(mgid)) return Promise.reject("[mail-group] mail group id format error");
   if(rawData.email){
@@ -190,7 +213,12 @@ function putGroupMember(mgid, rawData){
     })
     .catch((err) => Promise.reject(err));
 }
-// TAG: remove a member from group (real remove)
+
+/** 
+ * TAG: remove a member from group (real remove)
+ * @param {String} mgid, mailgroup's _id, required.
+ * @param {String} mbid, a member's id in a mailgroup, required.
+ */ 
 function deleteGroupMember(mgid, mbid){
   if(!Validate.checkIDFormat(mgid)) return Promise.reject("[mail-group] mail group id format error");
   if(!Validate.checkIDFormat(mbid)) return Promise.reject("[mail-group] member id format error");

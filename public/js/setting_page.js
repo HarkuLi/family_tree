@@ -7,7 +7,7 @@ function autoDownloadFile(filename, data) {
   document.body.appendChild(elem);
   elem.click();        
   document.body.removeChild(elem);
-  alert("Export data success!");
+  //alert("Export data success!");
 
   // USE BLOB and Object URI
   /* var blob = new Blob([data], {type: 'text/plain'});
@@ -32,10 +32,7 @@ function exportFile(e){
 
   sendDataToServer('POST', sendUrl, sendData)
     .then((response) => autoDownloadFile('export-tree.txt', response.data))
-    .catch((err) => {
-      alert('Export data error!');
-      console.log(err);
-    });
+    .catch((err) => console.log(err));
 }
 
 // TAG: import file
@@ -70,7 +67,7 @@ function importFile(e){
     let sendData = JSON.stringify({file: this.result});
     let sendUrl = window.location.origin+'/transport/import';
 
-    sendDataToServer('POST', sendUrl, sendData)
+     sendDataToServer('POST', sendUrl, sendData)
       .then((response) => {
         // {response, status}
         if(!response.status) return Promise.reject(response);
@@ -79,10 +76,10 @@ function importFile(e){
       })
       .catch((err) => {
         err = JSON.parse(err.responseText);
-        let msg = err.message || 'Import data error!';
+        let msg = (Object.keys(err.message).length === 0 || !err.message) ? 'Import data error!' : err.message;
         alert(msg);
-        //console.log(err);
-      });
+        console.log(err);
+      }); 
     })
 }
 

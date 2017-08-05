@@ -7,7 +7,10 @@ module.exports = {
   getAllMemberEmails,
 }
 
-// TAG: get all family group member email list
+/** 
+ * TAG: get all family group members' emails list
+ * @param {String} fgid, family's _id, required
+ */
 function getAllMemberEmails(fgid){
   if(!Validate.checkIDFormat(fgid)) 
     return Promise.reject("[family-group] invalid family group id");

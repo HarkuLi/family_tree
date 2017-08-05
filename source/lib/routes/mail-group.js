@@ -25,9 +25,7 @@ MailGroupAPI.get('/', (req, res) => {
       fgUrl += fgid;
       return MailGroupController.getGroupList(fgid);
     })
-    .then((list) => {
-      res.render('pages/fg.ejs', { page: "mailgroup", list, fgUrl, usr })
-    })
+    .then((list) => res.render('pages/fg.ejs', { page: "mailgroup", list, fgUrl, usr }))
     .catch((err) => {
       console.log(err);
       res.status(404).render('pages/error.ejs', { code: 404, usr });
@@ -76,7 +74,6 @@ MailGroupAPI.route('/edit/:mgid?')
     // [fn] 有mgid -> 更新mail group設定
     //      無mgid -> 新增一個mail group
     let mgid = req.params.mgid || null;
-
     let getUsr = identity.isSignin(req).then((usr) => usr);
     let getFGID = identity.getFamilyID(req).then((fgid) => fgid);
     
@@ -86,6 +83,7 @@ MailGroupAPI.route('/edit/:mgid?')
         if(!result[0])  return Promise.reject("[mail-group] no login");
         if(!result[1])  return Promise.reject("[mail-group] cannot find fgid by usr");
         let sendData = req.body;
+        sendData.usr = result[0];
         sendData.fgid = result[1];
         return MailGroupController.putGroup(mgid, sendData);
       })

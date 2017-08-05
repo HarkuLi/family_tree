@@ -5,7 +5,10 @@ module.exports = {
   checkEmailFormat,
 }
 
-// check fid format (12 bytes, hex, length = 12 x 2 = 24) 
+/** 
+ * TAG: check _id format (12 bytes, hex, length = 12 x 2 = 24) 
+ * @param {String or Object} _id, both accept mongodb's ObjectID or String
+ */
 function checkIDFormat(_id){
   const regHex = /[a-fA-F\d]+\b/g;
   try{
@@ -20,9 +23,13 @@ function checkIDFormat(_id){
   }
   return true;
 }
-// check email format
+
+/** 
+ * TAG: check email format, username part accept characters {. - _ +}
+ * @param {String} email
+ */
 function checkEmailFormat(email){
-  const regHex = /[\w\.]+\@([\w]+\.)+([\w]+)/ig;
+  const regHex = /[\w\-._+]+\@([\w]+\.)+([\w]+)/ig;
   try{
     if(!email){ throw Error("[validate] No email Input"); }
     if(!regHex.test(email)){ throw Error("[validate] Invalid email Format"); }

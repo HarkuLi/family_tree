@@ -120,4 +120,16 @@ var enableDialog = (colleName, talkerId, enable) => {
     });
 };
 
-module.exports = {getDialogList, resMapUpsert, resMapDelete, enableDialog};
+/**
+ * get all data with usr
+ * @param {String} usr
+ */
+var getChatbotDataByUsr = (usr) => {
+  if(!usr) return Promise.reject("[import-export][getChatbotByUsr] cannot find usr, not login.");
+  return dbConnect.getDb_lb
+    .then((db) => db.collection(`usr_${usr}`).find() || [])
+    .then((chatBotData) => (chatBotData) ? [] : chatBotData)
+    .catch((err) => Promise.reject(err));
+}
+
+module.exports = {getDialogList, resMapUpsert, resMapDelete, enableDialog, getChatbotDataByUsr};

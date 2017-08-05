@@ -28,7 +28,7 @@ TransportRouterAPI.post('/export', (req, res) => {
     let usr = false;
     let fgid = '';
     let getUsr = identity.isSignin(req).then((usr) => usr);
-    let getFGID = identity.getFamilyID(req).then((fgid) => fgid);
+    let getFGID = identity.getFamilyID(req).then((fgid) => fgid).catch((err) => console.log(err));
     
     Promise.all([getUsr, getFGID])
       .then((result) => {
