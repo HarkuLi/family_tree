@@ -9,7 +9,7 @@ You can build your family tree with graphically operating and edit every people 
 
 ### linebot
 
-What you need to do is input the pattern-response mapping and enable dialog of the person. And then add the linebot to your family line group. And the bot will respond based on your family dialog database.
+What you need to do is inputting the pattern-response mapping and enabling dialog of the person. And then add the linebot to your family line group. And the bot will respond based on your family dialog database.
 
 ### mail service
 
