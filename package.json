@@ -40,8 +40,9 @@
     "start": "npm install; nodemon source/server/server.js",
     "create-vol": "docker volume create ftDBvol",
     "build-dev": "docker build -t family_tree .",
-    "mongo-docker": "docker run -it --rm --name ftDB -v ftDBvol:/data/db mongo",
-    "start-dev-docker": "docker run -it --rm --name family_tree --link ftDB -v $(pwd):/family_tree -p 5000:5000 family_tree",
+    "mongo-docker": "docker run -it --rm --name ftDB -v ftDBvol:/data/db -p 27017:27017 mongo",
+    "start-docker-localdb": "docker run -it --rm --name family_tree --link ftDB -v $(pwd):/family_tree -p 5000:5000 --env-file ./.env family_tree",
+    "start-docker-remotedb": "docker run -it --rm --name family_tree -v $(pwd):/family_tree -p 5000:5000 --env-file ./.env family_tree",
     "test": "mocha family-tree"
   }
 }
