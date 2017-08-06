@@ -3,6 +3,7 @@
 <head>
   <%- include('../partials/head') %>
   <link rel="stylesheet" href="/css/tree.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <title>tree</title>
 </head>
 <body>
@@ -10,31 +11,52 @@
   <%- include('../partials/navigator') %>
 
   <!-- main content -->
-  <div class="node_container">
-    <svg class="path_container" xmlns="http://www.w3.org/2000/svg"></svg>
-    
-    <!-- render tree according to objList -->
-    
-    <% if(usr && !objList.length){ %>
-      <div class="tree_row">
-        <div class="tree_node">
-        <button class="dropbtn">empty</button>
-          <div class="dropdown_content">
-              <form action="/tree/add_person" method="post">
-                <input type="hidden" name="kind" value="root">
-                <button class="btn droplist_btn" type="submit">add person</button>
-              </form>
+  
+  <div class="container margin_up_btn">
+    <button type="button" id="zoom_out" class="btn btn-default btn-sm material-icons" style="font-size:16px">zoom_out</button>
+    <button type="button" id="zoom_default" class="btn btn-default btn-sm material-icons" style="font-size:16px">crop_din</button>
+    <button type="button" id="zoom_in" class="btn btn-default btn-sm material-icons" style="font-size:16px">zoom_in</button>
+  </div>
+  <div class="container tree_frame">
+    <div class="node_container">
+      <svg class="path_container" xmlns="http://www.w3.org/2000/svg"></svg>
+      
+      <!-- render tree according to objList -->
+      <!-- empty tree -->
+      <% if(usr && !objList.length){ %>
+        <div class="tree_row">
+          <div class="tree_node">
+          <button class="dropbtn">empty</button>
+            <div class="dropdown_content">
+                <form action="/tree/add_person" method="post">
+                  <input type="hidden" name="kind" value="root">
+                  <button class="btn droplist_btn" type="submit">add person</button>
+                </form>
+            </div>
           </div>
         </div>
-      </div>
-    <% } %>
-    <% for(var i=0; i<objList.length; ++i){ %>
-      <% var genNum = objList[i] %>
-      <div class="tree_row">
-        <% for(var j=0; j<genNum; ++j){ %>
-          <% ++i; %>
-          <% if(!objList[i].parents && j){ %>  <!-- mate nodes -->
-            <% if(i>3 && j!==genNum-1 && objList[i-1].parents[0]!==objList[i+1].parents[0]){ %>   <!-- i>3: 2nd generation -->
+      <% } %>
+      
+      <% for(var i=0; i<objList.length; ++i){ %>
+        <% var genNum = objList[i] %>
+        <div class="tree_row">
+          <% for(var j=0; j<genNum; ++j){ %>
+            <% ++i; %>
+            <% if(!objList[i].parents && j){ %>  <!-- mate nodes -->
+              <% if(i>3 && j!==genNum-1 && objList[i-1].parents[0]!==objList[i+1].parents[0]){ %>   <!-- i>3: 2nd generation -->
+                <div class="tree_node boundary">
+                  <% include ../partials/dropdown %>
+                </div>
+              <% }else{ %>
+                <div class="tree_node">
+                  <% include ../partials/dropdown %>
+                </div>
+              <% } %>
+            <% }else if(j===genNum-1 || i===1 || objList[i].mate){ %>
+              <div class="tree_node">
+                <% include ../partials/dropdown %>
+              </div>
+            <% }else if(objList[i].parents[0]!==objList[i+1].parents[0]){ %>
               <div class="tree_node boundary">
                 <% include ../partials/dropdown %>
               </div>
@@ -43,22 +65,10 @@
                 <% include ../partials/dropdown %>
               </div>
             <% } %>
-          <% }else if(j===genNum-1 || i===1 || objList[i].mate){ %>
-            <div class="tree_node">
-              <% include ../partials/dropdown %>
-            </div>
-          <% }else if(objList[i].parents[0]!==objList[i+1].parents[0]){ %>
-            <div class="tree_node boundary">
-              <% include ../partials/dropdown %>
-            </div>
-          <% }else{ %>
-            <div class="tree_node">
-              <% include ../partials/dropdown %>
-            </div>
           <% } %>
-        <% } %>
-      </div>
-    <% } %>
+        </div>
+      <% } %>
+    </div>
   </div>
 
   <!-- footer -->

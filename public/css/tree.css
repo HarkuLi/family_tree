@@ -3,7 +3,7 @@
 }
 
 .node_container{
-  margin: 50px auto;
+  margin: 10px auto;
   position: relative;
 }
 
@@ -88,4 +88,9 @@
 
 .text_center{
   text-align: center;
+}
+
+.tree_frame{
+  overflow: auto;
+  border-style:groove;
 }

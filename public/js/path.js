@@ -1,3 +1,9 @@
+/** complexity: 
+ * worst: O(N^2)
+ * average: O(n*N)
+ * where n is average number of nodes in every generations, and N is the number of nodes
+ */
+
 /** declaration */
 //convert string XXXpx to number XXX
 var pxStrToNum = (pxStr)=>{
@@ -24,9 +30,13 @@ const row_mb = pxStrToNum(window.getComputedStyle(tree_row_list[0], null).getPro
 const reg_mr = pxStrToNum(tree_node_style.getPropertyValue("margin-right"));
 //boundary margin-right
 const bound_mr = boundary_style ? pxStrToNum(boundary_style.getPropertyValue("margin-right")) : 0;
+var zoom = 100;
 //used for record boundary 
 var bound_record = [];
-/** generate bound_record */
+/** 
+ * generate bound_record
+ * complexity: Θ(N), where N is number of nodes
+ */
 for(let i=0; i<tree_row_list.length; ++i){
   let one_row_num = tree_row_list[i].children.length;
   let one_row_list = tree_row_list[i].children;
@@ -59,6 +69,11 @@ var getObjList = new Promise((resolve, reject)=>{
 });
 
 /**
+ * complexity:
+ * worst: O(N^2)
+ * average: O(n*N)
+ * where n is average number of nodes in every generations, and N is the number of nodes
+ * ****************************
  * return value: relation_list
  * the value is the order in generation of parent of a person
  * when the person is root, the value would be -1
@@ -87,6 +102,8 @@ var genParentList = (obj_list)=>{
         else{
           //find parent order
           let idx = i;
+          //complexity: O(N), worst case occurs when one generation inculde the majority of member in the family
+          //parent order isn't neccessarily the order of last parent plus 1
           let order = last_parent_order+1;
           for(let j=0; j<2; ++j){
             for(--idx; typeof(obj_list[idx])!=="number"; --idx){;}
@@ -128,7 +145,38 @@ var get_row_height = (row)=>{
 ////////////////////
 
 $(()=>{
-/** change container size dynamically */
+
+/** events */
+$(window).resize(() => {
+  $(".tree_frame").width(window.innerWidth * 0.95);
+  $(".tree_frame").height(window.innerHeight * 0.83);
+});
+
+$("#zoom_out").on("click", () => {
+  if(zoom <= 50) return;
+  zoom -= 10;
+  $(".node_container").css("zoom", zoom+"%")
+});
+
+$("#zoom_default").on("click", () => {
+  zoom = 100;
+  $(".node_container").css("zoom", "")
+});
+
+$("#zoom_in").on("click", () => {
+  if(zoom >= 200) return;
+  zoom += 10;
+  $(".node_container").css("zoom", zoom+"%")
+});
+
+$(".tree_frame").width(window.innerWidth * 0.95);
+$(".tree_frame").height(window.innerHeight * 0.83);
+/** events */
+
+/** 
+ * change container size dynamically
+ * complexity: Θ(N), where N is number of nodes
+ */
 var width = 0;
 for(let i=0; i<bound_record.length; ++i){
   let row_width = rowWidth(bound_record[i]);
@@ -160,7 +208,10 @@ getObjList
     }
     /** initialization */
 
-    /** draw path */
+    /**
+     * draw path
+     * complexity: O(N), where N is number of nodes
+     */
     if(relation_list[0].length > 1){
       let element = document.createElementNS("http://www.w3.org/2000/svg", "path"); //because svg uses namespace
       let d = "M" + (parent_x-reg_mr/2) + "," + parent_y;
