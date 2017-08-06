@@ -28,6 +28,7 @@ Export your family data and download it for backup.
 ### Environment variables
 
 * used in code by process.env.[VARIABLE_NAME]
+* if running locally, you can set environment variables in the .env file
 
 #### Required
 
@@ -53,7 +54,7 @@ Export your family data and download it for backup.
 
 * PWD_LB: password of linebot db account
 
-### Steps for run loaclly
+### Steps for running loaclly
 
 The following commands use docker, so please ensure that you have installed docker in your computer.
 
@@ -63,15 +64,24 @@ first, clone this repository
 
     git clone https://github.com/HarkuLi/family_tree.git
     cd family_tree
-    
-create a volume to saving data of mongodb
-    
-    npm run create-vol
-    
+
 build docker image by Dockerfile
 
     npm run build-dev
     
+And then, you have to build a database of mongodb.
+    
+When it comes to db, you have two choices:
+
+* running locally: you can follow the steps below.
+* running remotely: you should find your way to running db on the Internet.
+
+#### Running db locally
+
+create a volume to saving data of mongodb
+    
+    npm run create-vol
+
 if you don't have mongo image, run this
 
     docker pull mongo
@@ -82,7 +92,23 @@ then, run mongodb in docker
 
 start the server
 
-    npm run start-dev-docker
+    npm run start-docker-localdb
+
+now, you can access your server on [localhost:5000](http://localhost:5000)
+    
+#### Running db remotely
+
+first, you should run your db on the Internet
+
+then, write the url and authentication info. in the .env file
+
+note that we strongly recommend you using auth for mongodb if your db connects with Internet
+
+you can see more information [here](https://docs.mongodb.com/manual/reference/method/js-user-management/)
+
+after you set up your db and .env file, run
+
+	npm run start-docker-remotedb
 
 now, you can access your server on [localhost:5000](http://localhost:5000)
 
