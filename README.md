@@ -23,14 +23,12 @@ Getting the QRcode of your family tree URL, so you can get your tree with cellph
 
 Export your family data and download it for backup.
 
-## Get started
-
-### Environment variables
+## Environment variables
 
 * used in code by process.env.[VARIABLE_NAME]
 * if running locally, you can set environment variables in the .env file
 
-#### Required
+### Required
 
 * GMAIL_USER: user of google accout
 
@@ -42,7 +40,7 @@ Export your family data and download it for backup.
 
 * TREE_FILE_EXCHANGE_KEY: for encrypting exported data by AES (32 bytes to base64)
 
-#### Not required if running locally
+### Not required if running db locally
 
 * DB_URL: URL of remote db ex: mongodb://mydb.xxx.xxx:27017/
 
@@ -54,7 +52,7 @@ Export your family data and download it for backup.
 
 * PWD_LB: password of linebot db account
 
-### Steps for running loaclly
+## Get started
 
 The following commands use docker, so please ensure that you have installed docker in your computer.
 
@@ -76,7 +74,7 @@ When it comes to db, you have two choices:
 * running locally: you can follow the steps below.
 * running remotely: you should find your way to running db on the Internet.
 
-#### Running db locally
+### Running db locally
 
 create a volume to saving data of mongodb
     
@@ -96,7 +94,7 @@ start the server
 
 now, you can access your server on [localhost:5000](http://localhost:5000)
     
-#### Running db remotely
+### Running db remotely
 
 first, you should run your db on the Internet
 
