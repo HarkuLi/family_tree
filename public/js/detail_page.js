@@ -265,17 +265,11 @@ var dialogDel = (self) => {
   deleteDbDialog($(pat).prop("value"), $(res).prop("value"))
     .then(() => {
       selectPage(current_page);
-      // //remove elements of the row
-      // $(self).prevUntil("br").remove();
-      // $(self).next().remove();
-      // $(self).remove();
     });
 };
 
 var addDialog = () => {
   var textarea, button;
-
-
 
   $("#dialog_list").prepend("<br>");
   button = $("<button></button>");
