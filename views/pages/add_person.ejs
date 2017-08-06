@@ -15,25 +15,48 @@
 
   <!-- main content -->
   <div class="container">
-    <% if(kind === "mate"){ %>
-      <form action="/tree/add_mate" method="post">
-        <% include ../partials/detail_input %>
-        <input type="hidden" name="mate" value="<%= mate_id %>">
-        <input type="hidden" name="children" value="<%= children %>">
-        <input type="submit" value="submit">
-      </form>
-    <% }else if(kind === "root"){ %>
-      <form action="/tree/add_root" method="post">
-        <% include ../partials/detail_input %>
-        <input type="submit" value="submit">
-      </form>
-    <% }else{ %>
-      <form action="/tree/add_child" method="post">
-        <% include ../partials/detail_input %>
-        <input type="hidden" name="parents" value="<%= parent_id %>">
-        <input type="submit" value="submit">
-      </form>
-    <% } %>
+    <div class="row">
+      <% if(kind === "mate"){ %>
+        <form action="/tree/add_mate" method="post" class="form-horizontal col-xs-6 col-xs-offset-3">
+          <% include ../partials/detail_input %>
+          <input type="hidden" name="mate" value="<%= mate_id %>">
+          <input type="hidden" name="children" value="<%= children %>">
+          <div class="form-group text-center">
+            <div class="col-xs-6">
+              <button type="button" class="btn btn-default btn-block" onclick="window.history.back();">Back to Tree</button>
+            </div>
+            <div class="col-xs-6">
+              <input type="submit" value="Add" class="btn btn-primary btn-block">
+            </div>
+          </div>
+        </form>
+      <% }else if(kind === "root"){ %>
+        <form action="/tree/add_root" method="post" class="form-horizontal col-xs-6 col-xs-offset-3">
+          <% include ../partials/detail_input %>
+          <div class="form-group text-center">
+            <div class="col-xs-6">
+              <button type="button" class="btn btn-default btn-block" onclick="window.history.back();">Back to Tree</button>
+            </div>
+            <div class="col-xs-6">
+              <input type="submit" value="Add" class="btn btn-primary btn-block">
+            </div>
+          </div>
+        </form>
+      <% }else{ %>
+        <form action="/tree/add_child" method="post" class="form-horizontal col-xs-6 col-xs-offset-3">
+          <% include ../partials/detail_input %>
+          <input type="hidden" name="parents" value="<%= parent_id %>">
+          <div class="form-group text-center">
+            <div class="col-xs-6">
+              <button type="button" class="btn btn-default btn-block" onclick="window.history.back();">Back to Tree</button>
+            </div>
+            <div class="col-xs-6">
+              <input type="submit" value="Add" class="btn btn-primary btn-block">
+            </div>
+          </div>
+        </form>
+      <% } %>
+    </div>
   </div>
   
   <!-- footer -->

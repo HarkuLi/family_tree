@@ -12,44 +12,78 @@
   <%- include('../partials/navigator') %>
 
   <!-- main content -->
-  <div id="node_detail" class="container">
-    <h3>detail:</h3>
-    <button type="button" id="edit_detail" class="btn btn-primary btn-sm margin_up_btn">edit</button><br>
-    <% for(let prop in item){ %>
-      <% if(prop === "_id"){ %>
-        <input type="hidden" id="detail_id" name="_id" value="<%= item[prop] %>">
-      <% }else{ %>
-        <p><strong><%= prop %>: </strong><%= item[prop] %></p>
-      <% } %>
-    <% } %>
+  <div class="container col-xs-6 col-xs-offset-3">
+    <div class="row">
+        <div class="page-header">
+          <h1 class="text-center">Detail & Dialog</h1>
+        </div>
+    </div>
+    <!-- detail -->
+    <div class="row">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h2 class="panel-title">Detail</h2>
+        </div>
+        <div id="node_detail" class="panel-body">
+          <button type="button" id="edit_detail" class="btn btn-primary margin_up_btn pull-right">edit</button><br>
+          <% for(let prop in item){ %>
+            <% if(prop === "_id"){ %>
+              <input type="hidden" id="detail_id" name="_id" value="<%= item[prop] %>">
+            <% }else{ %>
+              <p><strong><%= prop %>: </strong><%= item[prop] %></p>
+            <% } %>
+          <% } %>
+        </div>
+      </div>
+    </div>
+    <!-- dialog -->
+    <div class="row">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h2 class="panel-title">Dialog</h2>
+        </div>
+        <div class="panel-body text-center">
+          <!-- add button -->
+          <div class="form-group">
+            <button type="button" id="add_dialog" class="btn btn-primary margin_up_btn pull-right">add</button>
+          </div>
+          <!-- filter -->
+          <div class="form-group">
+            <textarea rows=1 id="pat_filter" class="input_ele" placeholder="pattern"></textarea>
+            <textarea rows=1 id="res_filter" class="input_ele" placeholder="response"></textarea>
+            <button type="button" id="filter_search" class="btn btn-info btn-sm material-icons" style="font-size:16px">search</button>
+          </div>
+          <!-- dialog list -->
+          <div id="dialog_list" class="form-group">
+            <% for(let ele of dialog_list){ %>
+              <label for="pattern" class="control-label"><strong>Pattern </strong></label>
+              <textarea name="pattern" rows=1 class="input_ele" disabled><%= ele.pattern %></textarea>
+              <label for="response" class="control-label"><strong>Response </strong></label>
+              <textarea rows=1 class="input_ele" disabled><%= ele.response %></textarea>
+              <button type="button" class="btn btn-primary btn-sm">edit</button>
+              <button type="button" class="btn btn-danger btn-sm">delete</button>
+              <br>
+            <% } %>
+          </div>
+          <!-- pagination -->
+          <div id="paging_row" class="margin_up_btn form-group">
+            <button type="button" id="last_page" class="btn btn-default btn-sm">◀</button>
+            <button type="button" class="btn btn-primary btn-sm paging_btn">1</button>
+            <% for(let i=2; i<=total_page && i<=5; ++i){ %>
+              <button type="button" class="btn btn-default btn-sm paging_btn"><%= i %></button>
+            <% } %>
+            <button type="button" id=next_page class="btn btn-default btn">▶</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- footer -->
+    <div class="row">
+      <%- include('../partials/footer') %>
+    </div>
   </div>
 
-  <div class="container">
-    <h3>dialog:</h3>
-    <button type="button" id="add_dialog" class="btn btn-primary btn-sm margin_up_btn">add</button><br>
-    <textarea rows=1 id="pat_filter" class="input_ele" placeholder="pattern"></textarea>
-    <textarea rows=1 id="res_filter" class="input_ele" placeholder="response"></textarea>
-    <button type="button" id="filter_search" class="btn btn-info btn-sm material-icons" style="font-size:16px">search</button><br>
-    <div id="paging_row" class="margin_up_btn">
-      <button type="button" id="last_page" class="btn btn-default btn-sm">◀</button>
-      <button type="button" class="btn btn-primary btn-sm paging_btn">1</button>
-      <% for(let i=2; i<=total_page && i<=5; ++i){ %>
-        <button type="button" class="btn btn-default btn-sm paging_btn"><%= i %></button>
-      <% } %>
-      <button type="button" id=next_page class="btn btn-default btn-sm">▶</button>
-    </div>
-    <div id="dialog_list">
-      <% for(let ele of dialog_list){ %>
-        <strong>pattern: </strong><textarea rows=1 class="input_ele" disabled><%= ele.pattern %></textarea>
-        <strong>response: </strong><textarea rows=1 class="input_ele" disabled><%= ele.response %></textarea>
-        <button type="button" class="btn btn-primary btn-sm">edit</button>
-        <button type="button" class="btn btn-danger btn-sm">delete</button><br>
-      <% } %>
-    </div>
-  </div>
   
-  <!-- footer -->
-  <%- include('../partials/footer') %>
   <!-- /container -->
   <%- include('../partials/mask/cover') %>
   <!-- global scripts -->

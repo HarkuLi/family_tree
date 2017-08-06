@@ -251,7 +251,7 @@ var dialogSave = (self) => {
     }
     else{
       $(self).prevUntil("br").remove();
-      $(self).nextUntil("strong").remove();
+      $(self).nextUntil("label").remove();
       $(self).remove();
     }
   });
@@ -274,6 +274,9 @@ var dialogDel = (self) => {
 
 var addDialog = () => {
   var textarea, button;
+
+
+
   $("#dialog_list").prepend("<br>");
   button = $("<button></button>");
   $(button).prop("type", "button");
@@ -290,14 +293,16 @@ var addDialog = () => {
   textarea = $("<textarea></textarea>");
   $(textarea).prop("rows", 1);
   $(textarea).prop("class", "input_ele");
+  $(textarea).prop("name", "response");
   $("#dialog_list").prepend(textarea);
-  $("#dialog_list").prepend("<strong>response: </strong>");
+  $("#dialog_list").prepend("<label for='response' class='control-label'><strong>Response </strong></label>");
   $("#dialog_list").prepend(" ");
   textarea = $("<textarea></textarea>");
   $(textarea).prop("rows", 1);
   $(textarea).prop("class", "input_ele");
+  $(textarea).prop("name", "pattern");
   $("#dialog_list").prepend(textarea);
-  $("#dialog_list").prepend("<strong>pattern: </strong>");
+  $("#dialog_list").prepend("<label for='pattern' class='control-label'><strong>Pattern </strong></label>");
   old_pat = "";
   old_res = "";
   ++dialog_edit_count;
@@ -417,20 +422,22 @@ var renderDialog = (list) => {
   setFilterView();
   for(let ele of list){
     var textarea, button;
-    $("#dialog_list").append("<strong>pattern: </strong>");
+    $("#dialog_list").append("<label for='pattern' class='control-label'><strong>Pattern </strong></label>");
     textarea = $("<textarea></textarea>");
     $(textarea).prop("rows", 1);
     $(textarea).prop("class", "input_ele");
     $(textarea).text(ele.pattern);
     $(textarea).prop("disabled", true);
+    $(textarea).prop("name", "pattern");
     $("#dialog_list").append(textarea);
     $("#dialog_list").append(" ");
-    $("#dialog_list").append("<strong>response: </strong>");
+    $("#dialog_list").append("<label for='response' class='control-label'><strong>Response </strong></label>");
     textarea = $("<textarea></textarea>");
     $(textarea).prop("rows", 1);
     $(textarea).prop("class", "input_ele");
     $(textarea).text(ele.response);
     $(textarea).prop("disabled", true);
+    $(textarea).prop("name", "response");
     $("#dialog_list").append(textarea);
     $("#dialog_list").append(" ");
     button = $("<button></button>");
