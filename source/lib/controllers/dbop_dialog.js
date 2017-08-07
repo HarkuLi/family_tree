@@ -127,8 +127,8 @@ var enableDialog = (colleName, talkerId, enable) => {
 var getChatbotDataByUsr = (usr) => {
   if(!usr) return Promise.reject("[import-export][getChatbotByUsr] cannot find usr, not login.");
   return dbConnect.getDb_lb
-    .then((db) => db.collection(`usr_${usr}`).find() || [])
-    .then((chatBotData) => (chatBotData) ? [] : chatBotData)
+    .then((db) => db.collection(`usr_${usr}`).find().toArray() || [])
+    .then((chatBotData) => (!chatBotData) ? [] : chatBotData)
     .catch((err) => Promise.reject(err));
 }
 
