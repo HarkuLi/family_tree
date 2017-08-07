@@ -30,8 +30,12 @@ function exportFile(e){
   let sendData = getFormSendData("#ExportForm");
   let sendUrl = window.location.origin+'/transport/export';
 
+  $("body").css("cursor", "progress");
   sendDataToServer('POST', sendUrl, sendData)
-    .then((response) => autoDownloadFile('export-tree.txt', response.data))
+    .then((response) => {
+      $("body").css("cursor", "");
+      autoDownloadFile('export-tree.txt', response.data);
+    })
     .catch((err) => console.log(err));
 }
 
@@ -53,6 +57,8 @@ function importFile(e){
   let warnning = confirm("This operation will OVERWRITE ALL CURRENT DATA.\nWould you want to continue ?");
   if(!warnning) return;
 
+  $("body").css("cursor", "progress");
+
   // get file content
   let fileReader = new FileReader();
   fileReader.readAsText(selectedFile);
@@ -72,7 +78,7 @@ function importFile(e){
         // {response, status}
         if(!response.status) return Promise.reject(response);
         alert('Import data success!');
-        window.location.reload();
+        $("body").css("cursor", "");
       })
       .catch((err) => {
         err = JSON.parse(err.responseText);

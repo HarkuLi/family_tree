@@ -146,6 +146,8 @@ var get_row_height = (row)=>{
 
 $(()=>{
 
+$("body").css("cursor", "progress");
+
 /** events */
 $(window).resize(() => {
   $(".tree_frame").width(window.innerWidth * 0.95);
@@ -294,5 +296,7 @@ getObjList
       }
     }
     /** draw path */
+
+    $("body").css("cursor", "");
   });
 });
