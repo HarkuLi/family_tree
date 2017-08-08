@@ -197,7 +197,10 @@ node_container.style.height = height + "px";
 
 getObjList
   .then((obj_list)=>{
-    if(!obj_list.length)  return;
+    if(!obj_list.length){
+      $("body").css("cursor", "");
+      return;
+    }
     var relation_list = genParentList(obj_list);
     var row_height, last_row_height;
     /** initialization */
